@@ -128,7 +128,7 @@ export default function ClassicCalendar() {
             className="rotate-90 "
             src={"/icons/arrowIcon.svg"}
             alt="arrow"
-            width={50}
+            width={50} 
             height={50}
           />
         </button>
