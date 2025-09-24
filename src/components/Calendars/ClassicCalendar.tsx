@@ -90,8 +90,8 @@ export default function ClassicCalendar() {
           />
         </button>
         <div className="flex flex-col items-center p-5">
-          <p className="mb-4">Today is {todayDate}</p>
-          <p className="mb-4">
+          <p className="mb-4 text-white">Today is {todayDate}</p>
+          <p className="mb-4 text-white">
             {year}-{months[month]}
           </p>
           <div className="grid grid-cols-7 gap-2 w-[80vw] max-w-4xl bg-teal-600 p-4 rounded-lg">
