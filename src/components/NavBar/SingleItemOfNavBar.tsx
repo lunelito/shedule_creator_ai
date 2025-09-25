@@ -10,7 +10,7 @@ type SingleItemOfNavBarProps = {
   toggleMenu?: boolean;
   setPickedSheduleComponent?: (i: number) => void;
   showNavBar?: boolean;
-  pickedSheduleComponent:number;
+  pickedSheduleComponent: number;
   setShowNavbar?: (val: boolean) => void;
 };
 
@@ -29,26 +29,33 @@ export default function SingleItemOfNavBar({
       onClick={() => {
         setPickedSheduleComponent?.(i);
       }}
-      className={`flex items-center gap-3 transition ease-in-out p-2 cursor-pointer rounded-2xl ${pickedSheduleComponent == i ? "bg-teal-600" : ""}`}
+      className={`flex items-center  justify-between transition ease-in-out p-2 duration-600  cursor-pointer rounded-2xl ${
+        pickedSheduleComponent == i ? "bg-teal-600" : "bg-transparent"
+      }`}
     >
-      <img
-        src={`/icons/${el.icon}.svg`}
-        alt={el.icon}
-        onClick={() =>{
-            if (toggleMenu && setShowNavbar) setShowNavbar(!showNavBar);
+      <div
+        onClick={() => {
+          if (toggleMenu && setShowNavbar) setShowNavbar(!showNavBar);
         }}
-        className="h-7 w-[9vw] sm:w-[6vw] lg:w-[3vw] "
-      />
-
-      <AnimatePresence>
-        {showNavBar && (
-          <ToggleNavBar showNavBar={showNavBar}>
-            <p className="whitespace-nowrap overflow-hidden text-white text-[clamp(0.9rem,1.2vw,1.5rem)]">
-              {toggleMenu ? "Shedule creator" : el.text }
-            </p>
-          </ToggleNavBar>
-        )}
-      </AnimatePresence>
+        className="h-9 w-9 shrink-0 flex justify-center m-1"
+      >
+        <img
+          src={`/icons/${el.icon}.svg`}
+          alt={el.icon}
+          // w-[9vw] sm:w-[6vw] lg:w-[3vw]
+        />
+      </div>
+      <div className="overflow-hidden">
+        <AnimatePresence>
+          {showNavBar && (
+            <ToggleNavBar showNavBar={showNavBar}>
+              <p className="whitespace-nowrap pl-3 overflow-hidden text-white text-[clamp(0.9rem,1.2vw,1.5rem)]">
+                {toggleMenu ? "Shedule creator" : el.text}
+              </p>
+            </ToggleNavBar>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import RenderAnimation from "../../animations/RenderAnimation";
 import React, { useState } from "react";
-
 export default function ClassicCalendar() {
   // text to display and easier to map
   const daysOfWeek: string[] = [
@@ -75,64 +74,62 @@ export default function ClassicCalendar() {
   }
 
   return (
-    <RenderAnimation>
-      <div className="flex m-5 ">
-        <button
-          className="hover:scale-105 transition ease-in-out"
-          onClick={() => changeMonth(-1)}
-        >
-          <Image
-            className="rotate-270"
-            src={"/icons/arrowIcon.svg"}
-            alt="arrow"
-            width={50}
-            height={50}
-          />
-        </button>
-        <div className="flex flex-col items-center p-5">
-          <p className="mb-4 text-white">Today is {todayDate}</p>
-          <p className="mb-4 text-white">
-            {year}-{months[month]}
-          </p>
-          <div className="grid grid-cols-7 gap-2 w-[80vw] max-w-4xl bg-teal-600 p-4 rounded-lg">
-            {daysOfWeek.map((el, i) => (
-              <div
-                key={i}
-                className="flex justify-center h-16 text-center font-semibold text-white items-center"
-              >
-                <p>{el}</p>
-              </div>
-            ))}
-            {CalenderFull.map((el, i) => (
-              <div
-                key={i}
-                //check if date is today and mark it
-                className={` h-16 p-4 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
-                  el?.day === date.getDate() &&
-                  month === date.getMonth() &&
-                  year === date.getFullYear()
-                    ? "bg-teal-600 text-white border-2"
-                    : "bg-white"
-                }`}
-              >
-                <p>{el?.day}</p>
-              </div>
-            ))}
+        <div className="flex m-5 ">
+          <button
+            className="hover:scale-105 transition ease-in-out"
+            onClick={() => changeMonth(-1)}
+          >
+            <Image
+              className="rotate-270"
+              src={"/icons/arrowIcon.svg"}
+              alt="arrow"
+              width={50}
+              height={50}
+            />
+          </button>
+          <div className="flex flex-col items-center p-5">
+            <p className="mb-4 text-white">Today is {todayDate}</p>
+            <p className="mb-4 text-white">
+              {year}-{months[month]}
+            </p>
+            <div className="grid grid-cols-7 gap-2 w-[80vw] max-w-4xl bg-teal-600 p-4 rounded-lg">
+              {daysOfWeek.map((el, i) => (
+                <div
+                  key={i}
+                  className="flex justify-center h-16 text-center font-semibold text-white items-center"
+                >
+                  <p>{el}</p>
+                </div>
+              ))}
+              {CalenderFull.map((el, i) => (
+                <div
+                  key={i}
+                  //check if date is today and mark it
+                  className={` h-16 p-4 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
+                    el?.day === date.getDate() &&
+                    month === date.getMonth() &&
+                    year === date.getFullYear()
+                      ? "bg-teal-600 text-white border-2"
+                      : "bg-white"
+                  }`}
+                >
+                  <p>{el?.day}</p>
+                </div>
+              ))}
+            </div>
           </div>
+          <button
+            className="hover:scale-105 transition ease-in-out"
+            onClick={() => changeMonth(1)}
+          >
+            <Image
+              className="rotate-90 "
+              src={"/icons/arrowIcon.svg"}
+              alt="arrow"
+              width={50}
+              height={50}
+            />
+          </button>
         </div>
-        <button
-          className="hover:scale-105 transition ease-in-out"
-          onClick={() => changeMonth(1)}
-        >
-          <Image
-            className="rotate-90 "
-            src={"/icons/arrowIcon.svg"}
-            alt="arrow"
-            width={50} 
-            height={50}
-          />
-        </button>
-      </div>
-    </RenderAnimation>
   );
 }

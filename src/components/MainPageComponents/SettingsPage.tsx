@@ -1,9 +1,10 @@
-import React from 'react'
+import RenderAnimation from "@/animations/RenderAnimation";
+import React from "react";
 
 export default function SettingsPage() {
   return (
     <div>
-      <p className='text-white'>SettingsPage</p>
+        <p className="text-white">SettingsPage</p>
     </div>
-  )
+  );
 }

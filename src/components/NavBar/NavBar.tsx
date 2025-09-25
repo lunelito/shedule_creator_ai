@@ -15,10 +15,14 @@ export default function NavBar({
   setPickedSheduleComponent,
   pickedSheduleComponent,
 }: NavBarProps) {
-  const [showNavBar, setShowNavbar] = useState(true);
+  const [showNavBar, setShowNavbar] = useState(false);
 
   return (
-    <div className=" bg-zinc-800 h-screen flex relative  w-fit">
+    <div
+      className=" bg-zinc-800 h-screen flex relative  w-fit"
+      onMouseEnter={() => setShowNavbar(true)}
+      onMouseLeave={() => setShowNavbar(false)}
+    >
       <div className="flex flex-col justify-between">
         <div className=" w-fit flex  flex-col p-5 justify-between">
           <div className="w-fit  mt-5 flex flex-col gap-5 overflow-y-scroll overflow-x-hidden h-[80vh] scrollbar-none">
