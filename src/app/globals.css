@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+:root {
+  --clr-surface-a0: #121212;
+  --clr-surface-a10: #282828;
+  --clr-surface-a20: #3f3f3f;
+  --clr-surface-a30: #575757;
+  --clr-surface-a40: #717171;
+  --clr-surface-a50: #8b8b8b;
+}
+
+/* Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #858585 transparent;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+/* Chrome, Edge, Safari */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #858585;
+  border-radius: 9999px;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

@@ -144,23 +144,6 @@ export const shift_swaps = pgTable('shift_swaps', {
   resolved_at: timestamp('resolved_at'),
 })
 
-export const scheduling_constraints = pgTable('scheduling_constraints', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 200 }).notNull(),
-  description: text('description'),
-  json_rule: jsonb('json_rule').notNull(), // np. {max_hours_per_week:40}
-  priority: integer('priority').default(100),
-  active: boolean('active').notNull().default(true),
-})
-
-export const overtime_policies = pgTable('overtime_policies', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 200 }).notNull(),
-  policy_type: OvertimePolicy('policy_type').notNull().default('none'),
-  config: jsonb('config').default('{}'), // np. {daily_threshold:8, rate:1.5}
-  effective_from: timestamp('effective_from').defaultNow(),
-})
-
 export const time_logs = pgTable('time_logs', {
   id: serial('id').primaryKey(),
   employee_id: integer('employee_id').references(() => employees.id).notNull(),
@@ -169,26 +152,6 @@ export const time_logs = pgTable('time_logs', {
   clock_out: timestamp('clock_out'),
   duration_minutes: integer('duration_minutes'),
   meta: jsonb('meta').default('{}'),
-})
-
-export const payroll_entries = pgTable('payroll_entries', {
-  id: serial('id').primaryKey(),
-  employee_id: integer('employee_id').references(() => employees.id).notNull(),
-  period_start: timestamp('period_start').notNull(),
-  period_end: timestamp('period_end').notNull(),
-  regular_hours: numeric('regular_hours', { precision: 8, scale: 2 }).default('0'),
-  overtime_hours: numeric('overtime_hours', { precision: 8, scale: 2 }).default('0'),
-  gross_pay: numeric('gross_pay', { precision: 12, scale: 2 }).default('0'),
-  details: jsonb('details').default('{}'),
-})
-
-export const audit_logs = pgTable('audit_logs', {
-  id: serial('id').primaryKey(),
-  actor_user_id: integer('actor_user_id').references(() => users.id),
-  action: varchar('action', { length: 200 }).notNull(),
-  target: varchar('target', { length: 200 }),
-  payload: jsonb('payload').default('{}'),
-  created_at: timestamp('created_at').defaultNow().notNull(),
 })
 
 export const notifications = pgTable('notifications', {

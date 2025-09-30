@@ -1,20 +1,40 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
+
+type RenderAnimationProps = {
+  children: React.ReactNode;
+  animationKey: string | number;
+};
 
 export default function RenderAnimation({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  animationKey,
+}: RenderAnimationProps) {
   return (
-    <motion.div
-      initial={{ y: 150, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 80, damping: 8 }}
-    >
-      {children}
-    </motion.div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={animationKey}
+        initial={{ y: 200, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{
+          y: 200,
+          opacity: 0,
+          transition: {
+            duration: 0.3,
+            ease: "easeInOut",
+            type: "tween",
+          },
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 90,
+          damping: 8,
+        }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
   );
 }
