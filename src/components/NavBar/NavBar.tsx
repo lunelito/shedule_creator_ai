@@ -73,7 +73,7 @@ export default function NavBar({
               ))}
           </div>
         </div>
-        <div className="w-fit  mt-5 flex flex-col p-5 overflow-y-scroll overflow-x-hidden scrollbar-none">
+        <div className="w-fit mt-5 flex flex-col p-5 overflow-y-scroll overflow-x-hidden scrollbar-none">
           {/* account / settings */}
           {schedules
             .filter((el, i) => el.id === 2)

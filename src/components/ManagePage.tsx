@@ -3,7 +3,6 @@ import DashBoardPage from "./MainPageComponents/DashBoardPage";
 import AddShedulePage from "./MainPageComponents/AddShedulePage";
 import SettingsPage from "./MainPageComponents/SettingsPage";
 import Shedule from "./MainPageComponents/Shedule";
-import { AnimatePresence } from "framer-motion";
 import RenderAnimation from "@/animations/RenderAnimation";
 type ManagePageType = {
   pickedSheduleComponent: number;
