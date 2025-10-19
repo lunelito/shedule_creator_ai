@@ -74,7 +74,6 @@ export async function register(
 
   if (!result.success) {
     const formatted = result.error.format();
-
     return {
       errors: {
         firstName: formatted.firstName?._errors,
@@ -108,6 +107,6 @@ export async function register(
 
   // if all good
   console.log("REGISTER")
-  // just for test, it will redirect to login, change the form
-  redirect("/");
+  // just for test, it will log in user and redirrect to hgome page
+  redirect("/home");
 }

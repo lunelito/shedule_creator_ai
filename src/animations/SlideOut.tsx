@@ -15,11 +15,13 @@ export default function SlideOut({
     <motion.div
       key={animationKey}
       initial={{
-        y: "100vh",
+        y: "30vh",
+        opacity: 0,
       }}
-      animate={{ y: 0 }}
+      animate={{ y: 0, opacity: 1 }}
       exit={{
-        y: "-100vh",
+        y: "-30vh",
+        opacity: 0,
         transition: {
           duration: 0.7,
           ease: "easeInOut",

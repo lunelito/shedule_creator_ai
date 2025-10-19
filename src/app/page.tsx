@@ -1,34 +1,55 @@
 "use client";
-import ManagePage from "@/components/ManagePage";
-import NavBar from "@/components/NavBar/NavBar";
-import { useState } from "react";
+import SlideIn from "@/animations/SlideIn";
+import SlideOut from "@/animations/SlideOut";
+import LoginForm from "@/components/LoginRegister/LoginForm";
+import RegisterForm from "@/components/LoginRegister/RegisterForm";
+import Input from "@/components/UI/Input";
+import { AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from "react";
 
-export type scheduleType = {
-  icon: string;
-  text: string;
-  id: number;
-};
+export default function Page() {
+  const [isVertical, setIsVertical] = useState<boolean | null>(null);
+  const [activeForm, setActiveForm] = useState<string>("login");
 
-export default function Home() {
-  const schedules: scheduleType[] = [
-    { icon: "menu", text: "Dashboard", id: 0 },
-    { icon: "addIcon", text: "New shedule", id: 1 },
-    { icon: "accountIcon", text: "account", id: 2 },
-    // for test icon will be changed
-    { icon: "accountIcon", text: "test", id: 3 },
-    { icon: "accountIcon", text: "test", id: 4 },
-  ];
-  const [pickedSheduleComponent, setPickedSheduleComponent] =
-    useState<number>(0);
+  useEffect(() => {
+    const checkOrientation = () => {
+      setIsVertical(window.innerHeight > window.innerWidth);
+    };
+    checkOrientation();
+
+    window.addEventListener("resize", checkOrientation);
+
+    return () => window.removeEventListener("resize", checkOrientation);
+  }, []);
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <NavBar
-        schedules={schedules}
-        setPickedSheduleComponent={setPickedSheduleComponent}
-        pickedSheduleComponent={pickedSheduleComponent}
-      />
-      <ManagePage pickedSheduleComponent={pickedSheduleComponent} />
+    <div className="bg-zinc-900 h-screen w-[100vw] flex justify-center items-center overflow-x-hidden overflow-y-hidden">
+      {isVertical !== null && (
+        <>
+          <div className="text-white flex justify-center items-center h-1/2 w-[100vw]">
+            <AnimatePresence mode="wait">
+              {activeForm === "login" ? (
+                <SlideIn key="login" animationKey="login" >
+                  <LoginForm setActiveForm={setActiveForm} />
+                </SlideIn>
+              ) : (
+                <SlideOut key="register" animationKey="register" >
+                  <RegisterForm setActiveForm={setActiveForm} />
+                </SlideOut>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div
+            className={`text-white flex justify-center items-center h-1/2 w-full ${
+              isVertical ? "hidden" : ""
+            }`}
+          >
+            idk
+          </div>
+        </>
+      )}
     </div>
   );
 }
+

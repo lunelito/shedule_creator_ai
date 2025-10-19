@@ -1,20 +1,7 @@
 import React, { useActionState } from "react";
 import Input from "../UI/Input";
 import * as actions from "@/lib/actions/action";
-
-type RegisterFormType = {
-  setActiveForm: React.Dispatch<React.SetStateAction<string>>;
-};
-
-type FieldType = {
-  type: "password" | "text" | "number";
-  text: string;
-  name: string;
-  isInvalid: boolean;
-  errorMessage: string[];
-};
-
-type FieldsType = FieldType[];
+import { RegisterFormType, FieldsType } from "@/lib/actions/types/auth";
 
 export default function RegisterForm({ setActiveForm }: RegisterFormType) {
   const [formState, action, isPending] = useActionState(actions.register, {
@@ -70,6 +57,7 @@ export default function RegisterForm({ setActiveForm }: RegisterFormType) {
     >
       {fields.map((el, i) => (
         <Input
+          isPending={isPending}
           key={i}
           type={el.type}
           name={el.name}
@@ -82,12 +70,12 @@ export default function RegisterForm({ setActiveForm }: RegisterFormType) {
       <button
         disabled={isPending}
         type="submit"
-        className="text-lg font-bold cursor-pointer"
+        className="text-lg font-bold cursor-pointer hover:text-teal-600 transition ease-in-out hover:scale-105"
       >
         {isPending ? "Loading..." : "Register"}
       </button>
       <p
-        className="text-center cursor-pointer"
+        className="text-center cursor-pointer hover:text-teal-600 transition ease-in-out hover:scale-105"
         onClick={() => setActiveForm("login")}
       >
         You created account? <br />

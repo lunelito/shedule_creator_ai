@@ -17,12 +17,13 @@ const config = {
         "surface-a40": "#717171",
         "surface-a50": "#8b8b8b",
       },
+      fontSize: {
+        "fluid-lg": "clamp(1.5rem, 2vw + 1rem, 2.5rem)",
+        "fluid-md": "clamp(1rem, 1.5vw + 0.5rem, 1.5rem)",
+      },
     },
   },
- plugins: [
-  require('tailwind-scrollbar-hide'),
-  require('tailwind-scrollbar')
-]
+  plugins: [require("tailwind-scrollbar-hide"), require("tailwind-scrollbar")],
 };
 
 export default config;

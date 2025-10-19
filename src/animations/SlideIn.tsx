@@ -14,10 +14,11 @@ export default function SlideIn({
   return (
     <motion.div
       key={animationKey}
-      initial={{ y: "-100vh" }}
-      animate={{ y: 0 }}
+      initial={{ y: "-30vh", opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
       exit={{
-        y: "100vh",
+        y: "30vh",
+        opacity: 0,
         transition: {
           duration: 0.7,
           ease: "easeInOut",
