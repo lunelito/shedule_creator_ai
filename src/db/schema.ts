@@ -106,7 +106,7 @@ export const shift_templates = pgTable('shift_templates', {
   created_at: timestamp('created_at').defaultNow().notNull(),
 })
 
-export const shifts = pgTable('shifts', {
+export const schedules = pgTable('schedules', {
   id: serial('id').primaryKey(),
   template_id: integer('template_id').references(() => shift_templates.id),
   assigned_employee_id: integer('assigned_employee_id').references(() => employees.id),
@@ -128,7 +128,7 @@ export const shifts = pgTable('shifts', {
 
 export const shift_breaks = pgTable('shift_breaks', {
   id: serial('id').primaryKey(),
-  shift_id: integer('shift_id').references(() => shifts.id).notNull(),
+  shift_id: integer('shift_id').references(() => schedules.id).notNull(),
   start_at: timestamp('start_at').notNull(),
   end_at: timestamp('end_at').notNull(),
   paid: boolean('paid').notNull().default(false),
@@ -136,7 +136,7 @@ export const shift_breaks = pgTable('shift_breaks', {
 
 export const shift_swaps = pgTable('shift_swaps', {
   id: serial('id').primaryKey(),
-  shift_id: integer('shift_id').references(() => shifts.id).notNull(),
+  shift_id: integer('shift_id').references(() => schedules.id).notNull(),
   requester_employee_id: integer('requester_employee_id').references(() => employees.id).notNull(),
   offered_employee_id: integer('offered_employee_id').references(() => employees.id),
   status: varchar('status', { length: 60 }).notNull().default('pending'),
@@ -164,7 +164,7 @@ export const overtime_policies = pgTable('overtime_policies', {
 export const time_logs = pgTable('time_logs', {
   id: serial('id').primaryKey(),
   employee_id: integer('employee_id').references(() => employees.id).notNull(),
-  shift_id: integer('shift_id').references(() => shifts.id),
+  shift_id: integer('shift_id').references(() => schedules.id),
   clock_in: timestamp('clock_in'),
   clock_out: timestamp('clock_out'),
   duration_minutes: integer('duration_minutes'),
