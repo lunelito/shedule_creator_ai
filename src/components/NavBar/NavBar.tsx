@@ -1,7 +1,7 @@
 "use client";
 import { Dispatch, SetStateAction, useState } from "react";
 import React from "react";
-import { scheduleType } from "@/app/page";
+import { scheduleType } from "@/app/home/page";
 import SingleItemOfNavBar from "./SingleItemOfNavBar";
 
 type NavBarProps = {

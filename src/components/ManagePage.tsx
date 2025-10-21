@@ -10,7 +10,7 @@ type ManagePageType = {
 
 export default function ManagePage({ pickedSheduleComponent }: ManagePageType) {
   return (
-    <div className="h-screen w-full bg-zinc-900 flex justify-center items-center">
+    <div className="h-screen w-full flex justify-center items-center">
       <RenderAnimation animationKey={pickedSheduleComponent}>
         {pickedSheduleComponent === 0 && <DashBoardPage />}
         {pickedSheduleComponent === 1 && <AddShedulePage />}

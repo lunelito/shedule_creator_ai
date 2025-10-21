@@ -3,7 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
 type InputType = {
-  children: React.ReactNode;
+  text: string;
   type: "password" | "text" | "number";
   name: string;
   isInvalid: boolean | undefined;
@@ -12,53 +12,55 @@ type InputType = {
 };
 
 export default function Input({
-  children,
+  text,
   type,
   name,
   isInvalid,
   errorMessage,
   isPending,
 }: InputType) {
-
   const [val, setVal] = useState("");
-
-  console.log(isPending)
+  const [showAllText, setShowAllText] = useState(false);
 
   return (
     <div
-      className={`relative ${
-        isInvalid
-          ? "text-teal-600" // błąd
-          : "text-white" // poprawne
-      } font-extrabold p-2 w-[90%]
-      ${isPending ? "opacity-75" : ""}`}
+      className={`relative  p-2 w-full ${
+        isInvalid ? "text-teal-600" : "text-white"
+      } ${isPending ? "opacity-75" : ""}`}
     >
       <input
-        id={`${children}`}
-        name={`${name}`}
+        id={text}
+        name={name}
         value={val}
         onChange={(e) => setVal(e.target.value)}
         type={type}
+        onFocus={() => setShowAllText(true)}
+        onBlur={() => setShowAllText(false)}
         disabled={isPending}
-        className={` w-[100%] peer border-b bg-inherit py-1 font-bold transition-colors focus:border-b-2 focus:outline-none `}
+        className={`
+          w-full peer border-b bg-inherit py-1 font-bold transition-colors focus:border-b-2 focus:outline-none
+          text-[clamp(0.875rem,2vw,1.25rem)]
+        `}
       />
       <label
-        htmlFor={`${children}`}
-        className={`absolute p-2 left-0 cursor-text transition-all select-none peer-focus:-top-5 peer-focus:text-lg w-[90%] ${
-          (val || "").length === 0 ? "top-1 text-xl" : "-top-5 text-sm"
-        }`}
+        htmlFor={text}
+        className={`
+          absolute left-0 cursor-text select-none p-2 transition-all w-full
+          ${val.length === 0 ? "top-1" : "-top-5"}
+          peer-focus:-top-5 peer-focus:text-[clamp(0.75rem,1.8vw,1rem)]
+          text-nowrap
+        `}
       >
-        {children}
+        {showAllText ? text : text.length > 9 ? text.slice(0, 9) + "..." : text}
       </label>
-      <div className="flex justify-start mt-2 text-sm">
+      <div className="flex justify-start mt-2 text-[clamp(0.75rem,1.5vw,0.875rem)]">
         <AnimatePresence mode="wait">
-          {isInvalid ? (
+          {isInvalid && (
             <FadeAnimation animationKey={"errorMessage"}>
               {errorMessage[0]}
             </FadeAnimation>
-          ) : (
-            "tekst"
           )}
+          <p className="text-transparent">.</p>
         </AnimatePresence>
       </div>
     </div>

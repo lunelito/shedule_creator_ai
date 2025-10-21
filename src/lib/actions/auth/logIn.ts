@@ -22,6 +22,7 @@ const loginSchema = z
   })
 
 type LoginType = {
+  success?: boolean;
   errors: {
     email?: string[];
     password?: string[];
@@ -54,6 +55,7 @@ export async function logIn(
     // call api
     // set use context of user data or in session
     // catch errors from api also
+    return { success: true, errors: {} };
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {
@@ -72,6 +74,4 @@ export async function logIn(
 
   // if all good
   console.log("LOGIN")
-  // just for test, it will redirect to home page
-  redirect("/home");
 }

@@ -50,6 +50,7 @@ const registerSchema = z
   });
 
 type RegisterType = {
+  success?: boolean;
   errors: {
     firstName?: string[];
     lastName?: string[];
@@ -89,6 +90,7 @@ export async function register(
     // call api
     // set use context of user data or in session
     // catch errors from api also
+    return { success: true, errors: {} };
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {
@@ -104,9 +106,4 @@ export async function register(
       };
     }
   }
-
-  // if all good
-  console.log("REGISTER")
-  // just for test, it will log in user and redirrect to hgome page
-  redirect("/home");
 }

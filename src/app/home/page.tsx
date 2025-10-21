@@ -1,4 +1,5 @@
 "use client";
+import RenderNavBar from "@/animations/RenderNavBar";
 import ManagePage from "@/components/ManagePage";
 import NavBar from "@/components/NavBar/NavBar";
 import { useState } from "react";
@@ -22,12 +23,14 @@ export default function Home() {
     useState<number>(0);
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <NavBar
-        schedules={schedules}
-        setPickedSheduleComponent={setPickedSheduleComponent}
-        pickedSheduleComponent={pickedSheduleComponent}
-      />
+    <div className="flex justify-center items-center h-screen bg-zinc-900 ">
+      <RenderNavBar animationKey={"nav"}>
+        <NavBar
+          schedules={schedules}
+          setPickedSheduleComponent={setPickedSheduleComponent}
+          pickedSheduleComponent={pickedSheduleComponent}
+        />
+      </RenderNavBar>
       <ManagePage pickedSheduleComponent={pickedSheduleComponent} />
     </div>
   );

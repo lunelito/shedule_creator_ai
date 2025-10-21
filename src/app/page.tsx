@@ -3,7 +3,6 @@ import SlideIn from "@/animations/SlideIn";
 import SlideOut from "@/animations/SlideOut";
 import LoginForm from "@/components/LoginRegister/LoginForm";
 import RegisterForm from "@/components/LoginRegister/RegisterForm";
-import Input from "@/components/UI/Input";
 import { AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
 
