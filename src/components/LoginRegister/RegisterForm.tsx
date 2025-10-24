@@ -15,7 +15,7 @@ export default function RegisterForm({ setActiveForm }: RegisterFormType) {
   useEffect(() => {
     if (formState.success) {
       const timer = setTimeout(() => {
-        router.push("/home");
+        router.push("/manage/main");
       }, 800);
 
       return () => clearTimeout(timer);

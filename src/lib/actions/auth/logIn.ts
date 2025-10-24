@@ -71,7 +71,4 @@ export async function logIn(
       };
     }
   }
-
-  // if all good
-  console.log("LOGIN")
 }

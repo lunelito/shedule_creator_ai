@@ -1,21 +1,17 @@
 "use client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import React from "react";
-import { scheduleType } from "@/app/home/page";
-import SingleItemOfNavBar from "./SingleItemOfNavBar";
+import { scheduleType, linksType } from "@/app/manage/layout";
+import SingleStaticItem from "./SingleStaticItem";
 
 type NavBarProps = {
   schedules: scheduleType[];
-  setPickedSheduleComponent: Dispatch<SetStateAction<number>>;
-  pickedSheduleComponent: number;
+  links: linksType[];
 };
 
-export default function NavBar({
-  schedules,
-  setPickedSheduleComponent,
-  pickedSheduleComponent,
-}: NavBarProps) {
+export default function NavBar({ schedules, links }: NavBarProps) {
   const [showNavBar, setShowNavbar] = useState(false);
+  const [pickedSheduleComponent, setPickedSheduleComponent] = useState(0);
 
   return (
     <div
@@ -26,45 +22,45 @@ export default function NavBar({
       <div className="flex flex-col justify-between">
         <div className=" w-fit flex  flex-col p-5 justify-between">
           <div className="w-fit  mt-5 flex flex-col gap-5 overflow-y-scroll overflow-x-hidden h-[80vh] scrollbar-none">
-            {/* menu */}
-            {schedules
-              .filter((el, i) => el.id === 0)
+            {/*dashcboard*/}
+            {links
+              .filter((el) => el.label === "Dashboard")
               .map((el, i) => (
-                <SingleItemOfNavBar
-                  key={el.id}
-                  el={el}
-                  i={el.id}
-                  toggleMenu={true}
+                <SingleStaticItem
+                  href={el.href}
+                  icon={el.icon}
+                  label={el.label}
+                  id={el.id}
                   pickedSheduleComponent={pickedSheduleComponent}
                   setPickedSheduleComponent={setPickedSheduleComponent}
                   showNavBar={showNavBar}
                   setShowNavbar={setShowNavbar}
                 />
               ))}
-            {/* add schedule */}
-            {schedules
-              .filter((el, i) => el.id === 1)
+            {/* add */}
+            {links
+              .filter((el) => el.label === "New shedule")
               .map((el, i) => (
-                <SingleItemOfNavBar
-                  key={el.id}
-                  el={el}
-                  i={el.id}
-                  toggleMenu={false}
+                <SingleStaticItem
+                  href={el.href}
+                  icon={el.icon}
+                  label={el.label}
+                  id={el.id}
                   pickedSheduleComponent={pickedSheduleComponent}
                   setPickedSheduleComponent={setPickedSheduleComponent}
                   showNavBar={showNavBar}
                   setShowNavbar={setShowNavbar}
                 />
               ))}
-            {/* all schedules */}
+            {/* shedules */}
             {schedules
               .filter((el, i) => el.id > 2)
               .map((el, i) => (
-                <SingleItemOfNavBar
-                  key={el.id}
-                  el={el}
-                  i={el.id}
-                  toggleMenu={false}
+                <SingleStaticItem
+                  href={`/manage/schedules/${el.slug}`}
+                  icon={el.icon}
+                  label={el.label}
+                  id={el.id}
                   pickedSheduleComponent={pickedSheduleComponent}
                   setPickedSheduleComponent={setPickedSheduleComponent}
                   showNavBar={showNavBar}
@@ -75,14 +71,14 @@ export default function NavBar({
         </div>
         <div className="w-fit mt-5 flex flex-col p-5 overflow-y-scroll overflow-x-hidden scrollbar-none">
           {/* account / settings */}
-          {schedules
-            .filter((el, i) => el.id === 2)
+          {links
+            .filter((el) => el.label === "Account")
             .map((el, i) => (
-              <SingleItemOfNavBar
-                key={el.id}
-                el={el}
-                i={el.id}
-                toggleMenu={false}
+              <SingleStaticItem
+                href={el.href}
+                icon={el.icon}
+                label={el.label}
+                id={el.id}
                 pickedSheduleComponent={pickedSheduleComponent}
                 setPickedSheduleComponent={setPickedSheduleComponent}
                 showNavBar={showNavBar}
