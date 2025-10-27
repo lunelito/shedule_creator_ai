@@ -56,12 +56,14 @@ export default function Input({
       <div className="flex justify-start mt-2 text-[clamp(0.75rem,1.5vw,0.875rem)]">
         <AnimatePresence mode="wait">
           {isInvalid && (
-            <FadeAnimation animationKey={"errorMessage"}>
-              {errorMessage[0]}
+            <FadeAnimation
+              animationKey={`errorMessage-${errorMessage?.[0] || "unknown"}`}
+            >
+              {errorMessage?.[0]}
             </FadeAnimation>
           )}
-          <p className="text-transparent">.</p>
         </AnimatePresence>
+        <p className="text-transparent">.</p>
       </div>
     </div>
   );

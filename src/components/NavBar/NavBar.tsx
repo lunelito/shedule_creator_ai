@@ -27,6 +27,7 @@ export default function NavBar({ schedules, links }: NavBarProps) {
               .filter((el) => el.label === "Dashboard")
               .map((el, i) => (
                 <SingleStaticItem
+                  key={el.id}
                   href={el.href}
                   icon={el.icon}
                   label={el.label}
@@ -42,6 +43,7 @@ export default function NavBar({ schedules, links }: NavBarProps) {
               .filter((el) => el.label === "New shedule")
               .map((el, i) => (
                 <SingleStaticItem
+                  key={el.id}
                   href={el.href}
                   icon={el.icon}
                   label={el.label}
@@ -57,6 +59,7 @@ export default function NavBar({ schedules, links }: NavBarProps) {
               .filter((el, i) => el.id > 2)
               .map((el, i) => (
                 <SingleStaticItem
+                  key={el.id}
                   href={`/manage/schedules/${el.slug}`}
                   icon={el.icon}
                   label={el.label}
@@ -75,6 +78,7 @@ export default function NavBar({ schedules, links }: NavBarProps) {
             .filter((el) => el.label === "Account")
             .map((el, i) => (
               <SingleStaticItem
+                key={el.id}
                 href={el.href}
                 icon={el.icon}
                 label={el.label}

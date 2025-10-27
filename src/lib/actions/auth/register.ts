@@ -87,10 +87,44 @@ export async function register(
   }
 
   try {
-    // call api
-    // set use context of user data or in session
-    // catch errors from api also
-    return { success: true, errors: {} };
+    const apiUrl = new URL(
+      "/api/users",
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    ).toString();
+
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: result.data.firstName,
+        email: result.data.email,
+        password: result.data.password,
+      }),
+    });
+
+    let responseData;
+
+    try {
+      responseData = await res.json();
+    } catch {
+      responseData = { error: await res.text() };
+    }
+
+    if (!res.ok) {
+      return {
+        errors: {
+          _form: [
+            responseData.error || "Nie udało się zarejestrować użytkownika",
+          ],
+        },
+      };
+    } else {
+      return {
+        success: true,
+        errors: { _form: ["Konto stworzone pomyślnie"] },
+      };
+    }
+    
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {

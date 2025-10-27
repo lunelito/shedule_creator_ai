@@ -61,7 +61,10 @@ export default function RegisterForm({ setActiveForm }: RegisterFormType) {
   ];
 
   return (
-    <SlideOutOnLoginRegister animationKey={"registerd"} when={formState.success}>
+    <SlideOutOnLoginRegister
+      animationKey={"registerd"}
+      when={formState.success}
+    >
       <form
         action={action}
         className="flex flex-col w-[40vw] justify-center items-center gap-7 p-7 bg-zinc-800 rounded-xl"

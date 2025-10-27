@@ -22,10 +22,11 @@ export default function SingleStaticItem({
   pickedSheduleComponent,
   setPickedSheduleComponent,
   setShowNavbar,
-}: SingleStaticItemProps) {
-
+}: SingleStaticItemProps)
+{
   return (
     <Link
+      key={id}
       href={href}
       className={`flex items-center justify-between transition ease-in-out p-2 duration-600 cursor-pointer rounded-2xl ${
         pickedSheduleComponent === id ? "bg-teal-600" : "bg-transparent"
