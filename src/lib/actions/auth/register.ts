@@ -1,6 +1,5 @@
 "use server";
 
-import { signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -51,6 +50,7 @@ const registerSchema = z
   });
 
 type RegisterType = {
+  success?: boolean;
   errors: {
     firstName?: string[];
     lastName?: string[];
@@ -77,39 +77,20 @@ export async function register(
     const formatted = result.error.format();
     return {
       errors: {
-        firstName: formatted.firstName?._errors || [],
-        lastName: formatted.lastName?._errors || [],
-        email: formatted.email?._errors || [],
-        password: formatted.password?._errors || [],
-        repeatPassword: formatted.repeatPassword?._errors || [],
+        firstName: formatted.firstName?._errors,
+        lastName: formatted.lastName?._errors,
+        email: formatted.email?._errors,
+        password: formatted.password?._errors,
+        repeatPassword: formatted.repeatPassword?._errors,
       },
     };
   }
 
   try {
-    // TODO: Tutaj dodaj zapis użytkownika do bazy danych
-    console.log("Rejestracja użytkownika:", result.data);
-
-    // Po rejestracji automatycznie zaloguj
-    const signInResult = await signIn("credentials", {
-      email: result.data.email,
-      password: result.data.password,
-      redirect: false,
-    });
-
-    if (signInResult?.error) {
-      return {
-        errors: {
-          _form: ["Registration successful but login failed"],
-        },
-      };
-    }
-
-    return { 
-      errors: {},
-      success: true 
-    };
-
+    // call api
+    // set use context of user data or in session
+    // catch errors from api also
+    return { success: true, errors: {} };
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {

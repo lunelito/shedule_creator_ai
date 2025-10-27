@@ -21,6 +21,7 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 320 }).notNull().unique(),
   email_verified: timestamp('email_verified'),
+  password: text('password').notNull(),
   name: varchar('name', { length: 255 }),
   image: varchar('image', { length: 2048 }),
   
