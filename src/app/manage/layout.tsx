@@ -35,17 +35,15 @@ export default function ManageLayout({
 
   return (
     <div className="flex justify-center items-center h-screen bg-zinc-900 ">
-      {/* Lewy pasek nawigacyjny */}
-      <aside>
-        <RenderNavBar animationKey={"nav"}>
-          <NavBar links={links} schedules={schedules} />
-        </RenderNavBar>
-      </aside>
+        <aside>
+          <RenderNavBar animationKey={"nav"}>
+            <NavBar links={links} schedules={schedules} />
+          </RenderNavBar>
+        </aside>
 
-      {/* Główna zawartość */}
-      <main className="h-screen w-full flex justify-center items-center text-white">
-        <AnimatePresence mode="wait">{children}</AnimatePresence>
-      </main>
+        <main className="h-screen w-full flex justify-center items-center text-white">
+          <AnimatePresence mode="wait">{children}</AnimatePresence>
+        </main>
     </div>
   );
 }

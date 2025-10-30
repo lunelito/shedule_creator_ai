@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import { signIn } from "next-auth/react";
 import { z } from "zod";
@@ -29,68 +29,57 @@ type LoginType = {
   };
 };
 
-export async function logIn(
-  formState: LoginType,
-  formData: FormData
-): Promise<LoginType> {
-  const result = loginSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
-
-  if (!result.success) {
-    const formatted = result.error.format();
-
-    return {
-      errors: {
-        email: formatted.email?._errors,
-        password: formatted.password?._errors,
-      },
-    };
-  }
-
+export async function logIn(formData: FormData): Promise<LoginType> {
   try {
-    const csrfRes = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/csrf`);
-    const { csrfToken } = await csrfRes.json();
+    const result = loginSchema.safeParse({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    });
 
-    const res = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/auth/callback/credentials`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          email: String(result.data.email),
-          password: String(result.data.password),
-          csrfToken,
-        }),
-      }
-    );
-
-    if (!res?.ok) {
+    if (!result.success) {
+      const formatted = result.error.format();
       return {
         errors: {
-          _form: ["Nie udało się zarejestrować użytkownika"],
+          email: formatted.email?._errors,
+          password: formatted.password?._errors,
         },
       };
-    } else {
+    }
+
+    console.log("👉 Próba logowania z:", {
+      email: result.data.email,
+      password: result.data.password,
+    });
+
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: result.data.email,
+      password: result.data.password,
+    });
+
+    if (!res || res.error) {
       return {
-        success: true,
-        errors: { _form: ["Konto stworzone pomyślnie"] },
+        errors: {
+          _form: [
+            res?.error === "CredentialsSignin"
+              ? "Nieprawidłowy email lub hasło"
+              : "Nie udało się zalogować użytkownika",
+          ],
+        },
       };
     }
+    return {
+      success: true,
+      errors: { _form: ["Zalogowano pomyślnie!"] },
+    };
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {
-        errors: {
-          _form: [err.message],
-        },
-      };
-    } else {
-      return {
-        errors: {
-          _form: ["Something went wrong..."],
-        },
+        errors: { _form: [err.message] },
       };
     }
+    return {
+      errors: { _form: ["Something went wrong..."] },
+    };
   }
 }
