@@ -20,8 +20,8 @@ export const organizations = pgTable('organizations', {
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 320 }).notNull().unique(),
-  email_verified: timestamp('email_verified'),
-  password: text('password').notNull(),
+  emailVerified: timestamp('email_verified'),
+  password: text('password'),
   name: varchar('name', { length: 255 }),
   image: varchar('image', { length: 2048 }),
   
@@ -37,10 +37,10 @@ export const users = pgTable('users', {
 
 export const accounts = pgTable('accounts', {
   id: serial('id').primaryKey(),
-  user_id: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('userId').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   type: varchar('type', { length: 255 }).notNull(), // 'oauth', 'email', 'credentials'
   provider: varchar('provider', { length: 255 }).notNull(), // 'google', 'github', etc.
-  provider_account_id: varchar('provider_account_id', { length: 255 }).notNull(),
+  providerAccountId: varchar('provider_account_id', { length: 255 }).notNull(),
   refresh_token: text('refresh_token'),
   access_token: text('access_token'),
   expires_at: integer('expires_at'),
@@ -52,8 +52,8 @@ export const accounts = pgTable('accounts', {
 
 export const sessions = pgTable('sessions', {
   id: serial('id').primaryKey(),
-  user_id: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  session_token: varchar('session_token', { length: 255 }).notNull().unique(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  sessionToken: varchar('session_token', { length: 255 }).notNull().unique(),
   expires: timestamp('expires').notNull(),
 })
 

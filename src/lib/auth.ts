@@ -5,9 +5,8 @@ import { db } from "@/db/index";
 import { users, accounts, sessions, verification_tokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-
-console.log("NEXTAUTH_SECRET exists:", !!process.env.NEXTAUTH_SECRET);
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db, {
@@ -17,6 +16,14 @@ export const authOptions: NextAuthOptions = {
     verificationTokensTable: verification_tokens as any,
   }),
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
     Credentials({
       name: "credentials",
       credentials: {
@@ -64,7 +71,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
-    signIn: "/",
+    signIn: "/login",
     error: "/auth/error",
   },
   callbacks: {
