@@ -87,6 +87,7 @@ export async function register(
   }
 
   try {
+    
     const apiUrl = new URL(
       "/api/users",
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"

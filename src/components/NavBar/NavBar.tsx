@@ -3,6 +3,7 @@ import { useState } from "react";
 import React from "react";
 import { scheduleType, linksType } from "@/app/manage/layout";
 import SingleStaticItem from "./SingleStaticItem";
+import { useUserDataContext } from "@/context/userContext";
 
 type NavBarProps = {
   schedules: scheduleType[];
@@ -12,6 +13,7 @@ type NavBarProps = {
 export default function NavBar({ schedules, links }: NavBarProps) {
   const [showNavBar, setShowNavbar] = useState(false);
   const [pickedSheduleComponent, setPickedSheduleComponent] = useState(0);
+  const { isAdmin } = useUserDataContext();
 
   return (
     <div
@@ -54,6 +56,23 @@ export default function NavBar({ schedules, links }: NavBarProps) {
                   setShowNavbar={setShowNavbar}
                 />
               ))}
+            {/* admin panel */}
+            {isAdmin &&
+              links
+                .filter((el) => el.label === "Admin Panel")
+                .map((el, i) => (
+                  <SingleStaticItem
+                    key={el.id}
+                    href={el.href}
+                    icon={el.icon}
+                    label={el.label}
+                    id={el.id}
+                    pickedSheduleComponent={pickedSheduleComponent}
+                    setPickedSheduleComponent={setPickedSheduleComponent}
+                    showNavBar={showNavBar}
+                    setShowNavbar={setShowNavbar}
+                  />
+                ))}
             {/* shedules */}
             {schedules
               .filter((el, i) => el.id > 2)

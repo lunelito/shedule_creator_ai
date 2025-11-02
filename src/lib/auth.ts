@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db/index";
@@ -6,10 +6,10 @@ import { users, accounts, sessions, verification_tokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
-console.log('NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET);
-console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+console.log("NEXTAUTH_SECRET exists:", !!process.env.NEXTAUTH_SECRET);
+console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
 
-export const authOptions: any = {
+export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db, {
     usersTable: users as any,
     accountsTable: accounts as any,
@@ -43,7 +43,7 @@ export const authOptions: any = {
             password,
             matchedUser.password
           );
-          
+
           if (!isPasswordValid) return null;
 
           return {
@@ -59,19 +59,19 @@ export const authOptions: any = {
       },
     }),
   ],
-  session: { 
+  session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
-  pages: { 
+  pages: {
     signIn: "/",
-    error: "/auth/error", 
+    error: "/auth/error",
   },
   callbacks: {
     async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
-        token.isAdmin = user.is_admin;
+        token.isAdmin = user.is_Admin;
       }
       return token;
     },

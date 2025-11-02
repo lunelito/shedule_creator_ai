@@ -29,8 +29,8 @@ export default function ManageLayout({
   ];
 
   const schedules: scheduleType[] = [
-    { icon: "accountIcon", slug: "test1", label: "test", id: 3 },
-    { icon: "accountIcon", slug: "test2", label: "test", id: 4 },
+    { icon: "accountIcon", slug: "test1", label: "test", id: 4 },
+    { icon: "accountIcon", slug: "test2", label: "test", id: 5 },
   ];
 
   return (

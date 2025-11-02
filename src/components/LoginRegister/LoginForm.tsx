@@ -89,7 +89,7 @@ export default function LoginForm({ setActiveForm }: RegisterFormType) {
               <FadeAnimation
                 animationKey={`errorMessage-${formError?.[0] || "unknown"}`}
               >
-                <p className="text-red-500 text-sm sm:text-base text-center sm:text-right">
+                <p className="text-teal-600 text-sm sm:text-base text-center sm:text-right">
                   {formError?.[0]}
                 </p>
               </FadeAnimation>
