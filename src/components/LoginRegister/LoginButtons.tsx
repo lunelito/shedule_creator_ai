@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 export default function LoginButtons() {
   const [isGithubHover, setIsGithubHover] = useState(false);
@@ -38,6 +39,7 @@ export default function LoginButtons() {
         className="flex justify-center items-center gap-2 cursor-pointer transition-all duration-200 hover:scale-105 px-4 py-2 rounded-lg w-[80%] sm:w-auto"
         onMouseEnter={() => setIsGoogleHover(true)}
         onMouseLeave={() => setIsGoogleHover(false)}
+        onClick={() => signIn("google")}
       >
         <Image
           src={

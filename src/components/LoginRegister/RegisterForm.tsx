@@ -4,25 +4,15 @@ import Input from "../UI/Input";
 import * as actions from "@/lib/actions/action";
 import { RegisterFormType, FieldsType } from "@/lib/actions/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
-import { useRouter } from "next/navigation";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
 
 export default function RegisterForm({ setActiveForm }: RegisterFormType) {
+
   const [formState, action, isPending] = useActionState(actions.register, {
     errors: {},
   });
-  const router = useRouter();
-
-  useEffect(() => {
-    if (formState.success) {
-      const timer = setTimeout(() => {
-        router.push("/manage/main");
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [formState.success, router]);
 
   const fields: FieldsType = [
     {
@@ -65,7 +55,7 @@ export default function RegisterForm({ setActiveForm }: RegisterFormType) {
   const formError = formState.errors._form;
 
   return (
-    <SlideOutOnLoginRegister animationKey="register" when={formState.success}>
+    <SlideOutOnLoginRegister animationKey="register">
       <form
         action={action}
         className="flex flex-col justify-center items-center gap-10 p-8 sm:p-10 bg-zinc-800 rounded-xl shadow-[0_0_20px_rgba(13,148,136,0.3)] hover:shadow-[0_0_25px_rgba(13,148,136,0.5)] transition-shadow ease-in-out duration-300 w-[90vw] sm:w-[70vw] md:w-[50vw] lg:w-[35vw] xl:w-[30vw] max-w-[450px]"

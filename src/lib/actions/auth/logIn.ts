@@ -58,16 +58,22 @@ export async function logIn(formData: FormData): Promise<LoginType> {
     });
 
     if (!res || res.error) {
+      let message = "Nie udało się zalogować użytkownika";
+      console.log(res)
+
+      if (res?.error === "CredentialsSignin") {
+        message = "Nieprawidłowy email lub hasło";
+      } else if (res?.error?.includes("potwierdzony")) {
+        message = "Musisz potwierdzić swój adres email przed zalogowaniem";
+      }
+
       return {
         errors: {
-          _form: [
-            res?.error === "CredentialsSignin"
-              ? "Nieprawidłowy email lub hasło"
-              : "Nie udało się zalogować użytkownika",
-          ],
+          _form: [message],
         },
       };
     }
+
     return {
       success: true,
       errors: { _form: ["Zalogowano pomyślnie!"] },

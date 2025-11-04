@@ -53,6 +53,10 @@ export const authOptions: NextAuthOptions = {
 
           if (!isPasswordValid) return null;
 
+          if (!matchedUser.emailVerified) {
+            throw new Error("Email not verify");
+          }
+
           return {
             id: matchedUser.id.toString(),
             email: matchedUser.email,

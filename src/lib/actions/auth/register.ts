@@ -1,7 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
+import { sendVerificationEmail } from "./verifyEmail";
 
 const registerSchema = z
   .object({
@@ -120,6 +120,7 @@ export async function register(
         },
       };
     } else {
+      sendVerificationEmail(result.data.email)
       return {
         success: true,
         errors: { _form: ["Konto stworzone pomyślnie"] },

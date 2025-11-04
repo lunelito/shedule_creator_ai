@@ -44,7 +44,7 @@ export default function Page() {
               isVertical ? "hidden" : ""
             }`}
           >
-            idk
+            future logo
           </div>
         </>
       )}
