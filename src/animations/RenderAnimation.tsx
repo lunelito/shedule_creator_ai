@@ -15,6 +15,7 @@ export default function RenderAnimation({
   return (
     <AnimatePresence mode="wait">
       <motion.div
+      className="w-full h-full overflow-x-hidden"
         key={animationKey}
         initial={{ y: 200, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

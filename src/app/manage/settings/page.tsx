@@ -20,18 +20,23 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
-      <RenderAnimation animationKey={"SettingsPage"}>
-        {isPending ? (
-          <div>
-            {/* skeleton later */}
-            <p>loading...</p>
-          </div>
-        ) : (
-          <p>{userData?.email}</p>
-        )}
-        <button onClick={() => handleLogOut()}>Log Out</button>
-      </RenderAnimation>
-    </div>
+    <RenderAnimation animationKey={"SettingsPage"}>
+      <div className="flex w-full h-full flex-col p-10 justify-between md:flex-row">
+        <div className="h-full w-full flex p-10 flex-col justify-center items-center">
+          tu jakis content
+        </div>
+        <div className="h-full w-full flex p-10 flex-col justify-center items-center">
+          {isPending ? (
+            <div>
+              {/* skeleton later */}
+              <p>loading...</p>
+            </div>
+          ) : (
+            <p>{userData?.email}</p>
+          )}
+          <button onClick={() => handleLogOut()}>Log Out</button>
+        </div>
+      </div>
+    </RenderAnimation>
   );
 }
