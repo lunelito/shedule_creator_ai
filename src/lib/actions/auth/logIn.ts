@@ -46,11 +46,6 @@ export async function logIn(formData: FormData): Promise<LoginType> {
       };
     }
 
-    console.log("👉 Próba logowania z:", {
-      email: result.data.email,
-      password: result.data.password,
-    });
-
     const res = await signIn("credentials", {
       redirect: false,
       email: result.data.email,
