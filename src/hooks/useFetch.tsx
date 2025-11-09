@@ -1,3 +1,4 @@
+"use client"
 import { useState, useEffect } from "react";
 
 interface FetchState<T> {
@@ -6,7 +7,7 @@ interface FetchState<T> {
   error: string | null;
 }
 
-export default function useFetch<T = unknown>(url: string) {
+export default function useFetch<T = unknown>(url: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [isPending, setIsPending] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +18,11 @@ export default function useFetch<T = unknown>(url: string) {
     const fetchData = async () => {
       setIsPending(true);
       setError(null);
+
+      if(url == null){
+        setIsPending(false)
+        return 0
+      }
 
       try {
         const res = await fetch(url);

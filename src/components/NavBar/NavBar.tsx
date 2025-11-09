@@ -1,16 +1,22 @@
 "use client";
 import { useState } from "react";
 import React from "react";
-import { scheduleType, linksType } from "@/app/manage/layout";
+import { linksType, OrganizationType } from "@/app/manage/layout";
 import SingleStaticItem from "./SingleStaticItem";
 import { useUserDataContext } from "@/context/userContext";
+import SingleStaticItemOrganization from "./SingleStaticItemOrganization";
 
 type NavBarProps = {
-  schedules: scheduleType[];
+  organizations: OrganizationType[];
   links: linksType[];
+  isPending: boolean;
 };
 
-export default function NavBar({ schedules, links }: NavBarProps) {
+export default function NavBar({
+  organizations,
+  links,
+  isPending,
+}: NavBarProps) {
   const [showNavBar, setShowNavbar] = useState(false);
   const [pickedSheduleComponent, setPickedSheduleComponent] = useState(0);
   const { isAdmin } = useUserDataContext();
@@ -74,21 +80,28 @@ export default function NavBar({ schedules, links }: NavBarProps) {
                   />
                 ))}
             {/* shedules */}
-            {schedules
-              .filter((el, i) => el.id > 2)
-              .map((el, i) => (
-                <SingleStaticItem
-                  key={el.id}
-                  href={`/manage/schedules/${el.slug}`}
-                  icon={el.icon}
-                  label={el.label}
-                  id={el.id}
-                  pickedSheduleComponent={pickedSheduleComponent}
-                  setPickedSheduleComponent={setPickedSheduleComponent}
-                  showNavBar={showNavBar}
-                  setShowNavbar={setShowNavbar}
-                />
-              ))}
+            {isPending
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-full aspect-square bg-zinc-700 rounded-md animate-pulse mb-2"
+                  />
+                ))
+              : organizations
+                  .filter((el) => el.id > 2)
+                  .map((el) => (
+                    <SingleStaticItemOrganization
+                      key={el.id}
+                      href={`/manage/schedules/${el.id}`}
+                      icon={el.icon}
+                      label={el.name}
+                      id={el.id}
+                      pickedSheduleComponent={pickedSheduleComponent}
+                      setPickedSheduleComponent={setPickedSheduleComponent}
+                      showNavBar={showNavBar}
+                      setShowNavbar={setShowNavbar}
+                    />
+                  ))}
           </div>
         </div>
         <div className="w-fit mt-5 flex flex-col p-5 overflow-y-scroll overflow-x-hidden scrollbar-none">

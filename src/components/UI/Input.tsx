@@ -1,10 +1,10 @@
 import FadeAnimation from "@/animations/FadeAnimation";
 import { AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type InputType = {
   text: string;
-  type: "password" | "text" | "number";
+  type: "password" | "text" | "number" | "file";
   name: string;
   isInvalid: boolean | undefined;
   errorMessage: string[];
@@ -21,6 +21,14 @@ export default function Input({
 }: InputType) {
   const [val, setVal] = useState("");
   const [showAllText, setShowAllText] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <div
@@ -51,7 +59,13 @@ export default function Input({
           text-nowrap
         `}
       >
-        {showAllText ? text : text.length > 9 ? text.slice(0, 9) + "..." : text}
+        {isMobile
+          ? showAllText
+            ? text
+            : text.length > 9
+            ? text.slice(0, 9) + "..."
+            : text
+          : text}
       </label>
       <div className="flex justify-start mt-2 text-[clamp(0.75rem,1.5vw,0.875rem)]">
         <AnimatePresence mode="wait">

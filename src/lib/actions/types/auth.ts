@@ -3,7 +3,7 @@ type RegisterFormType = {
 };
 
 type FieldType = {
-  type: "password" | "text" | "number";
+  type: "password" | "text" | "number" | "file";
   text: string;
   name: string;
   isInvalid: boolean;

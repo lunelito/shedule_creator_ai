@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/db/schema";
 
-export default function AddPage() {
+export default function AddPageShedule() {
   const [userList,setUserList] = useState<InferSelectModel<typeof users>[]>([]);
   return (
     <RenderAnimation animationKey={"AddPage"}>

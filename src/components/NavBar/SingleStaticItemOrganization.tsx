@@ -13,7 +13,7 @@ type SingleStaticItemProps = linksType & {
   setShowNavbar?: (val: boolean) => void;
 };
 
-export default function SingleStaticItem({
+export default function SingleStaticItemOrganization({
   href,
   icon,
   label,
@@ -39,7 +39,7 @@ export default function SingleStaticItem({
       <div className="h-9 w-9 shrink-0 flex justify-center items-center m-1">
         {icon ? (
           <Image
-            src={`/Icons/${icon}.svg`}
+            src={`/IconsForOrganization/${icon}`}
             alt={icon}
             width={44}
             height={44}
