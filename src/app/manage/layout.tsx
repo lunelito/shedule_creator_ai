@@ -2,9 +2,8 @@
 
 import RenderNavBar from "@/animations/RenderNavBar";
 import NavBar from "@/components/NavBar/NavBar";
-import { useUserDataContext } from "@/context/userContext";
+import { useOrganizationContext } from "@/context/organizationsContext";
 import { organizations } from "@/db/schema";
-import useFetch from "@/hooks/useFetch";
 import { InferSelectModel } from "drizzle-orm";
 import { AnimatePresence } from "framer-motion";
 
@@ -33,22 +32,17 @@ export default function ManageLayout({
     },
   ];
 
-  const { userData } = useUserDataContext();
-
-  const { data, isPending, error } = useFetch(
-    userData?.id ? `/api/organizations/${userData.id}` : null
-  );
-
-  console.log(isPending);
-
-  const organizationsData: OrganizationType[] =
-    (data as OrganizationType[]) || [];
+  const { organizationsData, isPending } = useOrganizationContext();
 
   return (
     <div className="flex justify-center w-full items-center h-screen bg-zinc-900 ">
       <aside>
         <RenderNavBar animationKey={"nav"}>
-          <NavBar links={links} organizations={organizationsData} isPending={isPending}/>
+          <NavBar
+            links={links}
+            organizations={organizationsData}
+            isPending={isPending}
+          />
         </RenderNavBar>
       </aside>
 

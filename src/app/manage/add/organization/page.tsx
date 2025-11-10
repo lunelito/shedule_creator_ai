@@ -1,6 +1,6 @@
 "use client";
 import RenderAnimation from "@/animations/RenderAnimation";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import * as actions from "@/lib/actions/action";
 import { FieldsType } from "@/lib/actions/types/auth";
 import { AnimatePresence } from "framer-motion";
@@ -10,6 +10,7 @@ import PrimaryButton from "@/components/UI/PrimaryButton";
 import FileInput from "@/components/UI/FileInput";
 import IconPicker from "@/components/addPage/IconPicker";
 import { useUserDataContext } from "@/context/userContext";
+import { useOrganizationContext } from "@/context/organizationsContext";
 
 export default function AddPageShedule() {
   const [formState, action, isPending] = useActionState(
@@ -18,6 +19,8 @@ export default function AddPageShedule() {
   );
 
   const { userData } = useUserDataContext();
+
+  const { setOrganizationsData } = useOrganizationContext();
 
   const [icon, setIcon] = useState("");
 
@@ -41,6 +44,12 @@ export default function AddPageShedule() {
   ];
 
   const formError = formState.errors._form;
+
+  useEffect(() => {
+    if (formState.success) {
+      setOrganizationsData((prev) => [...prev, formState.data]);
+    }
+  }, [formState]);
 
   return (
     <RenderAnimation animationKey={"AddPage"}>

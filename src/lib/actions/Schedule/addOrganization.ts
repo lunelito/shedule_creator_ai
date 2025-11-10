@@ -11,21 +11,19 @@ const organizationSchema = z.object({
       /^[A-Za-zÀ-ž0-9\s\-\_]+$/,
       "Nazwa organizacji może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia"
     )
-    .regex(
-      /[A-Za-zÀ-ž]/,
-      "Nazwa organizacji musi zawierać przynajmniej jedną literę"
-    ),
+    .regex(/[A-Za-zÀ-ž]/, "Nazwa organizacji musi zawierać przynajmniej jedną literę"),
   timezone: z
     .string()
     .max(64, "Strefa czasowa może mieć maksymalnie 64 znaki")
     .optional()
     .default("UTC"),
-  created_by: z.int(),
+  created_by: z.number(),
   icon: z.string().min(1, "Zaznacz ikonę"),
 });
 
 type AddOrganizationType = {
   success?: boolean;
+  data?: any;
   errors: {
     name?: string[];
     timezone?: string[];
@@ -64,8 +62,6 @@ export async function addOrganization(
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     ).toString();
 
-    console.log(result.data.icon);
-
     const res = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,6 +91,7 @@ export async function addOrganization(
 
     return {
       success: true,
+      data: responseData,
       errors: { _form: ["Organizacja stworzona pomyślnie"] },
     };
   } catch (err: unknown) {
