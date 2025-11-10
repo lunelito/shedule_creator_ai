@@ -53,13 +53,14 @@ export async function logIn(formData: FormData): Promise<LoginType> {
     });
 
     if (!res || res.error) {
-      let message = "Nie udało się zalogować użytkownika";
-      console.log(res)
+      let message = "Failed to log user in";
 
-      if (res?.error === "CredentialsSignin") {
-        message = "Nieprawidłowy email lub hasło";
-      } else if (res?.error?.includes("potwierdzony")) {
-        message = "Musisz potwierdzić swój adres email przed zalogowaniem";
+      console.log(res);
+
+      if (res?.status === 401) {
+        message = "You must confirm your email address before logging in.";
+      } else if (res?.error === "CredentialsSignin") {
+        message = "Incorrect email or password";
       }
 
       return {
@@ -71,7 +72,7 @@ export async function logIn(formData: FormData): Promise<LoginType> {
 
     return {
       success: true,
-      errors: { _form: ["Zalogowano pomyślnie!"] },
+      errors: { _form: ["You have logged in successfully"] },
     };
   } catch (err: unknown) {
     if (err instanceof Error) {

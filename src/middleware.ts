@@ -6,18 +6,21 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const url = req.nextUrl;
 
-  if (!token) {
+  if (!token && url.pathname.startsWith("/manage")) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (!token.isAdmin && url.pathname.startsWith("/manage/panel")) {
+  if (token && url.pathname.startsWith("/login")) {
     return NextResponse.redirect(new URL("/manage/main", req.url));
   }
 
-  // Admin → wchodzisz
+  if (token && !token.isAdmin && url.pathname.startsWith("/manage/panel")) {
+    return NextResponse.redirect(new URL("/manage/main", req.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/manage/panel/:path*"],
+  matcher: ["/manage/:path*", "/login"],
 };
