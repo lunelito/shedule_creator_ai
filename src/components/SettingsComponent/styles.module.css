@@ -10,6 +10,7 @@
 .page h1 {
     font-size: 1.8em;
     font-weight: 500;
+    margin-bottom: 24px;
 }
 
 .block {
@@ -17,7 +18,7 @@
     border: 1px solid rgb(56, 56, 56);
     border-radius: 8px;
     padding: 24px;
-    margin-top: 24px;
+    margin-top: 12px;
 
     display: flex;
     flex-direction: column;
