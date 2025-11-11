@@ -5,6 +5,7 @@ import React from "react";
 import { signOut, useSession } from "next-auth/react";
 import useFetch from "@/hooks/useFetch";
 import { useUserDataContext } from "@/context/userContext";
+import SettingsComponent from "@/components/SettingsComponent/SettingsComponent";
 
 export default function SettingsPage() {
   const { userData, isPending } = useUserDataContext();
@@ -23,17 +24,16 @@ export default function SettingsPage() {
     <RenderAnimation animationKey={"SettingsPage"}>
       <div className="flex w-full h-full flex-col p-10 justify-between md:flex-row">
         <div className="h-full w-full flex p-10 flex-col justify-center items-center">
-          tu jakis content
-        </div>
-        <div className="h-full w-full flex p-10 flex-col justify-center items-center">
           {isPending ? (
             <div>
               {/* skeleton later */}
-              <p>loading...</p>
+              <p>loading settings...</p>
             </div>
           ) : (
-            <p>{userData?.email}</p>
+            <SettingsComponent />
           )}
+        </div>
+        <div className="h-full w-full flex p-10 flex-col justify-center items-center">
           <button onClick={() => handleLogOut()}>Log Out</button>
         </div>
       </div>
