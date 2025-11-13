@@ -1,9 +1,10 @@
 "use client";
-import useFetch from "@/hooks/useFetch";
-import React, { createContext, useContext, useEffect } from "react";
+import useFetch from "@/db/hooks/useFetch";
+import React, { createContext, useContext, useState,useEffect } from "react";
 import type { ReactNode } from "react";
 import { users } from "@/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
+import { useSession } from "next-auth/react";
 
 type User = InferSelectModel<typeof users>;
 
@@ -33,7 +34,13 @@ interface UserDataProviderProps {
 }
 
 export const UserDataProvider = ({ children }: UserDataProviderProps) => {
-  const { error, isPending, data } = useFetch<User>(`/api/user/me`);
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUrl("/api/user/me");
+  }, []);
+
+  const { data, error, isPending } = useFetch<User>(url);
 
   const value: UserDataContextType = {
     userData: data,

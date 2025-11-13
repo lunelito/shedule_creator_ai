@@ -9,28 +9,28 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = Number(session.user.id);
+    const userIdStr = (session.user as any).id;
+    if (!userIdStr || typeof userIdStr !== 'string') {
+      return NextResponse.json({ error: "User ID not found in session" }, { status: 400 });
+    }
 
+    const userId = Number(userIdStr);
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1).then(r => r[0]);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user, { status: 200 });
+    return NextResponse.json(user);
   } catch (error) {
-    console.error("Error fetching current user:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch user" },
-      { status: 500 }
-    );
+    console.error("Failed to fetch user:", error);
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
   }
 }

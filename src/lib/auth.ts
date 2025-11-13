@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
             image: matchedUser.image,
           };
         } catch (error) {
-          console.error("Auth error:", error);
+          console.log("Auth error:", error);
           return null;
         }
       },

@@ -92,7 +92,7 @@ export default function NavBar({
                   .map((el) => (
                     <SingleStaticItemOrganization
                       key={el.id}
-                      href={`/manage/schedules/${el.id}`}
+                      href={`/manage/organization/${el.id}`}
                       icon={el.icon}
                       label={el.name}
                       id={el.id}

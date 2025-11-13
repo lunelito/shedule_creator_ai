@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
-import useFetch from "@/hooks/useFetch";
+import useFetch from "@/db/hooks/useFetch";
 import FadeAnimation from "@/animations/FadeAnimation";
 import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
