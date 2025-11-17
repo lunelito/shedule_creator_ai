@@ -137,6 +137,7 @@ export const employees = pgTable("employees", {
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
 
+//not need to use it
 export const teams = pgTable("teams", {
   // grupy pracowników np kuchnia, zarząd
   id: serial("id").primaryKey(),
@@ -181,6 +182,7 @@ export const employee_roles = pgTable("employee_roles", {
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
+//not need to use it
 export const employee_team = pgTable("employee_team", {
   id: serial("id").primaryKey(),
   employee_id: integer("employee_id")
@@ -192,12 +194,14 @@ export const employee_team = pgTable("employee_team", {
   is_primary: boolean("is_primary").notNull().default(false),
 });
 
+//not need to use it
 export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 120 }).notNull().unique(),
   description: text("description"),
 });
 
+//not need to use it
 export const employee_skill = pgTable("employee_skill", {
   id: serial("id").primaryKey(),
   employee_id: integer("employee_id")

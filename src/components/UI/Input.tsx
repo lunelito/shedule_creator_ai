@@ -33,7 +33,7 @@ export default function Input({
   return (
     <div
       className={`relative  p-2 w-full ${
-        isInvalid ? "text-teal-600" : "text-white"
+        isInvalid ? "text-red-600" : "text-white"
       } ${isPending ? "opacity-75" : ""}`}
     >
       <input

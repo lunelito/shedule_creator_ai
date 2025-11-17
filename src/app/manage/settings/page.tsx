@@ -3,7 +3,7 @@ import RenderAnimation from "@/animations/RenderAnimation";
 import React from "react";
 
 import { signOut, useSession } from "next-auth/react";
-import useFetch from "@/db/hooks/useFetch";
+import useFetch from "../../../../hooks/useFetch";
 import { useUserDataContext } from "@/context/userContext";
 
 export default function SettingsPage() {

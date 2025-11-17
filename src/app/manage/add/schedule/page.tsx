@@ -6,6 +6,7 @@ import { users } from "@/db/schema";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import UserRoleForm from "@/components/addPage/UserRoleForm";
 
 export default function AddPageShedule() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function AddPageShedule() {
   const [userList, setUserList] = useState<InferSelectModel<typeof users>[]>(
     []
   );
+  //future create roles on this tab
+  const [userRoleList, setUserRoleList] = useState<string[]>([]);
+
   return (
     <RenderAnimation animationKey={"AddPage"}>
       <div className="flex w-full h-full flex-col p-10 justify-between md:flex-row">
@@ -32,12 +36,19 @@ export default function AddPageShedule() {
               Add Schedule
             </h1>
           </div>
-          {/* ading employesss */}
-          <div className="flex justify-center items-center">
-            <UserSearchList userList={userList} setUserList={setUserList} />
+          <div className="flex gap-5 mt-10">
+            {/* ading employesss */}
+            <div className="w-full flex flex-col items-center space-y-4">
+              <UserSearchList userList={userList} setUserList={setUserList} />
+            </div>
+            <div className="w-full flex flex-col items-center space-y-4">
+              <UserRoleForm
+                userRoleList={userRoleList}
+                setUserRoleList={setUserRoleList}
+              />
+            </div>
           </div>
         </div>
-        <div className="h-full w-full flex  flex-col justify-center items-center"></div>
       </div>
     </RenderAnimation>
   );

@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import useFetch from "@/db/hooks/useFetch";
+import useFetch from "../../hooks/useFetch";
 import { useUserDataContext } from "@/context/userContext";
 import { organizations } from "@/db/schema";
 import type { InferSelectModel } from "drizzle-orm";

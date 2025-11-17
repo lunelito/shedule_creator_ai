@@ -2,7 +2,7 @@
 import RenderAnimation from "@/animations/RenderAnimation";
 import { OrganizationType } from "@/context/organizationsContext";
 import { useUserDataContext } from "@/context/userContext";
-import useFetch from "@/db/hooks/useFetch";
+import useFetch from "../../../../../hooks/useFetch";
 import { InferSelectModel } from "drizzle-orm";
 import Link from "next/link";
 import { useParams } from "next/navigation";
