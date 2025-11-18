@@ -65,7 +65,7 @@ export default function SchedulePage() {
               className="border-2 border-gray-200 p-4 md:p-6 rounded-xl md:rounded-2xl text-lg md:text-xl hover:border-teal-600 hover:bg-teal-600 transition-all duration-200 text-center"
               href={
                 el.id === "create"
-                  ? `/manage/add/schedule`
+                  ? `/manage/add/schedule?organizationId=${organizationId}`
                   : `/manage/organization/${organizationId}/${el.id}`
               }
             >

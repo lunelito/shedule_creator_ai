@@ -4,21 +4,27 @@ import { users } from "@/db/schema";
 import useFetch from "../../../hooks/useFetch";
 import SelectGroup from "../UI/SelectGroup";
 import NumberPicker from "../UI/NumberPicker";
+import Image from "next/image";
+import { AnimatePresence } from "framer-motion";
+import SlideFronBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
 
 type TypeUserSearchList = {
   userList: InferSelectModel<typeof users>[];
   setUserList: React.Dispatch<
     React.SetStateAction<InferSelectModel<typeof users>[]>
   >;
+  organizationId: string | null;
 };
 
 export default function UserSearchList({
   userList,
   setUserList,
+  organizationId,
 }: TypeUserSearchList) {
   const [emailVal, setEmail] = useState<string>("");
   const [debouncedQuery, setDebouncedQuery] = useState(emailVal);
   const [shouldFetch, setShouldFetch] = useState(false);
+  const [openUsers, setOpenUsers] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -55,6 +61,13 @@ export default function UserSearchList({
     setUserList((prev) => prev.filter((user) => user.id !== userId));
   };
 
+  const toggleUserOpen = (id: number) => {
+    setOpenUsers((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
   const displayData = shouldFetch ? data : null;
 
   return (
@@ -77,50 +90,110 @@ export default function UserSearchList({
           Add
         </button>
       </form>
+      {/* export const employees = pgTable("employees", {
+        contracted_hours_per_week: numeric("contracted_hours_per_week", {
+          precision: 5,
+          scale: 2,
+        }).default("40"),
+        max_consecutive_days: integer("max_consecutive_days").default(7),
+      }); */}
       <div>
         <hr className="m-5 mt-10  mb-10" />
         <ul className="space-y-2">
           {userList.length > 0 ? (
-            userList.map((user) => (
-              <li
-                key={user.id}
-                className="flex flex-wrap p-3 justify-between items-center gap-4 rounded ml-10 mr-10"
-              >
-                <span>
-                  {user.email} - {user.name}
-                </span>
-                <button
-                  onClick={() => removeUser(user.id)}
-                  className="px-2 py-1 bg-teal-600 text-white text-sm rounded hover:scale-105 transition-all ease-in-out"
-                >
-                  Remove
-                </button>
-                {/* test */}
-                <SelectGroup
-                  options={["Opcja 1", "Opcja 2", "Opcja 3"]}
-                  title="Contract Type"
-                />
-                <SelectGroup
-                  options={["Opcja 1", "Opcja 2", "Opcja 3"]}
-                  title="max_consecutive_days"
-                />
-                <NumberPicker
-                  title="contracted_hours_per_week"
-                  orientation="horizontal"
-                  rangeDefault={1}
-                  from={1}
-                  to={7}
-                />
-                <NumberPicker
-                  title="contracted_hours_per_week"
-                  orientation="vertical"
-                  rangeDefault={1}
-                  from={1}
-                  to={7}
-                />
-                {/* test */}
-              </li>
-            ))
+            userList.map((user, i) => {
+              const isOpen = openUsers[user.id] || false;
+              return (
+                <>
+                  <li
+                    key={user.id}
+                    className="flex flex-col w-full justify-between items-start md:items-center gap-4 p-4 md:p-6 "
+                  >
+                    <div
+                      className={`flex w-full p-3 justify-between items-center${
+                        isOpen ? "mb-10" : ""
+                      }`}
+                    >
+                      <span>
+                        {user.email} - {user.name}
+                      </span>
+                      <button
+                        onClick={() => toggleUserOpen(user.id)}
+                        className="flex justify-center items-center w-10 h-10 bg-teal-600 text-white text-sm rounded hover:scale-105 transition-all ease-in-out"
+                      >
+                        <div className="relative w-10 h-10 invert hover:rotate-180 transition-all">
+                          <Image src="/Icons/arrowIcon.svg" alt="arrow" fill />
+                        </div>
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {isOpen && (
+                        <SlideFronBottomListAnimation userId={user.id}>
+                          <div
+                            className={`${
+                              isOpen ? "block" : "hidden"
+                            } flex flex-col gap-5`}
+                          >
+                            <button
+                              onClick={() => removeUser(user.id)}
+                              className="px-2 py-1 bg-teal-600 text-white text-sm rounded hover:scale-105 transition-all ease-in-out"
+                            >
+                              Remove from list
+                            </button>
+                            {/* <form> */}
+                            {/* user id  */}
+                            <input type="hidden" value={user.id} />
+                            {/* organization */}
+                            <input
+                              type="hidden"
+                              value={organizationId || " "}
+                            />
+                            {/* contract type */}
+                            <SelectGroup
+                              options={[
+                                "full_time",
+                                "part_time",
+                                "hourly",
+                                "contractor",
+                              ]}
+                              title="Contract Type"
+                            />
+                            {/*default_hourly_rate*/}
+                            <NumberPicker
+                              title="contracted_hours_per_week"
+                              orientation="horizontal"
+                              rangeDefault={1}
+                              from={1}
+                              to={100}
+                            />
+                            {/* contracted_hours_per_week */}
+                            <NumberPicker
+                              title="contracted_hours_per_week"
+                              orientation="horizontal"
+                              rangeDefault={1}
+                              from={1}
+                              to={120}
+                            />
+                            {/* max_consecutive_days */}
+                            <NumberPicker
+                              title="max_consecutive_days"
+                              orientation="horizontal"
+                              rangeDefault={1}
+                              from={1}
+                              to={7}
+                            />
+                            {/* </form> */}
+                          </div>
+                        </SlideFronBottomListAnimation>
+                      )}
+                    </AnimatePresence>
+                  </li>
+                  {!(i === userList.length - 1) && (
+                    <hr className="m-15 mt-10 mb-10" />
+                  )}
+                </>
+              );
+            })
           ) : (
             <div className="flex justify-center">
               <p>no aded users</p>

@@ -36,9 +36,21 @@ interface UserDataProviderProps {
 export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   const [url, setUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    setUrl("/api/user/me");
-  }, []);
+  const session = useSession()
+
+ useEffect(() => {
+    const userId = (session?.data?.user as any)?.id;
+
+
+    if (!userId) {
+      setUrl(null);
+      return;
+    }
+
+    setUrl(`/api/user/me`);
+    console.log("fetchuje dla id:", userId);
+
+  }, [session.data?.user]);
 
   const { data, error, isPending } = useFetch<User>(url);
 

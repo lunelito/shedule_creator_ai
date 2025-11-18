@@ -22,15 +22,23 @@ export default function NumberPicker({
   const getPrev = (num: number) => (num - 1 < from ? to : num - 1);
   const getNext = (num: number) => (num + 1 > to ? from : num + 1);
 
-  const scrollUp = () => {
+  const scrollUp = (step: number = 1) => {
     setAnimating(true);
-    setSelected(getPrev(selected));
+    setSelected((prev) => {
+      let newVal = prev - step;
+      if (newVal < from) newVal = to - (step - (prev - from));
+      return newVal;
+    });
     setTimeout(() => setAnimating(false), 200);
   };
 
-  const scrollDown = () => {
+  const scrollDown = (step: number = 1) => {
     setAnimating(true);
-    setSelected(getNext(selected));
+    setSelected((prev) => {
+      let newVal = prev + step;
+      if (newVal > to) newVal = from + (step - (to - prev));
+      return newVal;
+    });
     setTimeout(() => setAnimating(false), 200);
   };
 
@@ -45,7 +53,8 @@ export default function NumberPicker({
         }`}
       >
         <button
-          onClick={scrollUp}
+          onClick={() => scrollUp(1) }
+          onDoubleClick={() => scrollUp(5)}
           className={`relative flex invert justify-center items-center rounded ${
             isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"
           }`}
@@ -66,7 +75,6 @@ export default function NumberPicker({
           {getPrev(selected)}
         </div>
 
-
         <div
           className={`text-teal-600 font-bold text-xl flex items-center justify-center transform transition-all duration-200 ${
             isHorizontal ? "w-16 h-full" : "h-16 w-full"
@@ -74,7 +82,7 @@ export default function NumberPicker({
         >
           {selected}
         </div>
-        
+
         <div
           className={`text-gray-500 flex items-center justify-center ${
             isHorizontal ? "w-16 h-full" : "h-16 w-full"
@@ -84,7 +92,8 @@ export default function NumberPicker({
         </div>
 
         <button
-          onClick={scrollDown}
+          onClick={() => scrollDown(1)}
+          onDoubleClick={() => scrollDown(5)}
           className={`flex justify-center invert items-center rounded ${
             isHorizontal ? "h-full w-10 rotate-90" : "h-10 w-full rotate-180"
           }`}

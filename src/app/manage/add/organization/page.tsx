@@ -11,6 +11,7 @@ import FileInput from "@/components/UI/FileInput";
 import IconPicker from "@/components/addPage/IconPicker";
 import { useUserDataContext } from "@/context/userContext";
 import { useOrganizationContext } from "@/context/organizationsContext";
+import { useParams } from "next/navigation";
 
 export default function AddPageShedule() {
   const [formState, action, isPending] = useActionState(
@@ -21,6 +22,7 @@ export default function AddPageShedule() {
   const { userData } = useUserDataContext();
 
   const { setOrganizationsData } = useOrganizationContext();
+
 
   const [icon, setIcon] = useState("");
 
