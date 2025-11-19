@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 type SelectGroup = {
   options: string[];
   title: string;
+  onChange: (value: string) => void;
 };
 
-export default function SelectGroup({ options, title }: SelectGroup) {
-  const [selected, setSelected] = useState(options[0]);
+export default function SelectGroup({ options, title, onChange }: SelectGroup) {
+  const [selected, setSelected] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setSelected((prev) => (prev || options[0]) ?? "no options added");
+  }, [options]);
 
   return (
     <div className="relative w-64">
@@ -32,6 +37,7 @@ export default function SelectGroup({ options, title }: SelectGroup) {
               key={i}
               onClick={() => {
                 setSelected(option);
+                onChange(option);
                 setIsOpen(false);
               }}
               className="px-4 py-2 hover:bg-teal-600 hover:text-white cursor-pointer"

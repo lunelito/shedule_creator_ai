@@ -1,25 +1,51 @@
 "use client";
 import RenderAnimation from "@/animations/RenderAnimation";
-import UserSearchList from "@/components/addPage/UserSearchList";
+import UserSearchList from "@/components/addPage/UserSearchForm";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/db/schema";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
-import UserRoleForm from "@/components/addPage/UserRoleForm";
+import UserRoleForm from "@/components/addPage/UserPostionForm";
+import { useUserDataContext } from "@/context/userContext";
+export type employeType = {
+  email: string;
+  name: string;
+  user_id: number;
+  role: string;
+  position: string;
+  organization_id: number;
+  default_hourly_rate: number;
+  contract_type: string;
+  contracted_hours_per_week: number;
+  max_consecutive_days: number;
+};
 
 export default function AddPageShedule() {
   const router = useRouter();
   // future create employeees on this tab
-  const [userList, setUserList] = useState<InferSelectModel<typeof users>[]>(
-    []
-  );
-  //future create roles on this tab
-  const [userRoleList, setUserRoleList] = useState<string[]>([]);
-
   const searchParams = useSearchParams();
 
   const organizationId = searchParams.get("organizationId");
+
+  const { userData } = useUserDataContext();
+
+  const adminUser: employeType = {
+    email: userData?.email ?? "admin@example.com",
+    name: userData?.name ?? "Admin",
+    user_id: userData?.id ?? 0,
+    organization_id: organizationId ? Number(organizationId) : 0,
+    default_hourly_rate: 0,
+    contract_type: "admin",
+    role: "admin",
+    position: "admin",
+    contracted_hours_per_week: 0,
+    max_consecutive_days: 0,
+  };
+  const [userList, setUserList] = useState<employeType[]>([adminUser]);
+
+  const [userRoleList, setUserRoleList] = useState<string[]>([]);
+  console.log(userList);
 
   return (
     <RenderAnimation animationKey={"AddPage"}>
@@ -47,6 +73,7 @@ export default function AddPageShedule() {
                 userList={userList}
                 setUserList={setUserList}
                 organizationId={organizationId}
+                userRoleList={userRoleList}
               />
             </div>
             <div className="w-full flex flex-col items-center space-y-4">

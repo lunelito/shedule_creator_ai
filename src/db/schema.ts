@@ -126,6 +126,7 @@ export const employees = pgTable("employees", {
     precision: 10,
     scale: 2,
   }).default("0"),
+  position:varchar("position"),
   timezone: varchar("timezone", { length: 64 }).notNull().default("UTC"),
   contract_type: ContractType("contract_type").notNull().default("full_time"),
   contracted_hours_per_week: numeric("contracted_hours_per_week", {

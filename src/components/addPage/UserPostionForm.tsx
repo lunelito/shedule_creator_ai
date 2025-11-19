@@ -27,7 +27,7 @@ export default function UserRoleForm({
         <input
           type="text"
           value={role}
-          placeholder="Add roles to your employees..."
+          placeholder="Add positions to your employees..."
           onChange={(e) => setRole(e.target.value)}
           className="flex-1 px-3 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-600"
         />
@@ -53,7 +53,7 @@ export default function UserRoleForm({
         </div>
       ) : (
         <div className="flex justify-center">
-          <p>No roles added</p>
+          <p>No positions added</p>
         </div>
       )}
       <hr className="m-5 mt-10 mb-10" />

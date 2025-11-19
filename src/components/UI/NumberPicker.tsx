@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type NumberPickerType = {
   from: number;
@@ -7,6 +7,7 @@ type NumberPickerType = {
   rangeDefault: number;
   title: string;
   orientation: "vertical" | "horizontal";
+  onChange: (value:number) => void;
 };
 
 export default function NumberPicker({
@@ -15,6 +16,7 @@ export default function NumberPicker({
   rangeDefault,
   title,
   orientation,
+  onChange
 }: NumberPickerType) {
   const [selected, setSelected] = useState(rangeDefault);
   const [animating, setAnimating] = useState(false);
@@ -41,6 +43,10 @@ export default function NumberPicker({
     });
     setTimeout(() => setAnimating(false), 200);
   };
+
+  useEffect(() =>{
+    onChange(selected)
+  },[selected])
 
   const isHorizontal = orientation === "horizontal";
 
