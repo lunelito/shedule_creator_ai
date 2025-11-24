@@ -117,23 +117,26 @@ export const employees = pgTable("employees", {
   user_id: integer("user_id")
     .references(() => users.id)
     .notNull(),
+  employee_code: varchar("employee_code", { length: 64 }).notNull().unique(),
   organization_id: integer("organization_id")
     .references(() => organizations.id)
     .notNull(),
-  employee_code: varchar("employee_code", { length: 64 }).notNull().unique(),
-  status: EmployeeStatus("status").notNull().default("active"),
+  status: varchar("status").notNull().default("active"), // enum EmployeeStatus
   default_hourly_rate: numeric("default_hourly_rate", {
     precision: 10,
     scale: 2,
   }).default("0"),
-  position:varchar("position"),
+  position: varchar("position"),
   timezone: varchar("timezone", { length: 64 }).notNull().default("UTC"),
-  contract_type: ContractType("contract_type").notNull().default("full_time"),
+  contract_type: varchar("contract_type").notNull().default("full_time"), // enum ContractType
   contracted_hours_per_week: numeric("contracted_hours_per_week", {
     precision: 5,
     scale: 2,
   }).default("40"),
   max_consecutive_days: integer("max_consecutive_days").default(7),
+  assigned_to_schedule: integer("assigned_to_schedule").references(
+    () => schedules.id
+  ),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -174,10 +177,7 @@ export const employee_roles = pgTable("employee_roles", {
   employee_id: integer("employee_id")
     .references(() => employees.id)
     .notNull(),
-  organization_id: integer("organization_id")
-    .references(() => organizations.id)
-    .notNull(),
-  team_id: integer("team_id").references(() => teams.id),
+  schedule_id: integer("schedule_id").references(() => schedules.id),
   role: roles("role").notNull(),
   permissions: jsonb("permissions").default("{}"),
   created_at: timestamp("created_at").defaultNow().notNull(),
@@ -245,38 +245,23 @@ export const time_off_requests = pgTable("time_off_requests", {
   meta: jsonb("meta").default("{}"),
 });
 
-export const shift_templates = pgTable("shift_templates", {
+export const schedules = pgTable("schedules", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 200 }).notNull(),
-  team_id: integer("team_id").references(() => teams.id),
-  location_id: integer("location_id").references(() => locations.id),
-  role: varchar("role", { length: 120 }),
-  start_time: varchar("start_time", { length: 16 }).notNull(),
-  end_time: varchar("end_time", { length: 16 }).notNull(),
-  contracted_hours: numeric("contracted_hours", {
-    precision: 5,
-    scale: 2,
-  }).default("0"),
-  repeat_frequency: RepeatFrequency("repeat_frequency")
-    .notNull()
-    .default("none"),
-  repeat_config: jsonb("repeat_config").default("{}"), // e.g. {weekdays:[1,3,5]}
+  organization_id: integer("organization_id")
+    .references(() => organizations.id)
+    .notNull(),
+  repeat_config: jsonb("repeat_config").default("{}"),
   created_by: integer("created_by").references(() => users.id),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const schedules = pgTable("schedules", {
+export const schedules_day = pgTable("schedules_day", {
   id: serial("id").primaryKey(),
-  template_id: integer("template_id").references(() => shift_templates.id),
-  organization_id: integer("organization_id")
-    .references(() => organizations.id)
-    .notNull(),
+  template_id: integer("template_id").references(() => schedules.id),
   assigned_employee_id: integer("assigned_employee_id").references(
     () => employees.id
   ),
-  team_id: integer("team_id").references(() => teams.id),
-  location_id: integer("location_id").references(() => locations.id),
-  role: varchar("role", { length: 120 }),
   start_at: timestamp("start_at").notNull(),
   end_at: timestamp("end_at").notNull(),
   scheduled_hours: numeric("scheduled_hours", {

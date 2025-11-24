@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { schedules } from '@/db/schema';
+import { shift_templates } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(
@@ -8,11 +8,11 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const schedule = await db.select().from(schedules).where(eq(schedules.id, parseInt(params.id)));
-    if (schedule.length === 0) return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
-    return NextResponse.json(schedule[0]);
+    const shiftTemplate = await db.select().from(shift_templates).where(eq(shift_templates.id, parseInt(params.id)));
+    if (shiftTemplate.length === 0) return NextResponse.json({ error: 'Shift template not found' }, { status: 404 });
+    return NextResponse.json(shiftTemplate[0]);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch schedule' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch shift template' }, { status: 500 });
   }
 }
 
@@ -22,14 +22,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const updatedSchedule = await db.update(schedules)
+    const updatedShiftTemplate = await db.update(shift_templates)
       .set(body)
-      .where(eq(schedules.id, parseInt(params.id)))
+      .where(eq(shift_templates.id, parseInt(params.id)))
       .returning();
-    if (updatedSchedule.length === 0) return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
-    return NextResponse.json(updatedSchedule[0]);
+    if (updatedShiftTemplate.length === 0) return NextResponse.json({ error: 'Shift template not found' }, { status: 404 });
+    return NextResponse.json(updatedShiftTemplate[0]);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update schedule' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update shift template' }, { status: 500 });
   }
 }
 
@@ -38,12 +38,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const deletedSchedule = await db.delete(schedules)
-      .where(eq(schedules.id, parseInt(params.id)))
+    const deletedShiftTemplate = await db.delete(shift_templates)
+      .where(eq(shift_templates.id, parseInt(params.id)))
       .returning();
-    if (deletedSchedule.length === 0) return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
-    return NextResponse.json({ message: 'Schedule deleted successfully' });
+    if (deletedShiftTemplate.length === 0) return NextResponse.json({ error: 'Shift template not found' }, { status: 404 });
+    return NextResponse.json({ message: 'Shift template deleted successfully' });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete schedule' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete shift template' }, { status: 500 });
   }
 }

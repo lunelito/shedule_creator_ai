@@ -8,6 +8,7 @@ import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
 import SlideFronBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
 import { employeType } from "@/app/manage/add/schedule/page";
+import Input from "../UI/Input";
 
 type TypeUserSearchList = {
   userList: employeType[];
@@ -51,6 +52,7 @@ export default function UserSearchList({
             email: userData.email!,
             name: userData.name!,
             user_id: userData.id,
+            employee_code: "",
             organization_id: Number(organizationId ?? 0),
             default_hourly_rate: 1,
             contract_type: "",
@@ -73,6 +75,7 @@ export default function UserSearchList({
           email: user.email,
           name: user.name ?? "",
           user_id: user.id,
+          employee_code: "",
           organization_id: Number(organizationId ?? 0),
           default_hourly_rate: 1,
           contract_type: "",
@@ -201,7 +204,7 @@ export default function UserSearchList({
                                 setUserList((prev) =>
                                   prev.map((u) =>
                                     u.user_id === user.user_id
-                                      ? { ...u, contract_type: option }
+                                      ? { ...u, position: option }
                                       : u
                                   )
                                 );
@@ -224,6 +227,22 @@ export default function UserSearchList({
                                   )
                                 );
                               }}
+                            />
+                            <Input
+                              key={user.user_id + "-employee_code"}
+                              type="text"
+                              name={"employee_code" + user.user_id}
+                              text="employee code"
+                              value={user.employee_code}
+                              onChange={(val) =>
+                                setUserList((prev) =>
+                                  prev.map((u) =>
+                                    u.user_id === user.user_id
+                                      ? { ...u, employee_code: val }
+                                      : u
+                                  )
+                                )
+                              }
                             />
                             {/*default_hourly_rate*/}
                             <NumberPicker
