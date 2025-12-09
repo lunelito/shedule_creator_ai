@@ -3,9 +3,20 @@
 import { z } from "zod";
 
 const scheduleSchema = z.object({
-  name: z.string().min(1, "Podaj nazwę harmonogramu"),
-  organization_id: z.number().int().positive("Niepoprawne ID organizacji"),
-  created_by: z.number().int().nullable(),
+  name: z
+    .string()
+    .min(1, "Please provide a schedule name")
+    .max(100, "Schedule name is too long"),
+
+  organization_id: z
+    .number()
+    .int("Organization ID must be an integer")
+    .positive("Invalid organization ID"),
+
+  created_by: z
+    .number()
+    .int("Creator ID must be an integer")
+    .nullable(),
 });
 
 export type addScheduleType = {
@@ -69,7 +80,7 @@ export async function addSchedule(
     if (!res.ok) {
       return {
         errors: {
-          _form: [responseData.error || "Nie udało się stworzyć organizacji"],
+          _form: [responseData.error || "Failed to create schedule"],
         },
       };
     }
@@ -77,14 +88,14 @@ export async function addSchedule(
     return {
       success: true,
       schedule_id:responseData.id?.toString(),
-      errors: { _form: ["Schedule dodany poprawnie"] },
+      errors: { _form: ["Schedule added correctly"] },
     };
 
   } catch (err: unknown) {
     if (err instanceof Error) {
       return { errors: { _form: [err.message] } };
     } else {
-      return { errors: { _form: ["Coś poszło nie tak"] } };
+      return { errors: { _form: ["Something went wrong"] } };
     }
   }
 }

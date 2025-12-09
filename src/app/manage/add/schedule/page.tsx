@@ -11,6 +11,13 @@ import { useUserDataContext } from "@/context/userContext";
 import { addEmployees } from "@/lib/actions/Schedule/addEmployees";
 import Input from "@/components/UI/Input";
 import { addSchedule } from "@/lib/actions/action";
+import SecondaryButton from "@/components/UI/SecondaryButton";
+import PrimaryButton from "@/components/UI/PrimaryButton";
+import FadeAnimation from "@/animations/FadeAnimation";
+import { AnimatePresence } from "framer-motion";
+import { deleteEmployee } from "@/lib/actions/Schedule/deleteEmployee";
+import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
+import Loader from "@/components/UI/Loader";
 export type employeType = {
   email: string;
   name: string;
@@ -29,13 +36,13 @@ export default function AddPageShedule() {
   const router = useRouter();
   // future create employeees on this tab
   const searchParams = useSearchParams();
-  
+
   const organizationId = searchParams.get("organizationId");
   const [adminUser, setAdminUser] = useState<employeType | null>(null);
   const [userList, setUserList] = useState<employeType[]>([]);
   const { userData } = useUserDataContext();
   const [error, setError] = useState("");
-  
+
   const [shedule, setShedule] = useState({
     name: "",
     organization_id: organizationId,
@@ -51,7 +58,7 @@ export default function AddPageShedule() {
         employee_code: "",
         organization_id: organizationId ? Number(organizationId) : 0,
         default_hourly_rate: 0,
-        contract_type: "admin",
+        contract_type: "full_time",
         role: "admin",
         position: "admin",
         contracted_hours_per_week: 0,
@@ -69,7 +76,7 @@ export default function AddPageShedule() {
 
   const sendEmployees = async (value: string) => {
     if (userList.length === 0) {
-      setError("dodaj pracowników");
+      setError("Add employees");
       return;
     }
 
@@ -78,10 +85,10 @@ export default function AddPageShedule() {
     formData.append("schedule_id", value);
 
     try {
-      const result = await addEmployees({ errors: {} }, formData); // Twoja server action
+      const result = await addEmployees({ errors: {} }, formData);
       console.log(result);
       if (result.success) {
-        setError("");
+        setError("Employees added");
         return true;
       } else {
         const userErrors = result.errors.users?.[0]
@@ -95,7 +102,7 @@ export default function AddPageShedule() {
       }
     } catch (err) {
       console.error(err);
-      setError("error serwera");
+      setError("server error");
     }
   };
 
@@ -135,19 +142,44 @@ export default function AddPageShedule() {
       }
     } catch (err) {
       console.error(err);
-      setError("Błąd serwera");
+      setError("server error");
     }
   };
 
   const createSheduleWithEmployees = async () => {
-    const value = await sendShedule();
-    if (value) {
-      console.log(value);
-      const empResult = await sendEmployees(value);
-      console.log(empResult);
+    try {
+      const scheduleId = await sendShedule();
+      if (!scheduleId) return;
+
+      const empResult = await sendEmployees(scheduleId);
+
       if (empResult) {
-        console.log("Grafik i pracownicy dodani");
+        router.back();
+        return;
       }
+
+      if (userList.length > 1) {
+        for (const user of userList.slice(0, userList.length - 1)) {
+          try {
+            await deleteEmployee(user.user_id);
+          } catch (err) {
+            console.error(
+              "Nie udało się usunąć pracownika:",
+              user.user_id,
+              err
+            );
+          }
+        }
+      }
+
+      try {
+        await deleteSchedule(scheduleId);
+      } catch (err) {
+        console.error("Nie udało się usunąć grafiku:", scheduleId, err);
+      }
+    } catch (err) {
+      console.error("Błąd w createSheduleWithEmployees:", err);
+      setError("Nieoczekiwany błąd serwera");
     }
   };
 
@@ -155,56 +187,65 @@ export default function AddPageShedule() {
   console.log(userList);
 
   if (!userData) {
-    <p>Loading...</p>;
+    <Loader/>;
   }
 
   return (
     <RenderAnimation animationKey={"AddPage"}>
-      <div className="flex w-full h-full flex-col p-10 justify-between md:flex-row scroll-none">
-        <div className="h-full w-full flex flex-col">
-          {/* title of page */}
-          <div className="flex items-center w-fit gap-4  p-4 rounded-lg hover:scale-110 transition-all ease-in-out">
-            <button onClick={() => router.back()}>
-              <Image
-                src={"/Icons/arrowIcon.svg"}
-                width={50}
-                height={50}
-                alt="arrow"
-                className="rotate-270 invert"
-              />
-            </button>
+      <div className="flex w-full h-full flex-col p-10 scroll-none">
+        <div className="flex w-full items-center gap-4 p-4 rounded-lg">
+          <button
+            onClick={() => router.back()}
+            className="hover:scale-150 transition-all ease-in-out cursor-pointer"
+          >
+            <Image
+              src={"/Icons/arrowIcon.svg"}
+              width={50}
+              height={50}
+              alt="arrow"
+              className="rotate-270 invert"
+            />
+          </button>
+          <div className="flex justify-between w-full">
             <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-white">
               Add Schedule
             </h1>
+            <AnimatePresence mode="wait">
+              {error && (
+                <FadeAnimation
+                  animationKey={`errorMessage-${error?.[0] || "unknown"}`}
+                >
+                  <p className="text-[clamp(1rem,6vw,2rem)] font-bold text-teal-600">
+                    {error}!
+                  </p>
+                </FadeAnimation>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="flex gap-5 mt-10">
-            {/* ading employesss */}
-            <div className="w-full flex flex-col items-center space-y-4">
-              <Input
-                name="name"
-                text="Shedule Name"
-                type="text"
-                value={shedule.name}
-                onChange={(val) => setShedule({ ...shedule, name: val })}
-              />
-              <UserSearchList
-                userList={userList}
-                setUserList={setUserList}
-                organizationId={organizationId}
-                userRoleList={userRoleList}
-              />
-            </div>
-            <div className="w-full flex flex-col items-center space-y-4">
-              <UserRoleForm
-                userRoleList={userRoleList}
-                setUserRoleList={setUserRoleList}
-              />
-            </div>
+        </div>
+        <div className="w-full flex justify-center h-full items-center">
+          <div className="w-[50vw] flex flex-col items-center mt-10 gap-20">
+            <Input
+              name="name"
+              text="Shedule Name"
+              type="text"
+              value={shedule.name}
+              onChange={(val) => setShedule({ ...shedule, name: val })}
+            />
+            <UserSearchList
+              userList={userList}
+              setUserList={setUserList}
+              organizationId={organizationId}
+              userRoleList={userRoleList}
+            />
+            <UserRoleForm
+              userRoleList={userRoleList}
+              setUserRoleList={setUserRoleList}
+            />
+            <PrimaryButton onClick={createSheduleWithEmployees}>
+              dodaj
+            </PrimaryButton>
           </div>
-          <p>{error}</p>
-          <button type="submit" onClick={createSheduleWithEmployees}>
-            dodaj
-          </button>
         </div>
       </div>
     </RenderAnimation>

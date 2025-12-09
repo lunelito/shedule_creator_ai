@@ -14,6 +14,17 @@ import type { InferSelectModel } from "drizzle-orm";
 
 export type OrganizationType = InferSelectModel<typeof organizations>;
 
+type DataType = [
+  OrganizationType[], // pierwsza tablica orgów
+  [
+    {
+      employees: any[];
+      organizations: OrganizationType;
+      schedules: any[];
+    }
+  ]
+];
+
 interface OrganizationContextType {
   organizationsData: OrganizationType[];
   setOrganizationsData: Dispatch<SetStateAction<OrganizationType[]>>;
@@ -54,7 +65,20 @@ export const OrganizationProvider = ({
 
   useEffect(() => {
     if (data) {
-      setOrganizationsData(data as OrganizationType[]);
+      const typedData = data as DataType;
+
+      // mapujemy i filtrujemy, żeby nie dodawać undefined
+      const assignedToOrg = typedData[1]
+        .map((item) => item.organizations) // bierzemy organizations
+        .flatMap((org) => (Array.isArray(org) ? org : [org])); // spłaszczamy tablice i pojedyncze obiekty
+      // console.log(error)
+      const orgs = [...typedData[0], ...assignedToOrg];
+
+      const uniqueOrgs = orgs.filter(
+        (org, index, self) => index === self.findIndex((o) => o.id === org.id)
+      );
+
+      setOrganizationsData(uniqueOrgs);
     }
   }, [data]);
 

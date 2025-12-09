@@ -7,7 +7,7 @@ type InputType = {
   text: string;
   type: "password" | "text" | "number" | "file";
   name: string;
-  value: string;
+  value?: string;
   onChange?: (val: string) => void;
   isInvalid?: boolean | undefined;
   errorMessage?: string[];
@@ -49,7 +49,7 @@ function Input({
       />
       <label
         htmlFor={text}
-        className={`absolute left-0 cursor-text select-none p-2 transition-all w-full ${value.length === 0 ? "top-1" : "-top-5"} peer-focus:-top-5 peer-focus:text-[clamp(0.75rem,1.8vw,1rem)] text-nowrap`}
+        className={`absolute left-0 cursor-text select-none p-2 transition-all w-full ${ value && value.length === 0 ? "top-1" : "-top-5"} peer-focus:-top-5 peer-focus:text-[clamp(0.75rem,1.8vw,1rem)] text-nowrap`}
       >
         {isMobile
           ? showAllText

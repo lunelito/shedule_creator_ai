@@ -50,6 +50,13 @@ export const OvertimePolicy = pgEnum("overtime_policy", [
   "weekly_threshold",
 ]);
 
+export const roles = pgEnum("roles", [
+  "admin",
+  "manager",
+  "supervisor",
+  "employee",
+]);
+
 export const organizations = pgTable("organizations", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -113,14 +120,13 @@ export const verification_tokens = pgTable("verification_tokens", {
 });
 
 export const employees = pgTable("employees", {
+  email: varchar("email", { length: 320 }).notNull(),
   id: serial("id").primaryKey(),
   user_id: integer("user_id")
     .references(() => users.id)
     .notNull(),
+  name: varchar("name", { length: 255 }),
   employee_code: varchar("employee_code", { length: 64 }).notNull().unique(),
-  organization_id: integer("organization_id")
-    .references(() => organizations.id)
-    .notNull(),
   status: varchar("status").notNull().default("active"), // enum EmployeeStatus
   default_hourly_rate: numeric("default_hourly_rate", {
     precision: 10,
@@ -133,6 +139,7 @@ export const employees = pgTable("employees", {
     precision: 5,
     scale: 2,
   }).default("40"),
+  role: roles("role").notNull(),
   max_consecutive_days: integer("max_consecutive_days").default(7),
   assigned_to_schedule: integer("assigned_to_schedule").references(
     () => schedules.id
@@ -164,13 +171,6 @@ export const locations = pgTable("locations", {
   description: text("description"),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
-
-export const roles = pgEnum("roles", [
-  "admin",
-  "manager",
-  "supervisor",
-  "employee",
-]);
 
 export const employee_roles = pgTable("employee_roles", {
   id: serial("id").primaryKey(),
@@ -264,6 +264,7 @@ export const schedules_day = pgTable("schedules_day", {
   ),
   start_at: timestamp("start_at").notNull(),
   end_at: timestamp("end_at").notNull(),
+  date: text("date"),
   scheduled_hours: numeric("scheduled_hours", {
     precision: 6,
     scale: 2,

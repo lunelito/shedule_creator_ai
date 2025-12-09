@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { linksType, OrganizationType } from "@/app/manage/layout";
 import SingleStaticItem from "./SingleStaticItem";
@@ -18,7 +18,23 @@ export default function NavBar({
   isPending,
 }: NavBarProps) {
   const [showNavBar, setShowNavbar] = useState(false);
-  const [pickedSheduleComponent, setPickedSheduleComponent] = useState(0);
+  const [pickedSheduleComponent, setPickedSheduleComponent] =
+    useState<number>(0);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("pickedSheduleComponent");
+    if (saved !== null) {
+      setPickedSheduleComponent(Number(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "pickedSheduleComponent",
+      pickedSheduleComponent.toString()
+    );
+  }, [pickedSheduleComponent]);
+
   const { isAdmin } = useUserDataContext();
 
   return (
@@ -83,9 +99,13 @@ export default function NavBar({
             {isPending
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
+                    className="flex items-center justify-between p-2 rounded-2xl bg-zinc-700 animate-pulse"
                     key={i}
-                    className="w-full aspect-square bg-zinc-700 rounded-md animate-pulse mb-2"
-                  />
+                  >
+                    <div className="h-9 w-9 m-1 shrink-0 flex items-center justify-center">
+                      <div className="h-11 w-11 bg-zinc-600 rounded-full"></div>
+                    </div>
+                  </div>
                 ))
               : organizations
                   .filter((el) => el.id > 2)

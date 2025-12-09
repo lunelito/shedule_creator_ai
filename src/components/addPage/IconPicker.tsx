@@ -35,25 +35,37 @@ export default function IconPicker({
         <p>{text}</p>
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2.5">
+      <div className="flex flex-wrap justify-between w-full gap-2.5">
         {isIconsPending
           ? Array.from({ length: 7 }).map((_, i) => (
               <div
                 key={i}
-                className="w-full aspect-square bg-zinc-800 rounded-md animate-pulse"
+                className="w-[80px] aspect-square bg-zinc-800 rounded-md animate-pulse"
               />
             ))
           : data?.map((el) => (
-              <div key={el} className="relative w-full aspect-square">
+              <div
+                key={el}
+                className="relative w-[80px] aspect-square grid grid-cols-6 group"
+              >
                 <Image
                   src={`/IconsForOrganization/${el}`}
                   alt={el}
                   fill
                   className={`object-contain transition-transform duration-200 ease-in-out 
-                    ${el !== icon ? "hover:scale-105" : ""} 
-                    ${el === icon ? "scale-[1.4]" : ""}`}
+              ${el !== icon ? "hover:scale-105" : ""} 
+              ${el === icon ? "scale-[1.4]" : ""}`}
                   onClick={() => setIcon(el)}
                 />
+                {/* Tooltip */}
+                <span
+                  className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
+                           opacity-0 group-hover:opacity-100 
+                           bg-teal-600 text-white text-xs px-2 py-1 rounded 
+                           pointer-events-none transition-opacity"
+                >
+                  {el.split(".")[0].slice().replace("com","").replace("-", " ")}
+                </span>
               </div>
             ))}
       </div>

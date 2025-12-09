@@ -1,19 +1,43 @@
 "use server";
 
+import { employees } from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
 
 const employeesSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
-  user_id: z.number().int(),
-  role: z.string().min(1),
-  position: z.string().min(1),
-  employee_code: z.string().min(1),
-  organization_id: z.number().int(),
-  default_hourly_rate: z.number().nonnegative(),
-  contract_type: z.string().min(1),
-  contracted_hours_per_week: z.number().nonnegative(),
-  max_consecutive_days: z.number().int().positive(),
+  email: z
+    .string()
+    .min(5, "Email is too short")
+    .max(100, "Email is too long")
+    .email("Invalid email address"),
+  name: z.string().min(1, "Name cannot be empty").max(50, "Name is too long"),
+  user_id: z
+    .number()
+    .int("User ID must be an integer")
+    .positive("User ID must be positive"),
+  role: z.string().min(1, "Role cannot be empty").max(50, "Role is too long"),
+  position: z
+    .string()
+    .min(1, "Position cannot be empty")
+    .max(50, "Position is too long"),
+  employee_code: z
+    .string()
+    .min(1, "Employee code cannot be empty")
+    .max(20, "Employee code is too long"),
+  default_hourly_rate: z
+    .number()
+    .nonnegative("Default hourly rate cannot be negative"),
+  contract_type: z
+    .string()
+    .min(1, "Contract type cannot be empty")
+    .max(50, "Contract type is too long"),
+  contracted_hours_per_week: z
+    .number()
+    .nonnegative("Contracted hours per week cannot be negative"),
+  max_consecutive_days: z
+    .number()
+    .int("Max consecutive days must be an integer")
+    .positive("Max consecutive days must be positive"),
 });
 
 const employeesArraySchema = z.array(employeesSchema);
@@ -24,6 +48,7 @@ export type addEmployeesType = {
     _form?: string[];
     users?: string[];
   };
+  employees?: InferSelectModel<typeof employees>[];
 };
 
 export async function addEmployees(
@@ -43,13 +68,13 @@ export async function addEmployees(
       return {
         errors: {
           users: errors,
-          _form: ["Nieprawidłowe dane pracowników"],
+          _form: ["Incorrect employee data"],
         },
       };
     }
 
     if (!schedule_id) {
-      return { errors: { _form: ["Brak przypisanego harmonogramu"] } };
+      return { errors: { _form: ["No schedule assigned"] } };
     }
 
     const apiUrlEMP = new URL(
@@ -61,6 +86,8 @@ export async function addEmployees(
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     ).toString();
 
+    const addedEmployees = [];
+
     for (let i = 0; i < validation.data.length; i++) {
       const emp = validation.data[i];
       const role = emp.role;
@@ -70,12 +97,14 @@ export async function addEmployees(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: emp.user_id,
+          name: emp.name,
+          email: emp.email,
           employee_code: emp.employee_code,
           default_hourly_rate: Number(emp.default_hourly_rate),
           position: emp.position,
           timezone: "UTC",
           contract_type: emp.contract_type,
-          organization_id: emp.organization_id,
+          role: emp.role,
           contracted_hours_per_week: Number(emp.contracted_hours_per_week),
           max_consecutive_days: Number(emp.max_consecutive_days),
           assigned_to_schedule: Number(schedule_id),
@@ -88,12 +117,14 @@ export async function addEmployees(
         const errorText = await resEmployee.text();
         return {
           errors: {
-            _form: [`Nie udało się dodać pracownika ${emp.name}: ${errorText}`],
+            _form: [`Failed to add employee ${emp.name}`],
           },
         };
       }
 
       const employeeData = await resEmployee.json();
+
+      addedEmployees.push(employeeData)
 
       const resRole = await fetch(apiUrlRoles, {
         method: "POST",
@@ -106,12 +137,9 @@ export async function addEmployees(
       });
 
       if (!resRole.ok) {
-        const errorText = await resRole.text();
         return {
           errors: {
-            _form: [
-              `Nie udało się przypisać roli dla ${emp.name}: ${errorText}`,
-            ],
+            _form: [`Could not assign role to ${emp.name}`],
           },
         };
       }
@@ -119,12 +147,13 @@ export async function addEmployees(
 
     return {
       success: true,
-      errors: { _form: ["Pracownicy dodani poprawnie"] },
+      errors: { _form: ["Employees added correctly"] },
+      employees: addedEmployees,
     };
   } catch (err: unknown) {
     return {
       errors: {
-        _form: err instanceof Error ? [err.message] : ["Coś poszło nie tak"],
+        _form: err instanceof Error ? [err.message] : ["Something went wrong"],
       },
     };
   }

@@ -6,27 +6,39 @@ import useFetch from "../../../../../hooks/useFetch";
 import { InferSelectModel } from "drizzle-orm";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { ClipLoader, HashLoader, MoonLoader } from "react-spinners";
+import Loader from "@/components/UI/Loader";
 
 export default function SchedulePage() {
   const params = useParams();
   const { userData } = useUserDataContext();
   const userId = userData?.id;
   const organizationId = params.organizationId;
-  const { data, isPending, error } = useFetch(
-    `/api/organizations/${userId}/${organizationId}`
+
+  const {
+    data: dataOrganization,
+    isPending: isPendingOrganization,
+    error: errorOrganization,
+  } = useFetch(
+    userId ? `/api/organizations/${userId}/${organizationId}` : null
   );
 
-  const organization = data as OrganizationType;
+  const organization = dataOrganization as OrganizationType;
 
-  if (isPending) {
+  const {
+    data: dataSchedule,
+    isPending: isPendingSchedule,
+    error: errorSchedule,
+  } = useFetch<[]>(`/api/schedules?id=${organizationId}`);
+
+  if (isPendingOrganization || isPendingSchedule || !organization) {
     return (
-      <div className="flex justify-center items-center min-h-64">
-        <p>Loading...</p>
-      </div>
+      <Loader/>
     );
   }
 
-  if (error) {
+  if (errorOrganization || errorSchedule) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading organization</p>
@@ -34,21 +46,8 @@ export default function SchedulePage() {
     );
   }
 
-  if (!organization) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <p>Organization not found</p>
-      </div>
-    );
-  }
-
-  const scheduleDemo = [
-    { name: "Schedule 1", id: 1 },
-    { name: "Schedule 2", id: 2 },
-  ];
-
   const showSchedulesPlusCreateOne = [
-    ...scheduleDemo,
+    ...(dataSchedule ?? []),
     { name: "Create New Schedule", id: "create" },
   ];
 

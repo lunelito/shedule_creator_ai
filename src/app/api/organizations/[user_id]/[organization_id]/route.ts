@@ -23,17 +23,22 @@ export async function GET(_request: NextRequest, { params }: Params) {
     const org = await db
       .select()
       .from(organizations)
-      .where(and(eq(organizations.id, orgId), eq(organizations.created_by, userId)))
+      .where(eq(organizations.id, orgId))
       .limit(1);
 
-    
     if (!org[0]) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(org[0]);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch organization" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch organization" },
+      { status: 500 }
+    );
   }
 }
 

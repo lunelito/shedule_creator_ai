@@ -5,7 +5,7 @@ type UserRoleFormType = {
   setUserRoleList: Dispatch<SetStateAction<string[]>>;
 };
 
-export default function UserRoleForm({
+export default function UserPositionForm({
   userRoleList,
   setUserRoleList,
 }: UserRoleFormType) {
@@ -22,7 +22,8 @@ export default function UserRoleForm({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full p-2">
+      <p className=" text-lg mb-4">Employee List</p>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           type="text"
@@ -38,25 +39,25 @@ export default function UserRoleForm({
           Add
         </button>
       </form>
-      <hr className="m-5 mt-10 mb-10" />
-      {userRoleList.length > 0 ? (
-        <div className="ml-10 mr-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {userRoleList.map((role, i) => (
-            <div
-              key={i}
-              onClick={() => deleteRole(i)}
-              className="flex items-center justify-center p-3 rounded border-1 hover:scale-105 transition-all ease-in-out hover:bg-teal-600 hover:border-teal-600"
-            >
-              {role}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex justify-center">
-          <p>No positions added</p>
-        </div>
-      )}
-      <hr className="m-5 mt-10 mb-10" />
+      <div className="border-b-1 border-t-1 py-1 px-1 mt-10 mb-10">
+        {userRoleList.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 p-5">
+            {userRoleList.map((role, i) => (
+              <div
+                key={i}
+                onClick={() => deleteRole(i)}
+                className="flex items-center justify-center p-3 rounded border-1 hover:scale-105 transition-all ease-in-out hover:bg-teal-600 hover:border-teal-600"
+              >
+                {role}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center p-5">
+            <p>No positions added</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

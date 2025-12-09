@@ -7,7 +7,7 @@ type NumberPickerType = {
   rangeDefault: number;
   title: string;
   orientation: "vertical" | "horizontal";
-  onChange: (value:number) => void;
+  onChange?: (value: number) => void;
 };
 
 export default function NumberPicker({
@@ -16,7 +16,7 @@ export default function NumberPicker({
   rangeDefault,
   title,
   orientation,
-  onChange
+  onChange,
 }: NumberPickerType) {
   const [selected, setSelected] = useState(rangeDefault);
   const [animating, setAnimating] = useState(false);
@@ -31,7 +31,7 @@ export default function NumberPicker({
       if (newVal < from) newVal = to - (step - (prev - from));
       return newVal;
     });
-    setTimeout(() => setAnimating(false), 200);
+    setTimeout(() => setAnimating(false), 100);
   };
 
   const scrollDown = (step: number = 1) => {
@@ -41,12 +41,12 @@ export default function NumberPicker({
       if (newVal > to) newVal = from + (step - (to - prev));
       return newVal;
     });
-    setTimeout(() => setAnimating(false), 200);
+    setTimeout(() => setAnimating(false), 100);
   };
 
-  useEffect(() =>{
-    onChange(selected)
-  },[selected])
+  useEffect(() => {
+    onChange && onChange(selected);
+  }, [selected]);
 
   const isHorizontal = orientation === "horizontal";
 
@@ -59,7 +59,7 @@ export default function NumberPicker({
         }`}
       >
         <button
-          onClick={() => scrollUp(1) }
+          onClick={() => scrollUp(1)}
           onDoubleClick={() => scrollUp(5)}
           className={`relative flex invert justify-center items-center rounded ${
             isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"

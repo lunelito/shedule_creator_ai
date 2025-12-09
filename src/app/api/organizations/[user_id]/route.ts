@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { organizations } from "@/db/schema";
+import { employees, organizations, schedules } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(
@@ -15,12 +15,19 @@ export async function GET(
       return NextResponse.json({ error: "Invalid user_id" }, { status: 400 });
     }
 
-    const orgs = await db
+    const orgsWhereCreatedByUser = await db
       .select()
       .from(organizations)
       .where(eq(organizations.created_by, userId));
 
-    return NextResponse.json(orgs);
+    const orgsWhereEmployeed = await db
+      .select()
+      .from(employees)
+      .leftJoin(schedules, eq(employees.assigned_to_schedule, schedules.id))
+      .leftJoin(organizations, eq(schedules.organization_id, organizations.id))
+      .where(eq(employees.user_id, parseInt(user_id)));
+
+    return NextResponse.json([orgsWhereCreatedByUser,orgsWhereEmployeed]);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch organizations" },
