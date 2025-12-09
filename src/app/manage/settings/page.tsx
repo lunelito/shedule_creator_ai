@@ -33,9 +33,6 @@ export default function SettingsPage() {
             <SettingsComponent />
           )}
         </div>
-        <div className="h-full w-full flex p-10 flex-col justify-center items-center">
-          <button onClick={() => handleLogOut()}>Log Out</button>
-        </div>
       </div>
     </RenderAnimation>
   );

@@ -29,10 +29,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
+
+    const parameters = await params
+    const { id } = parameters;
+    
     const updatedUser = await db
       .update(users)
       .set(body)
-      .where(eq(users.id, parseInt(params.id)))
+      .where(eq(users.id, parseInt(id)))
       .returning();
     if (updatedUser.length === 0)
       return NextResponse.json({ error: "User not found" }, { status: 404 });

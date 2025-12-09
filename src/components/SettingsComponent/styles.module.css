@@ -42,12 +42,6 @@
     border-radius: 8px;
 }
 
-.page img {
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-}
-
 .page a {
     color: rgb(223, 223, 223);
 }
@@ -62,9 +56,15 @@
     background-color: rgb(10, 10, 10);
     border: 1px solid rgb(56, 56, 56);
     margin-top: 24px;
-    margin-left: auto;
-    display: block;
     cursor: pointer;
+}
+
+.logoutButton {
+    background-color: lab(55 -37.18 -3.18) !important;
+}
+
+.logoutButton:hover{
+    background-color: lab(42.81% -29.78 -2.26) !important;
 }
 
 .page button:hover {
