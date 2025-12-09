@@ -1,0 +1,73 @@
+.page {
+    /* background-color: rgb(10, 10, 10); */
+    /* border: 1px solid rgb(56, 56, 56); */
+    margin-top: 60px;
+    padding: 24px;
+    width: 100%;
+    border-radius: 18px;
+}
+
+.page h1 {
+    font-size: 1.8em;
+    font-weight: 500;
+    margin-bottom: 24px;
+}
+
+.block {
+    background-color: rgb(27, 27, 27);
+    border: 1px solid rgb(56, 56, 56);
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 12px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.blockRow {
+    display: flex;
+    flex-direction: row;
+}
+
+.block label {
+    font-size: 1.02em;
+    font-weight: 600;
+}
+
+.page input {
+    background-color: rgb(10, 10, 10);
+    border: 1px solid rgb(56, 56, 56);
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.page a {
+    color: rgb(223, 223, 223);
+}
+
+.page a:hover {
+    text-decoration: underline;
+}
+
+.page button {
+    border-radius: 8px;
+    padding: 8px 12px;
+    background-color: rgb(10, 10, 10);
+    border: 1px solid rgb(56, 56, 56);
+    margin-top: 24px;
+    cursor: pointer;
+}
+
+.logoutButton {
+    background-color: lab(55 -37.18 -3.18) !important;
+}
+
+.logoutButton:hover{
+    background-color: lab(42.81% -29.78 -2.26) !important;
+}
+
+.page button:hover {
+    background-color: rgb(24, 24, 24);
+    transition: 0.06s ease-in-out;
+}
