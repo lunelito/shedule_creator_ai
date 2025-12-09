@@ -5,6 +5,7 @@ import LoginForm from "@/components/LoginRegister/LoginForm";
 import RegisterForm from "@/components/LoginRegister/RegisterForm";
 import { AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Page() {
   const [isVertical, setIsVertical] = useState<boolean | null>(null);
@@ -28,11 +29,11 @@ export default function Page() {
           <div className="text-white flex justify-center items-center h-1/2 w-[100vw]">
             <AnimatePresence mode="wait">
               {activeForm === "login" ? (
-                <SlideIn key="login" animationKey="login" >
+                <SlideIn key="login" animationKey="login">
                   <LoginForm setActiveForm={setActiveForm} />
                 </SlideIn>
               ) : (
-                <SlideOut key="register" animationKey="register" >
+                <SlideOut key="register" animationKey="register">
                   <RegisterForm setActiveForm={setActiveForm} />
                 </SlideOut>
               )}
@@ -44,11 +45,16 @@ export default function Page() {
               isVertical ? "hidden" : ""
             }`}
           >
-            future logo
+            <Image
+              src="/logo/logo_img.png"
+              alt="Logo"
+              width={500}
+              height={500}
+              className="max-w-full h-auto"
+            />
           </div>
         </>
       )}
     </div>
   );
 }
-
