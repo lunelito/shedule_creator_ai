@@ -46,11 +46,6 @@ export async function logIn(formData: FormData): Promise<LoginType> {
       };
     }
 
-    console.log("👉 Próba logowania z:", {
-      email: result.data.email,
-      password: result.data.password,
-    });
-
     const res = await signIn("credentials", {
       redirect: false,
       email: result.data.email,
@@ -59,7 +54,7 @@ export async function logIn(formData: FormData): Promise<LoginType> {
 
     if (!res || res.error) {
       let message = "Nie udało się zalogować użytkownika";
-      console.log(res)
+
 
       if (res?.error === "CredentialsSignin") {
         message = "Nieprawidłowy email lub hasło";

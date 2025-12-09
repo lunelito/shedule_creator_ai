@@ -53,9 +53,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!isPasswordValid) return null;
 
-          if (!matchedUser.emailVerified) {
-            throw new Error("Email not verify");
-          }
+          if (!matchedUser.emailVerified) return null;
 
           return {
             id: matchedUser.id.toString(),
@@ -64,7 +62,7 @@ export const authOptions: NextAuthOptions = {
             image: matchedUser.image,
           };
         } catch (error) {
-          console.error("Auth error:", error);
+          console.log("Auth error:", error);
           return null;
         }
       },
@@ -92,6 +90,17 @@ export const authOptions: NextAuthOptions = {
         session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      const u = user as any;
+      if (u.email && !u.emailVerified) {
+        await db
+          .update(users)
+          .set({ emailVerified: new Date() })
+          .where(eq(users.email, u.email!));
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

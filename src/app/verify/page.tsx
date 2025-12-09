@@ -1,6 +1,6 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
+import useFetch from "../../../hooks/useFetch";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

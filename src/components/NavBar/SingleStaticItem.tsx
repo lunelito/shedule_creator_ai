@@ -3,6 +3,7 @@ import React from "react";
 import { linksType } from "@/app/manage/layout";
 import ToggleNavBar from "@/animations/ToggleNavBar";
 import { AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 type SingleStaticItemProps = linksType & {
   toggleMenu?: boolean;
@@ -22,8 +23,7 @@ export default function SingleStaticItem({
   pickedSheduleComponent,
   setPickedSheduleComponent,
   setShowNavbar,
-}: SingleStaticItemProps)
-{
+}: SingleStaticItemProps) {
   return (
     <Link
       key={id}
@@ -36,8 +36,23 @@ export default function SingleStaticItem({
         setPickedSheduleComponent(id);
       }}
     >
-      <div className="h-9 w-9 shrink-0 flex justify-center m-1">
-        <img src={`/icons/${icon}.svg`} alt={icon} />
+      <div className="h-9 w-9 shrink-0 flex justify-center items-center m-1">
+        {icon ? (
+          <Image
+            src={`/Icons/${icon}.svg`}
+            alt={icon}
+            width={44}
+            height={44}
+            onError={(e) => {
+              // Fallback jeśli ikona nie istnieje
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="w-6 h-6 bg-gray-500 rounded-full flex items-center justify-center text-white text-xs">
+            ?
+          </div>
+        )}
       </div>
 
       <div className="overflow-hidden">

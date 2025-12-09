@@ -1,18 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
-import { scheduleType, linksType } from "@/app/manage/layout";
+import { linksType, OrganizationType } from "@/app/manage/layout";
 import SingleStaticItem from "./SingleStaticItem";
 import { useUserDataContext } from "@/context/userContext";
+import SingleStaticItemOrganization from "./SingleStaticItemOrganization";
 
 type NavBarProps = {
-  schedules: scheduleType[];
+  organizations: OrganizationType[];
   links: linksType[];
+  isPending: boolean;
 };
 
-export default function NavBar({ schedules, links }: NavBarProps) {
+export default function NavBar({
+  organizations,
+  links,
+  isPending,
+}: NavBarProps) {
   const [showNavBar, setShowNavbar] = useState(false);
-  const [pickedSheduleComponent, setPickedSheduleComponent] = useState(0);
+  const [pickedSheduleComponent, setPickedSheduleComponent] =
+    useState<number>(0);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("pickedSheduleComponent");
+    if (saved !== null) {
+      setPickedSheduleComponent(Number(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "pickedSheduleComponent",
+      pickedSheduleComponent.toString()
+    );
+  }, [pickedSheduleComponent]);
+
   const { isAdmin } = useUserDataContext();
 
   return (
@@ -74,21 +96,32 @@ export default function NavBar({ schedules, links }: NavBarProps) {
                   />
                 ))}
             {/* shedules */}
-            {schedules
-              .filter((el, i) => el.id > 2)
-              .map((el, i) => (
-                <SingleStaticItem
-                  key={el.id}
-                  href={`/manage/schedules/${el.slug}`}
-                  icon={el.icon}
-                  label={el.label}
-                  id={el.id}
-                  pickedSheduleComponent={pickedSheduleComponent}
-                  setPickedSheduleComponent={setPickedSheduleComponent}
-                  showNavBar={showNavBar}
-                  setShowNavbar={setShowNavbar}
-                />
-              ))}
+            {isPending
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    className="flex items-center justify-between p-2 rounded-2xl bg-zinc-700 animate-pulse"
+                    key={i}
+                  >
+                    <div className="h-9 w-9 m-1 shrink-0 flex items-center justify-center">
+                      <div className="h-11 w-11 bg-zinc-600 rounded-full"></div>
+                    </div>
+                  </div>
+                ))
+              : organizations
+                  .filter((el) => el.id > 2)
+                  .map((el) => (
+                    <SingleStaticItemOrganization
+                      key={el.id}
+                      href={`/manage/organization/${el.id}`}
+                      icon={el.icon}
+                      label={el.name}
+                      id={el.id}
+                      pickedSheduleComponent={pickedSheduleComponent}
+                      setPickedSheduleComponent={setPickedSheduleComponent}
+                      showNavBar={showNavBar}
+                      setShowNavbar={setShowNavbar}
+                    />
+                  ))}
           </div>
         </div>
         <div className="w-fit mt-5 flex flex-col p-5 overflow-y-scroll overflow-x-hidden scrollbar-none">

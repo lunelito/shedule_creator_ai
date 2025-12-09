@@ -115,7 +115,7 @@ export async function register(
       return {
         errors: {
           _form: [
-            responseData.error || "Nie udało się zarejestrować użytkownika",
+            responseData.error || "Failed to register user",
           ],
         },
       };
@@ -123,7 +123,7 @@ export async function register(
       sendVerificationEmail(result.data.email)
       return {
         success: true,
-        errors: { _form: ["Konto stworzone pomyślnie"] },
+        errors: { _form: ["Account created, verify your email on " + result.data.email] },
       };
     }
     
