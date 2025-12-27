@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import useFetch from "../../../../../../hooks/useFetch";
 import RenderAnimation from "@/animations/RenderAnimation";
@@ -15,6 +15,9 @@ export default function Page() {
   const params = useParams();
   const router = useRouter();
   const scheduleId = params.scheduleId;
+  const pathname = usePathname();
+  const organizationId = pathname.split("/")[3];
+  console.log(organizationId)
   const [employeeLogInRole, setEmployeeLogInRole] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
@@ -36,7 +39,7 @@ export default function Page() {
     `/api/employees?id=${scheduleId}`
   );
 
-  const { data: employeeLogInData } =
+  const { data: employeeLogInData, error } =
     useFetch<InferSelectModel<typeof employees>>(`/api/employees/me`);
 
   useEffect(() => {
@@ -58,9 +61,7 @@ export default function Page() {
     !dataSchedule ||
     !dataEmployees
   ) {
-    return (
-      <Loader/>
-    );
+    return <Loader />;
   }
 
   if (errorSchedule || errorEmployees) {
@@ -100,7 +101,7 @@ export default function Page() {
           </h1>
         </div>
         <div className="w-full flex flex-col items-center h-full">
-          <ClassicCalendar scheduleId={scheduleId} />
+          <ClassicCalendar scheduleId={scheduleId} organizationId={organizationId} />
           <EmployeesDatalist
             scheduleId={scheduleId}
             employeesTab={employeesTab ? employeesTab : []}

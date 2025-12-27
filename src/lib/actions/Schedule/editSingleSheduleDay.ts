@@ -10,7 +10,7 @@ export type addScheduleType = {
   schedulesDays?: any;
 };
 
-export async function addSingleSheduleDay(
+export async function editSingleSheduleDay(
   formState: addScheduleType,
   formData: FormData
 ): Promise<addScheduleType> {
@@ -40,7 +40,7 @@ export async function addSingleSheduleDay(
     ).toString();
 
     const res = await fetch(apiUrl, {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ shifts }),
     });
@@ -58,7 +58,7 @@ export async function addSingleSheduleDay(
         errors: {
           _form: [
             responseData.error ||
-              "Failed to create schedule. Please try again.",
+              "Failed to edit schedule. Please try again.",
           ],
         },
       };
@@ -66,8 +66,8 @@ export async function addSingleSheduleDay(
 
     return {
       success: true,
-      errors: { _form: ["Schedule added successfully."] },
-      schedulesDays: responseData, // to jest faktyczny JSON
+      errors: { _form: ["Schedule edited successfully."] },
+      schedulesDays: responseData,
     };
   } catch (err: any) {
     return {

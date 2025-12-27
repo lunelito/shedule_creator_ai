@@ -8,9 +8,13 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 type ClassicCalendartype = {
   scheduleId: ParamValue;
+  organizationId: ParamValue;
 };
 
-export default function ClassicCalendar({ scheduleId }: ClassicCalendartype) {
+export default function ClassicCalendar({
+  scheduleId,
+  organizationId,
+}: ClassicCalendartype) {
   // text to display and easier to map
   const daysOfWeek: string[] = [
     "Monday",
@@ -119,7 +123,7 @@ export default function ClassicCalendar({ scheduleId }: ClassicCalendartype) {
                 const dd = String(selectedDate.getDate()).padStart(2, "0");
                 const dateString = `${yyyy}-${mm}-${dd}`;
                 router.replace(
-                  `/manage/add/addSheduleDay?date=${dateString}&shedule_id=${scheduleId}`
+                  `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}`
                 );
               }}
               key={i}

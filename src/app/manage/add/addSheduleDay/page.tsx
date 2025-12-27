@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RenderAnimation from "@/animations/RenderAnimation";
-import NumberPicker from "@/components/UI/NumberPicker";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { useUserDataContext } from "@/context/userContext";
 import { useSearchParams } from "next/navigation";
@@ -15,7 +14,10 @@ import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
 import useFetch from "../../../../../hooks/useFetch";
 import Loader from "@/components/UI/Loader";
-import { undefined } from "zod";
+import AddSheduleCard from "@/components/addSheduleDay/AddScheduleCard";
+import SheduleCard from "@/components/addSheduleDay/ScheduleCard";
+import EditScheduleCard from "@/components/addSheduleDay/EditScheduleCard";
+import { editSingleSheduleDay } from "@/lib/actions/Schedule/editSingleSheduleDay";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -30,49 +32,61 @@ type Shift = {
   published_by: number | null;
 };
 
-type EmployeeShift = {
+export type EmployeeShift = {
   employee_id: number;
   user_id: number;
   start_hour: number;
   end_hour: number;
 };
 
-type UsersData = {
-  [key: number]: InferSelectModel<typeof users>;
+export type ShiftFetched = EmployeeShift & {
+  id: number;
 };
 
 export default function AddScheduleDay() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dateParam = searchParams.get("date");
-  const scheduleId = searchParams.get("shedule_id");
-  console.log(scheduleId);
+  const scheduleId = searchParams.get("schedule_id");
+  const organizationId = searchParams.get("organization_id");
   const { userData } = useUserDataContext();
   const [error, setError] = useState("");
-
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
   >([]);
-
   const [employeeLogInRole, setEmployeeLogInRole] = useState("");
   const [employeeShifts, setEmployeeShifts] = useState<EmployeeShift[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(
     dateParam ? new Date(dateParam) : new Date()
   );
-  const [fetchedShiftsData, setFetchedShiftsData] = useState<EmployeeShift[]>(
+  const [fetchedShiftsData, setFetchedShiftsData] = useState<ShiftFetched[]>(
     []
   );
-
-  const [editable, setEditable] = useState(false);
+  const [editFetchedShiftsData, setEditFetchedShiftsData] = useState<
+    ShiftFetched[]
+  >([]);
+  const [editleShow, setEditleShow] = useState(false);
+  const [addShow, setAddShow] = useState(false);
 
   const formatedData = (baseDate: Date) => {
     const date = new Date(baseDate);
-
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const parseData = (
+    data: InferSelectModel<typeof schedules_day>[]
+  ): ShiftFetched[] => {
+    return data.map((shift) => ({
+      id: shift.id,
+      employee_id: shift.assigned_employee_id ?? 0,
+      user_id: shift.created_by ?? 0,
+      start_hour: new Date(shift.start_at).getHours(),
+      end_hour: new Date(shift.end_at).getHours(),
+    }));
   };
 
   const { data: employeeLogInData } =
@@ -128,36 +142,7 @@ export default function AddScheduleDay() {
     }
   };
 
-  const handleTimeChange = (
-    employeeId: number,
-    type: "start" | "end",
-    hour: number
-  ) => {
-    setEmployeeShifts((prev) => {
-      const shift = prev.find((s) => s.employee_id === employeeId);
-      if (!shift) return prev;
-
-      const start = type === "start" ? hour : shift.start_hour;
-      const end = type === "end" ? hour : shift.end_hour;
-
-      const diff = end - start;
-
-      if (hour < 0 || hour > 24 || diff > 12 || diff < 0) {
-        return prev;
-      }
-
-      return prev.map((s) =>
-        s.employee_id === employeeId
-          ? {
-              ...s,
-              [type === "start" ? "start_hour" : "end_hour"]: hour,
-            }
-          : s
-      );
-    });
-  };
-
-  const fetchData = () => {
+  const getDataFromLocalHost = () => {
     try {
       const storedEmployees = localStorage.getItem("employeesTab");
       if (storedEmployees) {
@@ -178,7 +163,7 @@ export default function AddScheduleDay() {
       console.error("Error parsing localStorage data:", error);
     }
   };
-
+  
   const handleSubmit = async () => {
     const shifts = fillShifts();
     if (shifts) {
@@ -187,20 +172,12 @@ export default function AddScheduleDay() {
       try {
         const result = await addSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
-          const parsed: EmployeeShift[] = result.schedulesDays.shifts.map(
-            (shift: InferSelectModel<typeof schedules_day>) => ({
-              employee_id: shift.assigned_employee_id,
-              user_id: shift.created_by ?? 0,
-              start_hour: new Date(shift.start_at).getHours(),
-              end_hour: new Date(shift.end_at).getHours(),
-            })
-          );
-
-          console.log("Parsed shifts:", parsed);
-
+          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
+          console.log(parsed)
           setFetchedShiftsData(parsed);
-          setError("Schedule Added");
-          setEditable(false);
+          setEditFetchedShiftsData(parsed);
+          setError("Shifts Added");
+          setAddShow(false);
         } else {
           setError(
             result.errors._form?.[0] ?? "Error while inserting schedule day"
@@ -208,40 +185,81 @@ export default function AddScheduleDay() {
           return false;
         }
       } catch (e) {
-        console.error(e);
         setError("server error");
       }
-      console.log("Submitting shifts:", shifts);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (editFetchedShiftsData) {
+      const baseDate = new Date(selectedDate);
+      baseDate.setHours(0, 0, 0, 0);
+
+      const data = editFetchedShiftsData.map((el) => {
+        const startDate = new Date(baseDate);
+        startDate.setHours(el.start_hour, 0, 0, 0);
+
+        const endDate = new Date(baseDate);
+        endDate.setHours(el.end_hour, 0, 0, 0);
+
+        return {
+          ...el,
+          start_at: startDate,
+          end_at: endDate,
+        };
+      });
+
+      const formData = new FormData();
+      formData.append("shifts", JSON.stringify(data));
+      try {
+        const result = await editSingleSheduleDay({ errors: {} }, formData);
+        if (result.success && result.schedulesDays?.shifts) {
+          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts)
+          console.log(parsed)
+          setFetchedShiftsData(parsed);
+          setEditFetchedShiftsData(parsed);
+          setError("Shifts Updated");
+          setEditleShow(false);
+        } else {
+          setError(
+            result.errors._form?.[0] ?? "Error while changing schedule day"
+          );
+          return false;
+        }
+      } catch (e) {
+        setError("server error");
+      }
     }
   };
 
   useEffect(() => {
-    fetchData();
+    getDataFromLocalHost();
   }, []);
 
   useEffect(() => {
     if (shiftsData) {
-      const parsed: EmployeeShift[] = shiftsData.map((shift) => ({
-        employee_id: shift.assigned_employee_id!,
-        user_id: shift.created_by ?? 0,
-        start_hour: new Date(shift.start_at).getHours(),
-        end_hour: new Date(shift.end_at).getHours(),
-      }));
-
+      const parsed: ShiftFetched[] = parseData(shiftsData)
       setFetchedShiftsData(parsed);
+      setEditFetchedShiftsData(parsed);
     }
   }, [shiftsData]);
 
   if (isPending || !shiftsData) {
-    return <Loader/>;
+    return <Loader />;
   }
+
 
   return (
     <RenderAnimation animationKey={"AddPage"}>
       <div className="flex w-full h-full flex-col p-10 scroll-none">
+        {/* HEADEr */}
         <div className="flex w-full items-center gap-4 p-4 rounded-lg">
           <button
-            onClick={() => router.back()}
+            onClick={() =>
+              router.replace(
+                `/manage/organization/${organizationId}/${scheduleId}`
+              )
+            }
             className="hover:scale-150 transition-all ease-in-out cursor-pointer"
           >
             <Image
@@ -269,6 +287,7 @@ export default function AddScheduleDay() {
             </AnimatePresence>
           </div>
         </div>
+        {/* HEADEr */}
 
         <div className="w-full h-fit grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
           {employeesTab.length === 0 ? (
@@ -281,114 +300,62 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
+              if (editleShow && fetchedShiftsData.length > 1) {
+                return (
+                  <EditScheduleCard
+                    key={emp.id}
+                    addShow={addShow}
+                    emp={emp}
+                    editFetchedShiftsData={editFetchedShiftsData}
+                    fetchedShiftsData={fetchedShiftsData}
+                    i={i}
+                    setEditFetchedShiftsData={setEditFetchedShiftsData}
+                  />
+                );
+              }
+
+              if (addShow && !fetchedShiftsData[i]) {
+                return (
+                  <AddSheduleCard
+                    key={emp.id}
+                    addShow={addShow}
+                    emp={emp}
+                    employeeShift={employeeShift}
+                    fetchedShiftsData={fetchedShiftsData}
+                    i={i}
+                    setEmployeeShifts={setEmployeeShifts}
+                  />
+                );
+              }
+
               return (
-                <div
+                <SheduleCard
                   key={emp.id}
-                  className="w-full p-5 border border-teal-600 rounded-lg"
-                >
-                  <h2 className="text-xl mb-5 m-2 text-center">
-                    {emp.name || "Unknown User"}
-                    <br />
-                    <span className="text-sm text-gray-400">
-                      {emp.email || "No email"}
-                    </span>
-                  </h2>
-                  <div className="flex justify-center items-center flex-col">
-                    {(fetchedShiftsData[i]?.start_hour == null) && !editable ? (
-                      <p className="text-center text-teal-600 text-xl font-bold">
-                        deosnt work
-                      </p>
-                    ) : (
-                      <>
-                        <div className="mb-4">
-                          <p className="text-center mb-2">Shift Start:</p>
-                          {editable && !fetchedShiftsData[i] ? (
-                            <NumberPicker
-                              from={0}
-                              to={
-                                employeeShift
-                                  ? Math.min(
-                                      employeeShift.end_hour,
-                                      employeeShift.start_hour + 12
-                                    )
-                                  : 24
-                              }
-                              orientation="horizontal"
-                              title=""
-                              rangeDefault={employeeShift?.start_hour || 8}
-                              onChange={(value) =>
-                                handleTimeChange(emp.id, "start", value)
-                              }
-                            />
-                          ) : (
-                            <p className="text-center text-teal-600 text-xl font-bold">
-                              {fetchedShiftsData[i]?.start_hour.toString() +
-                                ":00"}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-center mb-2">Shift End:</p>
-                          {editable && !fetchedShiftsData[i] ? (
-                            <NumberPicker
-                              from={
-                                employeeShift
-                                  ? Math.max(0, employeeShift.start_hour)
-                                  : 0
-                              }
-                              to={
-                                employeeShift
-                                  ? Math.min(24, employeeShift.start_hour + 12)
-                                  : 24
-                              }
-                              orientation="horizontal"
-                              title=""
-                              rangeDefault={employeeShift?.end_hour || 16}
-                              onChange={(value) =>
-                                handleTimeChange(emp.id, "end", value)
-                              }
-                            />
-                          ) : (
-                            <p className="text-center text-teal-600 text-xl font-bold">
-                              {fetchedShiftsData ? fetchedShiftsData[i]?.end_hour.toString() +
-                                ":00" : "doesnt work"}
-                            </p>
-                          )}
-                        </div>
-                        {employeeShift && (
-                          <div className="mt-4 p-2 rounded text-center">
-                            <p className="text-sm">
-                              Duration:{" "}
-                              <span className="font-bold text-teal-400">
-                                {employeeShift.end_hour -
-                                  employeeShift.start_hour}
-                                h
-                              </span>
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {employeeShift.start_hour}:00 -{" "}
-                              {employeeShift.end_hour}:00
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
+                  addShow={addShow}
+                  emp={emp}
+                  fetchedShiftsData={fetchedShiftsData}
+                  i={i}
+                />
               );
             })
           )}
         </div>
 
-        {employeeLogInRole === "admin" &&
-          editable &&
-          (fetchedShiftsData.length > 0 ? (
-            <></>
-          ) : (
-            <div className="mt-8 flex justify-center gap-4">
-              <PrimaryButton onClick={handleSubmit}>Add Shifts</PrimaryButton>
-            </div>
-          ))}
+        {employeeLogInRole === "admin" && (
+          <>
+            {editleShow && fetchedShiftsData.length > 1 && (
+              <div className="mt-8 flex justify-center gap-4">
+                <PrimaryButton onClick={handleEdit}>Edit Shifts</PrimaryButton>
+              </div>
+            )}
+
+            {addShow && fetchedShiftsData.length === 0 && (
+              <div className="mt-8 flex justify-center gap-4">
+                <PrimaryButton onClick={handleSubmit}>Add Shifts</PrimaryButton>
+              </div>
+            )}
+          </>
+        )}
 
         <div className="mt-6 text-center text-sm ">
           {employeesTab.length > 0 && (
@@ -399,17 +366,28 @@ export default function AddScheduleDay() {
           )}
         </div>
 
-        {employeeLogInRole === "admin" &&
-          (fetchedShiftsData.length > 0 ? (
-            <></>
-          ) : (
-            <div className="m-5 text-center">
-              <PrimaryButton onClick={() => setEditable((prev) => !prev)}>
-                click here if you want to {editable ? "see" : "edit"} schedule
+        <div className="m-5 text-center">
+          {employeeLogInRole === "admin" &&
+            (fetchedShiftsData.length > 0 ? (
+              <PrimaryButton
+                onClick={() => {
+                  setEditleShow((prev) => !prev), setError("");
+                }}
+              >
+                click here if you want to {editleShow ? "see" : "edit"} schedule
                 hours
               </PrimaryButton>
-            </div>
-          ))}
+            ) : (
+              <PrimaryButton
+                onClick={() => {
+                  setAddShow((prev) => !prev), setError("");
+                }}
+              >
+                click here if you want to {addShow ? "see" : "add"} schedule
+                hours
+              </PrimaryButton>
+            ))}
+        </div>
       </div>
     </RenderAnimation>
   );

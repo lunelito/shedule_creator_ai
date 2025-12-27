@@ -12,9 +12,10 @@ export async function GET() {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log(typeof session.user.id)
 
     const userIdStr = (session.user as any).id;
-    if (!userIdStr || typeof userIdStr !== "string") {
+    if (!userIdStr) {
       return NextResponse.json(
         { error: "User ID not found in session" },
         { status: 400 }
