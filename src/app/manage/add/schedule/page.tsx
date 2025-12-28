@@ -18,6 +18,7 @@ import { AnimatePresence } from "framer-motion";
 import { deleteEmployee } from "@/lib/actions/Schedule/deleteEmployee";
 import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
 import Loader from "@/components/UI/Loader";
+import DashboardHeader from "@/components/UI/DashboardHeader";
 export type employeType = {
   email: string;
   name: string;
@@ -187,67 +188,45 @@ export default function AddPageShedule() {
   console.log(userList);
 
   if (!userData) {
-    <Loader/>;
+    <Loader />;
   }
 
   return (
-    <RenderAnimation animationKey={"AddPage"}>
-      <div className="flex w-full h-full flex-col p-10 scroll-none">
-        <div className="flex w-full items-center gap-4 p-4 rounded-lg">
-          <button
-            onClick={() => router.back()}
-            className="hover:scale-150 transition-all ease-in-out cursor-pointer"
-          >
-            <Image
-              src={"/Icons/arrowIcon.svg"}
-              width={50}
-              height={50}
-              alt="arrow"
-              className="rotate-270 invert"
-            />
-          </button>
-          <div className="flex justify-between w-full">
-            <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-white">
-              Add Schedule
-            </h1>
-            <AnimatePresence mode="wait">
-              {error && (
-                <FadeAnimation
-                  animationKey={`errorMessage-${error?.[0] || "unknown"}`}
-                >
-                  <p className="text-[clamp(1rem,6vw,2rem)] font-bold text-teal-600">
-                    {error}!
-                  </p>
-                </FadeAnimation>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        <div className="w-full flex justify-center h-full items-center">
-          <div className="w-[50vw] flex flex-col items-center mt-10 gap-20">
+    <div className="w-full h-screen flex flex-col">
+      <DashboardHeader
+        onClick={() => router.back()}
+        title="Add Schedule"
+        error={error}
+      />
+      <RenderAnimation animationKey={"AddPage"}>
+        <div className="flex-1 min-h-full flex justify-center">
+          <div className="w-[50vw] max-w-2xl flex flex-col gap-20 py-10">
             <Input
               name="name"
-              text="Shedule Name"
+              text="Schedule Name"
               type="text"
               value={shedule.name}
               onChange={(val) => setShedule({ ...shedule, name: val })}
             />
+
             <UserSearchList
               userList={userList}
               setUserList={setUserList}
               organizationId={organizationId}
               userRoleList={userRoleList}
             />
+
             <UserRoleForm
               userRoleList={userRoleList}
               setUserRoleList={setUserRoleList}
             />
+
             <PrimaryButton onClick={createSheduleWithEmployees}>
               dodaj
             </PrimaryButton>
           </div>
         </div>
-      </div>
-    </RenderAnimation>
+      </RenderAnimation>
+    </div>
   );
 }

@@ -18,6 +18,7 @@ import AddSheduleCard from "@/components/addSheduleDay/AddScheduleCard";
 import SheduleCard from "@/components/addSheduleDay/ScheduleCard";
 import EditScheduleCard from "@/components/addSheduleDay/EditScheduleCard";
 import { editSingleSheduleDay } from "@/lib/actions/Schedule/editSingleSheduleDay";
+import DashboardHeader from "@/components/UI/DashboardHeader";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -163,7 +164,7 @@ export default function AddScheduleDay() {
       console.error("Error parsing localStorage data:", error);
     }
   };
-  
+
   const handleSubmit = async () => {
     const shifts = fillShifts();
     if (shifts) {
@@ -173,7 +174,7 @@ export default function AddScheduleDay() {
         const result = await addSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
           const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
-          console.log(parsed)
+          console.log(parsed);
           setFetchedShiftsData(parsed);
           setEditFetchedShiftsData(parsed);
           setError("Shifts Added");
@@ -214,8 +215,8 @@ export default function AddScheduleDay() {
       try {
         const result = await editSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
-          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts)
-          console.log(parsed)
+          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
+          console.log(parsed);
           setFetchedShiftsData(parsed);
           setEditFetchedShiftsData(parsed);
           setError("Shifts Updated");
@@ -238,7 +239,7 @@ export default function AddScheduleDay() {
 
   useEffect(() => {
     if (shiftsData) {
-      const parsed: ShiftFetched[] = parseData(shiftsData)
+      const parsed: ShiftFetched[] = parseData(shiftsData);
       setFetchedShiftsData(parsed);
       setEditFetchedShiftsData(parsed);
     }
@@ -248,48 +249,17 @@ export default function AddScheduleDay() {
     return <Loader />;
   }
 
-
   return (
-    <RenderAnimation animationKey={"AddPage"}>
-      <div className="flex w-full h-full flex-col p-10 scroll-none">
-        {/* HEADEr */}
-        <div className="flex w-full items-center gap-4 p-4 rounded-lg">
-          <button
-            onClick={() =>
-              router.replace(
-                `/manage/organization/${organizationId}/${scheduleId}`
-              )
-            }
-            className="hover:scale-150 transition-all ease-in-out cursor-pointer"
-          >
-            <Image
-              src={"/Icons/arrowIcon.svg"}
-              width={50}
-              height={50}
-              alt="arrow"
-              className="rotate-270 invert"
-            />
-          </button>
-          <div className="flex justify-between w-full">
-            <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-white">
-              Add Schedule
-            </h1>
-            <AnimatePresence mode="wait">
-              {error && (
-                <FadeAnimation
-                  animationKey={`errorMessage-${error?.[0] || "unknown"}`}
-                >
-                  <p className="text-[clamp(1rem,6vw,2rem)] font-bold text-teal-600">
-                    {error}!
-                  </p>
-                </FadeAnimation>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        {/* HEADEr */}
-
-        <div className="w-full h-fit grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
+    <div className="flex w-full h-full flex-col scroll-none">
+      <DashboardHeader
+        onClick={() =>
+          router.replace(`/manage/organization/${organizationId}/${scheduleId}`)
+        }
+        title="Add Schedule"
+        error={error}
+      />
+      <RenderAnimation animationKey={"AddPage"}>
+        <div className="p-10 w-full h-fit grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
           {employeesTab.length === 0 ? (
             <p className="font-bold text-center p-5 text-teal-600">
               No Employees found
@@ -388,7 +358,7 @@ export default function AddScheduleDay() {
               </PrimaryButton>
             ))}
         </div>
-      </div>
-    </RenderAnimation>
+      </RenderAnimation>
+    </div>
   );
 }

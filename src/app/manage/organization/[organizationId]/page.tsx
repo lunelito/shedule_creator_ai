@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { ClipLoader, HashLoader, MoonLoader } from "react-spinners";
 import Loader from "@/components/UI/Loader";
+import DashboardHeader from "@/components/UI/DashboardHeader";
 
 export default function SchedulePage() {
   const params = useParams();
@@ -33,9 +34,7 @@ export default function SchedulePage() {
   } = useFetch<[]>(`/api/schedules?id=${organizationId}`);
 
   if (isPendingOrganization || isPendingSchedule || !organization) {
-    return (
-      <Loader/>
-    );
+    return <Loader />;
   }
 
   if (errorOrganization || errorSchedule) {
@@ -52,12 +51,10 @@ export default function SchedulePage() {
   ];
 
   return (
-    <RenderAnimation animationKey={organizationId as string}>
-      <div className="flex flex-col gap-10 p-6 md:p-10">
-        <h1 className="text-3xl md:text-4xl font-bold">
-          {organization.name} - Schedules
-        </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="flex flex-col w-full">
+      <DashboardHeader title={organization.name} />
+      <RenderAnimation animationKey={organizationId as string}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-10">
           {showSchedulesPlusCreateOne.map((el, i) => (
             <Link
               key={el.id}
@@ -72,7 +69,7 @@ export default function SchedulePage() {
             </Link>
           ))}
         </div>
-      </div>
-    </RenderAnimation>
+      </RenderAnimation>
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import ClassicCalendar from "@/components/SchedulesPage/Calendars/ClassicCalenda
 import EmployeesDatalist from "@/components/SchedulesPage/Employees";
 import { useUserDataContext } from "@/context/userContext";
 import Loader from "@/components/UI/Loader";
+import DashboardHeader from "@/components/UI/DashboardHeader";
 
 export default function Page() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function Page() {
   const scheduleId = params.scheduleId;
   const pathname = usePathname();
   const organizationId = pathname.split("/")[3];
-  console.log(organizationId)
+  console.log(organizationId);
   const [employeeLogInRole, setEmployeeLogInRole] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
@@ -81,34 +82,24 @@ export default function Page() {
   }
 
   return (
-    <RenderAnimation animationKey={"AddPage"}>
-      <div className="flex w-full h-full flex-col p-10 scroll-none">
-        <div className="flex w-full items-center gap-4 p-4 rounded-lg">
-          <button
-            onClick={() => router.back()}
-            className="hover:scale-150 transition-all ease-in-out cursor-pointer"
-          >
-            <Image
-              src={"/Icons/arrowIcon.svg"}
-              width={50}
-              height={50}
-              alt="arrow"
-              className="rotate-270 invert"
-            />
-          </button>
-          <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-white">
-            {dataSchedule.name}
-          </h1>
-        </div>
-        <div className="w-full flex flex-col items-center h-full">
-          <ClassicCalendar scheduleId={scheduleId} organizationId={organizationId} />
+    <div className="flex w-full h-full flex-col scroll-none">
+      <DashboardHeader
+        onClick={() => router.back()}
+        title={dataSchedule.name}
+      />
+      <RenderAnimation animationKey={"AddPage"}>
+        <div className="w-full flex flex-col items-center h-full p-10">
+          <ClassicCalendar
+            scheduleId={scheduleId}
+            organizationId={organizationId}
+          />
           <EmployeesDatalist
             scheduleId={scheduleId}
             employeesTab={employeesTab ? employeesTab : []}
             employeeLogInRole={employeeLogInRole}
           />
         </div>
-      </div>
-    </RenderAnimation>
+      </RenderAnimation>
+    </div>
   );
 }

@@ -12,6 +12,7 @@ import IconPicker from "@/components/addPage/IconPicker";
 import { useUserDataContext } from "@/context/userContext";
 import { useOrganizationContext } from "@/context/organizationsContext";
 import { useParams } from "next/navigation";
+import ErrorConatiner from "@/components/UI/ErrorConatiner";
 
 export default function AddPageShedule() {
   const [formState, action, isPending] = useActionState(
@@ -22,7 +23,6 @@ export default function AddPageShedule() {
   const { userData } = useUserDataContext();
 
   const { setOrganizationsData } = useOrganizationContext();
-
 
   const [icon, setIcon] = useState("");
 
@@ -64,17 +64,7 @@ export default function AddPageShedule() {
             <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-center sm:text-left">
               Create Organization
             </h1>
-            <AnimatePresence mode="wait">
-              {formError && (
-                <FadeAnimation
-                  animationKey={`errorMessage-${formError?.[0] || "unknown"}`}
-                >
-                  <p className="text-teal-600 text-sm sm:text-base text-center sm:text-right">
-                    {formError?.[0]}
-                  </p>
-                </FadeAnimation>
-              )}
-            </AnimatePresence>
+            <ErrorConatiner error={formError?.[0]} />
           </div>
           <div className="w-full flex flex-col gap-5">
             {fields.map((el, i) =>

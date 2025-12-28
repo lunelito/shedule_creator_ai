@@ -63,7 +63,7 @@ export default function UserSearchList({
             contracted_hours_per_week: 1,
             max_consecutive_days: 1,
             role: "employee",
-            position: userRoleList.length > 0  ? userRoleList[0] : "",
+            position: userRoleList.length > 0 ? userRoleList[0] : "",
           },
         ]);
         setEmail("");
@@ -86,7 +86,7 @@ export default function UserSearchList({
           contracted_hours_per_week: 1,
           max_consecutive_days: 1,
           role: "employee",
-          position: userRoleList.length > 0  ? userRoleList[0] : "",
+          position: userRoleList.length > 0 ? userRoleList[0] : "",
         },
       ]);
       setEmail("");
@@ -104,17 +104,16 @@ export default function UserSearchList({
     }));
   };
 
-useEffect(() => {
-  if (userRoleList.length > 0) {
-    setUserList(prev =>
-      prev.map(el => ({
-        ...el,
-        position: userRoleList[0]
-      }))
-    );
-  }
-}, [userRoleList]);
-
+  useEffect(() => {
+    if (userRoleList.length > 0) {
+      setUserList((prev) =>
+        prev.map((el) => ({
+          ...el,
+          position: userRoleList[0],
+        }))
+      );
+    }
+  }, [userRoleList]);
 
   const displayData = shouldFetch ? data : null;
 
@@ -139,18 +138,20 @@ useEffect(() => {
           Add
         </button>
       </form>
-        <ul className="border-b-1 border-t-1 py-1 px-1 mt-10 mb-10">
-          {emailVal.length > 0 ? (
-            <Fetchedusers
-              setEmail={setEmail}
-              displayData={displayData}
-              emailVal={emailVal}
-              error={error}
-              handleAddUser={handleAddUser}
-              isPending={isPending}
-              shouldFetch={shouldFetch}
-            />
-          ) : userList.length > 0 ? (
+      <ul className="border-b-1 border-t-1 py-1 px-1 mt-10 mb-10">
+        {emailVal.length > 0 && (
+          <Fetchedusers
+            setEmail={setEmail}
+            displayData={displayData}
+            emailVal={emailVal}
+            error={error}
+            handleAddUser={handleAddUser}
+            isPending={isPending}
+            shouldFetch={shouldFetch}
+          />
+        )}
+          {emailVal.length === 0 &&
+            userList.length > 0 &&
             userList.map((user, i) => (
               <UserItem
                 key={user.user_id}
@@ -165,13 +166,11 @@ useEffect(() => {
                 userRoleList={userRoleList}
                 setUserList={setUserList}
               />
-            ))
-          ) : (
-            <div className="flex justify-center">
-              <p className="p-5">no added users</p>
-            </div>
-          )}
-        </ul>
+            ))}
+        {emailVal.length === 0 && userList.length === 0 && (
+          <li className="flex justify-center p-5">no added users</li>
+        )}
+      </ul>
     </div>
   );
 }
