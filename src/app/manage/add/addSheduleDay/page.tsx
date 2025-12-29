@@ -50,6 +50,7 @@ export default function AddScheduleDay() {
   const dateParam = searchParams.get("date");
   const scheduleId = searchParams.get("schedule_id");
   const organizationId = searchParams.get("organization_id");
+  const employeeId = Number(searchParams.get("employeeId"));
   const { userData } = useUserDataContext();
   const [error, setError] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
@@ -149,16 +150,29 @@ export default function AddScheduleDay() {
       if (storedEmployees) {
         const parsedEmployees: InferSelectModel<typeof employees>[] =
           JSON.parse(storedEmployees);
-        setEmployeesTab(parsedEmployees);
 
         const initialShifts: EmployeeShift[] = parsedEmployees.map((emp) => ({
-          employee_id: emp.id,
+          employee_id: emp.id as number,
           user_id: emp.user_id,
           start_hour: 8,
           end_hour: 16,
         }));
 
-        setEmployeeShifts(initialShifts);
+        if (employeeId) {
+          setEmployeeShifts(
+            initialShifts.filter(
+              (el) => Number(el.employee_id) === Number(employeeId)
+            )
+          );
+          setEmployeesTab(
+            parsedEmployees.filter(
+              (el) => Number(el.id) === Number(employeeId)
+            )
+          );
+        } else {
+          setEmployeesTab(parsedEmployees);
+          setEmployeeShifts(initialShifts);
+        }
       }
     } catch (error) {
       console.error("Error parsing localStorage data:", error);
@@ -240,8 +254,16 @@ export default function AddScheduleDay() {
   useEffect(() => {
     if (shiftsData) {
       const parsed: ShiftFetched[] = parseData(shiftsData);
-      setFetchedShiftsData(parsed);
-      setEditFetchedShiftsData(parsed);
+      if (employeeId !== undefined && employeeId !== null) {
+        const data = parsed.filter(
+          (el) => Number(el.employee_id) === Number(employeeId)
+        );
+        setFetchedShiftsData(data);
+        setEditFetchedShiftsData(data);
+      } else {
+        setFetchedShiftsData(parsed);
+        setEditFetchedShiftsData(parsed);
+      }
     }
   }, [shiftsData]);
 
@@ -270,7 +292,7 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
-              if (editleShow && fetchedShiftsData.length > 1) {
+              if (editleShow && fetchedShiftsData.length >= 1) {
                 return (
                   <EditScheduleCard
                     key={emp.id}
@@ -313,7 +335,7 @@ export default function AddScheduleDay() {
 
         {employeeLogInRole === "admin" && (
           <>
-            {editleShow && fetchedShiftsData.length > 1 && (
+            {editleShow && fetchedShiftsData.length >= 1 && (
               <div className="mt-8 flex justify-center gap-4">
                 <PrimaryButton onClick={handleEdit}>Edit Shifts</PrimaryButton>
               </div>

@@ -5,12 +5,13 @@ import React, { useEffect, useState } from "react";
 import useFetch from "../../../../../../hooks/useFetch";
 import RenderAnimation from "@/animations/RenderAnimation";
 import { InferSelectModel } from "drizzle-orm";
-import { employees, schedules } from "@/db/schema";
+import { employees, schedules, schedules_day } from "@/db/schema";
 import ClassicCalendar from "@/components/SchedulesPage/Calendars/ClassicCalendar";
 import EmployeesDatalist from "@/components/SchedulesPage/Employees";
 import { useUserDataContext } from "@/context/userContext";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
+import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
 
 export default function Page() {
   const params = useParams();
@@ -40,6 +41,14 @@ export default function Page() {
     `/api/employees?id=${scheduleId}`
   );
 
+  const {
+    data: dataSingleScheduleDay,
+    isPending: isPendingSingleScheduleDay,
+    error: errorSingleScheduleDay,
+  } = useFetch<InferSelectModel<typeof schedules_day>[]>(
+    `/api/schedules_day/${scheduleId}`
+  );
+
   const { data: employeeLogInData, error } =
     useFetch<InferSelectModel<typeof employees>>(`/api/employees/me`);
 
@@ -59,13 +68,15 @@ export default function Page() {
   if (
     isPendingSchedule ||
     isPendingEmployees ||
+    isPendingSingleScheduleDay ||
     !dataSchedule ||
-    !dataEmployees
+    !dataEmployees ||
+    !dataSingleScheduleDay
   ) {
     return <Loader />;
   }
 
-  if (errorSchedule || errorEmployees) {
+  if (errorSchedule || errorEmployees || errorSingleScheduleDay) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading schedule</p>
@@ -92,6 +103,12 @@ export default function Page() {
           <ClassicCalendar
             scheduleId={scheduleId}
             organizationId={organizationId}
+          />
+          <RowCalendar
+            organizationId={organizationId}
+            dataSingleScheduleDay={dataSingleScheduleDay}
+            employeesTab={employeesTab ? employeesTab : []}
+            scheduleId={scheduleId}
           />
           <EmployeesDatalist
             scheduleId={scheduleId}

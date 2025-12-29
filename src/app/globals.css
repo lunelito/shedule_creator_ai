@@ -12,7 +12,7 @@
 /* Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #858585 transparent;
+  scrollbar-color: #ffffff transparent;
 }
 .scrollbar-none {
   scrollbar-width: none;
@@ -23,7 +23,7 @@
   width: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #858585;
+  background-color: #ffffff;
   border-radius: 9999px;
 }
 .scrollbar-none::-webkit-scrollbar {

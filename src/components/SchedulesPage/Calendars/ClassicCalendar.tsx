@@ -127,8 +127,7 @@ export default function ClassicCalendar({
                 );
               }}
               key={i}
-              //check if date is today and mark it
-              className={` h-16 p-4 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
+              className={`cursor-pointer h-16 p-4 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
                 el?.day === date.getDate() &&
                 month === date.getMonth() &&
                 year === date.getFullYear()
