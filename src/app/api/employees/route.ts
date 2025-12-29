@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       "employee_code",
       "position",
       "contract_type",
-      "assigned_to_schedule" // Dodaj jeśli jest wymagane
+      "assigned_to_schedule", // Dodaj jeśli jest wymagane
     ];
 
     const missingFields = requiredFields.filter((field) => !body[field]);
@@ -127,13 +127,14 @@ export async function POST(request: NextRequest) {
         contracted_hours_per_week: body.contracted_hours_per_week || 40,
         max_consecutive_days: body.max_consecutive_days || 7,
         assigned_to_schedule: scheduleId,
+        accept_to_schedule: body.accept_to_schedule,
       })
       .returning();
 
     return NextResponse.json(newEmployee[0], { status: 201 });
   } catch (error: any) {
     console.error("Error creating employee:", error);
-    
+
     let errorMessage = "Failed to create employee";
     let statusCode = 500;
 
@@ -159,7 +160,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: errorMessage,
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       },
       { status: statusCode }
     );

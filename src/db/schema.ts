@@ -57,6 +57,12 @@ export const roles = pgEnum("roles", [
   "employee",
 ]);
 
+export const state_of_schedule_accept = pgEnum("roles", [
+  "declined",
+  "accepted",
+  "waiting",
+]);
+
 export const organizations = pgTable("organizations", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -146,6 +152,7 @@ export const employees = pgTable("employees", {
   ),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
+  accept_to_schedule: state_of_schedule_accept().default("waiting"),
 });
 
 //not need to use it

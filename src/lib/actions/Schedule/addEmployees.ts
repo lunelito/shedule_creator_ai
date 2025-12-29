@@ -38,6 +38,7 @@ const employeesSchema = z.object({
     .number()
     .int("Max consecutive days must be an integer")
     .positive("Max consecutive days must be positive"),
+  accept_to_schedule: z.string().min(1, "accept to shedule must have value"),
 });
 
 const employeesArraySchema = z.array(employeesSchema);
@@ -108,6 +109,7 @@ export async function addEmployees(
           contracted_hours_per_week: Number(emp.contracted_hours_per_week),
           max_consecutive_days: Number(emp.max_consecutive_days),
           assigned_to_schedule: Number(schedule_id),
+          accept_to_schedule:emp.accept_to_schedule
         }),
       });
 
@@ -124,7 +126,7 @@ export async function addEmployees(
 
       const employeeData = await resEmployee.json();
 
-      addedEmployees.push(employeeData)
+      addedEmployees.push(employeeData);
 
       const resRole = await fetch(apiUrlRoles, {
         method: "POST",

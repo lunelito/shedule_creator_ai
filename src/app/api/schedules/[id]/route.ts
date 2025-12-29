@@ -5,13 +5,14 @@ import { eq } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: userId } = await params;
     const shiftTemplate = await db
       .select()
       .from(schedules)
-      .where(eq(schedules.id, parseInt(params.id)));
+      .where(eq(schedules.id, parseInt(userId)));
     if (shiftTemplate.length === 0)
       return NextResponse.json(
         { error: "Shift template not found" },

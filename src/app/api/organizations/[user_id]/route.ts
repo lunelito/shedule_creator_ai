@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { employees, organizations, schedules } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
   try {
-    const { user_id } = await params; 
+    const { user_id } = await params;
     const userId = parseInt(user_id);
 
     if (isNaN(userId)) {
@@ -25,9 +25,14 @@ export async function GET(
       .from(employees)
       .leftJoin(schedules, eq(employees.assigned_to_schedule, schedules.id))
       .leftJoin(organizations, eq(schedules.organization_id, organizations.id))
-      .where(eq(employees.user_id, parseInt(user_id)));
+      .where(
+        and(
+          eq(employees.user_id, parseInt(user_id)),
+          eq(employees.accept_to_schedule, "accepted")
+        )
+      );
 
-    return NextResponse.json([orgsWhereCreatedByUser,orgsWhereEmployeed]);
+    return NextResponse.json([orgsWhereCreatedByUser, orgsWhereEmployeed]);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch organizations" },
@@ -41,9 +46,9 @@ export async function PUT(
   { params }: { params: Promise<{ user_id: string }> }
 ) {
   try {
-    const { user_id } = await params; 
+    const { user_id } = await params;
     const userId = parseInt(user_id);
-    
+
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user_id" }, { status: 400 });
     }
@@ -76,9 +81,9 @@ export async function DELETE(
   { params }: { params: Promise<{ user_id: string }> }
 ) {
   try {
-    const { user_id } = await params; 
+    const { user_id } = await params;
     const userId = parseInt(user_id);
-    
+
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user_id" }, { status: 400 });
     }

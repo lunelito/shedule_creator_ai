@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import ProfileImage from "../ProfileImage/ProfileImage";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const supabaseUrl: string =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "YOUR_SUPABASE_URL";
@@ -16,6 +17,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const SettingsComponent = () => {
   const { userData, isPending } = useUserDataContext();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: userData?.name || "",
@@ -201,6 +203,7 @@ const SettingsComponent = () => {
         <button onClick={handleSave} disabled={pending}>
           {pending ? "Saving..." : "Save"}
         </button>
+        <button onClick={() => router.replace("/manage/settings/inbox")}>inbox</button>
       </div>
     </div>
   );

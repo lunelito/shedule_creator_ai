@@ -66,6 +66,8 @@ export const OrganizationProvider = ({
   useEffect(() => {
     if (data) {
       const typedData = data as DataType;
+      
+      console.log(data)
 
       // mapujemy i filtrujemy, żeby nie dodawać undefined
       const assignedToOrg = typedData[1]

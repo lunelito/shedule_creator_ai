@@ -27,11 +27,15 @@ export default function SchedulePage() {
 
   const organization = dataOrganization as OrganizationType;
 
+  console.log(userId)
+
   const {
     data: dataSchedule,
     isPending: isPendingSchedule,
     error: errorSchedule,
-  } = useFetch<[]>(`/api/schedules?id=${organizationId}`);
+  } = useFetch<[]>(
+    userId ? `/api/schedules/${userId}/${organizationId}` : null
+  );
 
   if (isPendingOrganization || isPendingSchedule || !organization) {
     return <Loader />;
@@ -57,7 +61,7 @@ export default function SchedulePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-10">
           {showSchedulesPlusCreateOne.map((el, i) => (
             <Link
-              key={el.id}
+              key={el.name}
               className="border-2 border-gray-200 p-4 md:p-6 rounded-xl md:rounded-2xl text-lg md:text-xl hover:border-teal-600 hover:bg-teal-600 transition-all duration-200 text-center"
               href={
                 el.id === "create"

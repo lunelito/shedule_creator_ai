@@ -31,6 +31,7 @@ export type employeType = {
   contract_type: string;
   contracted_hours_per_week: number;
   max_consecutive_days: number;
+  accept_to_schedule: "waiting" | "accepted" | "declined";
 };
 
 export default function AddPageShedule() {
@@ -64,6 +65,7 @@ export default function AddPageShedule() {
         position: "admin",
         contracted_hours_per_week: 0,
         max_consecutive_days: 0,
+        accept_to_schedule: "accepted",
       };
       setAdminUser(newAdminUser);
     }
@@ -81,8 +83,18 @@ export default function AddPageShedule() {
       return;
     }
 
+    const data = userList.map((el, i) => {
+      if (el.accept_to_schedule == "accepted") {
+        return el;
+      } else {
+        return { ...el, accept_to_schedule: "waiting" };
+      }
+    });
+
+    console.log(data)
+
     const formData = new FormData();
-    formData.append("employees", JSON.stringify(userList));
+    formData.append("employees", JSON.stringify(data));
     formData.append("schedule_id", value);
 
     try {
