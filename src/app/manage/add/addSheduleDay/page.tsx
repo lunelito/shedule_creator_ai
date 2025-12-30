@@ -38,6 +38,7 @@ export type EmployeeShift = {
   user_id: number;
   start_hour: number;
   end_hour: number;
+  selected: boolean;
 };
 
 export type ShiftFetched = EmployeeShift & {
@@ -50,7 +51,7 @@ export default function AddScheduleDay() {
   const dateParam = searchParams.get("date");
   const scheduleId = searchParams.get("schedule_id");
   const organizationId = searchParams.get("organization_id");
-  const employeeId = Number(searchParams.get("employeeId"));
+  const employeeId = searchParams.get("employeeId");
   const { userData } = useUserDataContext();
   const [error, setError] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
@@ -88,6 +89,7 @@ export default function AddScheduleDay() {
       user_id: shift.created_by ?? 0,
       start_hour: new Date(shift.start_at).getHours(),
       end_hour: new Date(shift.end_at).getHours(),
+      selected: false,
     }));
   };
 
@@ -115,29 +117,30 @@ export default function AddScheduleDay() {
     const baseDate = new Date(selectedDate);
     baseDate.setHours(0, 0, 0, 0);
     if (currentUserId && scheduleId) {
-      const newShifts: Shift[] = employeeShifts.map((employeeShift) => {
-        const startDate = new Date(baseDate);
-        startDate.setHours(employeeShift.start_hour, 0, 0, 0);
+      const newShifts: Shift[] = employeeShifts
+        .filter((employeeShift) => !employeeShift.selected)
+        .map((employeeShift) => {
+          const startDate = new Date(baseDate);
+          startDate.setHours(employeeShift.start_hour, 0, 0, 0);
 
-        const endDate = new Date(baseDate);
-        endDate.setHours(employeeShift.end_hour, 0, 0, 0);
+          const endDate = new Date(baseDate);
+          endDate.setHours(employeeShift.end_hour, 0, 0, 0);
 
-        const hoursDiff = employeeShift.end_hour - employeeShift.start_hour;
-        const scheduledHours = hoursDiff > 0 ? `${hoursDiff}h` : "0h";
-
-        return {
-          status: "draft",
-          created_by: currentUserId,
-          template_id: parseInt(scheduleId),
-          assigned_employee_id: employeeShift.employee_id,
-          start_at: startDate,
-          end_at: endDate,
-          date: formatedData(selectedDate),
-          scheduled_hours: scheduledHours,
-          is_published: false,
-          published_by: null,
-        };
-      });
+          const hoursDiff = employeeShift.end_hour - employeeShift.start_hour;
+          const scheduledHours = hoursDiff > 0 ? `${hoursDiff}h` : "0h";
+          return {
+            status: "draft",
+            created_by: currentUserId,
+            template_id: parseInt(scheduleId),
+            assigned_employee_id: employeeShift.employee_id,
+            start_at: startDate,
+            end_at: endDate,
+            date: formatedData(selectedDate),
+            scheduled_hours: scheduledHours,
+            is_published: false,
+            published_by: null,
+          };
+        });
 
       setShifts(newShifts);
       return newShifts;
@@ -155,6 +158,7 @@ export default function AddScheduleDay() {
           employee_id: emp.id as number,
           user_id: emp.user_id,
           start_hour: 8,
+          selected: false,
           end_hour: 16,
         }));
 
@@ -165,9 +169,7 @@ export default function AddScheduleDay() {
             )
           );
           setEmployeesTab(
-            parsedEmployees.filter(
-              (el) => Number(el.id) === Number(employeeId)
-            )
+            parsedEmployees.filter((el) => Number(el.id) === Number(employeeId))
           );
         } else {
           setEmployeesTab(parsedEmployees);
@@ -267,6 +269,8 @@ export default function AddScheduleDay() {
     }
   }, [shiftsData]);
 
+  console.log(fetchedShiftsData);
+
   if (isPending || !shiftsData) {
     return <Loader />;
   }
@@ -292,29 +296,35 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
-              if (editleShow && fetchedShiftsData.length >= 1) {
+              const fetchedShift = fetchedShiftsData.find(
+                (s) => s.employee_id === emp.id
+              );
+
+              const editShift = editFetchedShiftsData?.find(
+                (s) => s.employee_id === emp.id
+              );
+
+              if (editleShow && fetchedShift) {
                 return (
                   <EditScheduleCard
                     key={emp.id}
                     addShow={addShow}
                     emp={emp}
-                    editFetchedShiftsData={editFetchedShiftsData}
-                    fetchedShiftsData={fetchedShiftsData}
+                    editShift={editShift}
+                    fetchedShift={fetchedShift}
                     i={i}
                     setEditFetchedShiftsData={setEditFetchedShiftsData}
                   />
                 );
               }
 
-              if (addShow && !fetchedShiftsData[i]) {
+              if (addShow && !fetchedShift) {
                 return (
                   <AddSheduleCard
                     key={emp.id}
-                    addShow={addShow}
                     emp={emp}
+                    employeeShifts={employeeShifts}
                     employeeShift={employeeShift}
-                    fetchedShiftsData={fetchedShiftsData}
-                    i={i}
                     setEmployeeShifts={setEmployeeShifts}
                   />
                 );
@@ -325,8 +335,9 @@ export default function AddScheduleDay() {
                   key={emp.id}
                   addShow={addShow}
                   emp={emp}
-                  fetchedShiftsData={fetchedShiftsData}
-                  i={i}
+                  setError={setError}
+                  fetchedShift={fetchedShift}
+                  setFetchedShiftsData={setFetchedShiftsData}
                 />
               );
             })

@@ -1,20 +1,46 @@
-import { EmployeeShift } from "@/app/manage/add/addSheduleDay/page";
+import { ShiftFetched } from "@/app/manage/add/addSheduleDay/page";
 import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import React from "react";
+import React, { SetStateAction } from "react";
+import PrimaryButton from "../UI/PrimaryButton";
+import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
 
 type SheduleCardType = {
-  fetchedShiftsData: EmployeeShift[];
+  fetchedShift: ShiftFetched | undefined;
   addShow: boolean;
   emp: InferSelectModel<typeof employees>;
-  i: number;
+  setError: React.Dispatch<SetStateAction<string>>;
+  setFetchedShiftsData: React.Dispatch<
+    SetStateAction<ShiftFetched[]>
+  >;
 };
 export default function SheduleCard({
-  fetchedShiftsData,
+  fetchedShift,
   addShow,
   emp,
-  i,
+  setError,
+  setFetchedShiftsData,
 }: SheduleCardType) {
+  const deleteDay = async (id: number) => {
+    try {
+      if (fetchedShift) {
+        const result = await deleteSingleScheduleDay(id);
+        console.log(result);
+
+        if (result.success) {
+          setError(result.errors?._form?.[0] ?? "Something went to shit");
+          setFetchedShiftsData(
+            (prev) => prev.filter((el) => el.id !== id)
+          );
+          return;
+        }
+        setTimeout(() => setError(""), 2000);
+      }
+    } catch (e: any) {
+      setError(e?.message ?? "server error");
+    }
+  };
+
   return (
     <div className="w-full p-5 border border-teal-600 rounded-lg">
       <h2 className="text-xl mb-5 m-2 text-center">
@@ -23,7 +49,7 @@ export default function SheduleCard({
         <span className="text-sm text-gray-400">{emp.email || "No email"}</span>
       </h2>
       <div className="flex justify-center items-center flex-col">
-        {fetchedShiftsData[i]?.start_hour == null && !addShow ? (
+        {fetchedShift?.start_hour == null && !addShow ? (
           <p className="text-center text-teal-600 text-xl font-bold">
             deosnt work
           </p>
@@ -32,28 +58,29 @@ export default function SheduleCard({
             <div className="mb-4">
               <p className="text-center mb-2">Shift Start:</p>
               <p className="text-center text-teal-600 text-xl font-bold">
-                {fetchedShiftsData[i]?.start_hour}:00
+                {fetchedShift?.start_hour}:00
               </p>
             </div>
 
             <div>
               <p className="text-center mb-2">Shift End:</p>
               <p className="text-center text-teal-600 text-xl font-bold">
-                {fetchedShiftsData[i]?.end_hour}:00
+                {fetchedShift?.end_hour}:00
               </p>
             </div>
 
             {/* duration */}
-            {fetchedShiftsData && (
+            {fetchedShift && (
               <div className="mt-4 p-2 rounded text-center">
                 <p className="text-sm">
                   Duration:{" "}
                   <span className="font-bold text-teal-400">
-                    {fetchedShiftsData[i]?.end_hour -
-                      fetchedShiftsData[i]?.start_hour}
-                    h
+                    {fetchedShift?.end_hour - fetchedShift?.start_hour}h
                   </span>
                 </p>
+                <PrimaryButton onClick={() => deleteDay(fetchedShift.id)}>
+                  delete
+                </PrimaryButton>
               </div>
             )}
           </>

@@ -25,3 +25,29 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { schedule_id: string } }
+) {
+  try {
+    const deletedShiftTemplate = await db
+      .delete(schedules_day)
+      .where(eq(schedules_day.id, parseInt(params.schedule_id)))
+      .returning();
+    if (deletedShiftTemplate.length === 0)
+      return NextResponse.json(
+        { error: "Shift template not found" },
+        { status: 404 }
+      );
+    return NextResponse.json({
+      message: "Shift template deleted successfully",
+    });
+  } catch (error) {
+    console.log(error)
+    return NextResponse.json(
+      { error: "Failed to delete shift template" },
+      { status: 500 }
+    );
+  }
+}

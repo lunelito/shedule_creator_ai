@@ -3,21 +3,18 @@ import NumberPicker from "../UI/NumberPicker";
 import { EmployeeShift } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
 import { employees } from "@/db/schema";
+import PrimaryButton from "../UI/PrimaryButton";
 
 type AddSheduleCardType = {
-  fetchedShiftsData: EmployeeShift[];
-  addShow: boolean;
   emp: InferSelectModel<typeof employees>;
-  i: number;
+  employeeShifts: EmployeeShift[];
   employeeShift: EmployeeShift | undefined;
   setEmployeeShifts: React.Dispatch<SetStateAction<EmployeeShift[]>>;
 };
 
 export default function AddSheduleCard({
-  fetchedShiftsData,
-  addShow,
   emp,
-  i,
+  employeeShifts,
   employeeShift,
   setEmployeeShifts,
 }: AddSheduleCardType) {
@@ -50,8 +47,32 @@ export default function AddSheduleCard({
     });
   };
 
+  const toggleSelect = (employeeId: number) => {
+    if (employeeShift) {
+      const selectedCount = employeeShifts.filter((el) => el.selected).length;
+
+      const clicedSelectValue = employeeShifts
+        .map((el) => (el.employee_id === employeeId ? { ...el } : null))
+        .filter((el) => el !== null)[0].selected;
+
+      if (selectedCount < 1 || clicedSelectValue) {
+        setEmployeeShifts((prev) =>
+          prev.map((el) =>
+            el.employee_id === employeeId
+              ? { ...el, selected: !el.selected }
+              : el
+          )
+        );
+      }
+    }
+  };
+
   return (
-    <div className="w-full p-5 border border-teal-600 rounded-lg">
+    <div
+      className={`w-full p-5 border border-teal-600 rounded-lg ${
+        employeeShift?.selected ? "opacity-50" : ""
+      } transition-all ease-in-out`}
+    >
       <h2 className="text-xl mb-5 m-2 text-center">
         {emp.name || "Unknown User"}
         <br />
@@ -62,6 +83,7 @@ export default function AddSheduleCard({
           <div>
             <p className="text-center mb-2">Shift Start:</p>
             <NumberPicker
+              disabled={employeeShift?.selected}
               from={0}
               to={
                 employeeShift
@@ -78,6 +100,7 @@ export default function AddSheduleCard({
             />
             <p className="text-center mb-2">Shift End:</p>
             <NumberPicker
+              disabled={employeeShift?.selected}
               from={employeeShift ? Math.max(0, employeeShift.start_hour) : 0}
               to={
                 employeeShift ? Math.min(24, employeeShift.start_hour + 12) : 24
@@ -98,6 +121,11 @@ export default function AddSheduleCard({
                 {employeeShift?.end_hour - employeeShift?.start_hour}h
               </span>
             </p>
+            <PrimaryButton
+              onClick={() => toggleSelect(employeeShift?.employee_id)}
+            >
+              {employeeShift?.selected ? "dodaj z edycji" : "usun do edycjiu"}
+            </PrimaryButton>
           </div>
         )}
       </div>

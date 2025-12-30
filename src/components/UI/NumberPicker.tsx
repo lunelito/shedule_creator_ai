@@ -8,6 +8,7 @@ type NumberPickerType = {
   title: string;
   orientation: "vertical" | "horizontal";
   onChange?: (value: number) => void;
+  disabled?: boolean;
 };
 
 export default function NumberPicker({
@@ -17,6 +18,7 @@ export default function NumberPicker({
   title,
   orientation,
   onChange,
+  disabled,
 }: NumberPickerType) {
   const [selected, setSelected] = useState(rangeDefault);
   const [animating, setAnimating] = useState(false);
@@ -59,9 +61,10 @@ export default function NumberPicker({
         }`}
       >
         <button
+          disabled={disabled}
           onClick={() => scrollUp(1)}
           onDoubleClick={() => scrollUp(5)}
-          className={`relative flex invert justify-center items-center rounded ${
+          className={`relative flex invert justify-center items-center rounded ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${
             isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"
           }`}
         >
@@ -98,9 +101,10 @@ export default function NumberPicker({
         </div>
 
         <button
+          disabled={disabled}
           onClick={() => scrollDown(1)}
           onDoubleClick={() => scrollDown(5)}
-          className={`flex justify-center invert items-center rounded ${
+          className={`flex justify-center invert items-center rounded ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${
             isHorizontal ? "h-full w-10 rotate-90" : "h-10 w-full rotate-180"
           }`}
         >
