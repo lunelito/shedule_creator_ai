@@ -1,20 +1,26 @@
 import React, { SetStateAction } from "react";
 import NumberPicker from "../UI/NumberPicker";
-import { EmployeeShift } from "@/app/manage/add/addSheduleDay/page";
+import {
+  EmployeeShift,
+  ShiftFetched,
+} from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
 import { employees } from "@/db/schema";
 import PrimaryButton from "../UI/PrimaryButton";
+import Image from "next/image";
 
 type AddSheduleCardType = {
   emp: InferSelectModel<typeof employees>;
   employeeShifts: EmployeeShift[];
-  employeeShift: EmployeeShift | undefined;
+  employeeShift: EmployeeShift;
+  fetchedShiftsData: ShiftFetched[];
   setEmployeeShifts: React.Dispatch<SetStateAction<EmployeeShift[]>>;
 };
 
 export default function AddSheduleCard({
   emp,
   employeeShifts,
+  fetchedShiftsData,
   employeeShift,
   setEmployeeShifts,
 }: AddSheduleCardType) {
@@ -49,13 +55,13 @@ export default function AddSheduleCard({
 
   const toggleSelect = (employeeId: number) => {
     if (employeeShift) {
-      const selectedCount = employeeShifts.filter((el) => el.selected).length;
+      const selectedCount = employeeShifts.filter((el) => !el.selected).length;
 
       const clicedSelectValue = employeeShifts
         .map((el) => (el.employee_id === employeeId ? { ...el } : null))
         .filter((el) => el !== null)[0].selected;
 
-      if (selectedCount < 1 || clicedSelectValue) {
+      if (selectedCount - fetchedShiftsData.length > 1 || clicedSelectValue) {
         setEmployeeShifts((prev) =>
           prev.map((el) =>
             el.employee_id === employeeId
@@ -69,7 +75,7 @@ export default function AddSheduleCard({
 
   return (
     <div
-      className={`w-full p-5 border border-teal-600 rounded-lg ${
+      className={`w-full p-5 border border-teal-600 rounded-lg select-none relative ${
         employeeShift?.selected ? "opacity-50" : ""
       } transition-all ease-in-out`}
     >
@@ -121,13 +127,22 @@ export default function AddSheduleCard({
                 {employeeShift?.end_hour - employeeShift?.start_hour}h
               </span>
             </p>
-            <PrimaryButton
-              onClick={() => toggleSelect(employeeShift?.employee_id)}
-            >
-              {employeeShift?.selected ? "dodaj z edycji" : "usun do edycjiu"}
-            </PrimaryButton>
           </div>
         )}
+
+        <div className="absolute -top-4 -left-4">
+          <button
+            onClick={() => toggleSelect(employeeShift?.employee_id)}
+            className="relative bg-teal-600 h-8 w-8 rounded-full flex items-center justify-center"
+          >
+            <Image
+              src={`/Icons/${employeeShift?.selected ? "addIcon" :"minus"}.svg`}
+              alt="cross"
+              fill
+              style={{ objectFit: "contain" }}
+            />
+          </button>
+        </div>
       </div>
     </div>
   );

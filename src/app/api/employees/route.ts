@@ -47,6 +47,7 @@ export async function GET(req: NextResponse) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log(body)
 
     // Jeśli assigned_to_schedule jest wymagane, dodaj do requiredFields
     const requiredFields = [
@@ -66,10 +67,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    
     // Parsuj user_id raz
     const userId = parseInt(body.user_id);
     const scheduleId = body.assigned_to_schedule;
-
+    
     // Walidacja czy user_id jest poprawną liczbą
     if (isNaN(userId)) {
       return NextResponse.json(
@@ -77,36 +79,25 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
+    
     // Sprawdź czy pracownik już istnieje
     const checkIfExistEmp = await db
-      .select()
-      .from(employees)
-      .where(
-        and(
-          eq(employees.user_id, userId),
-          eq(employees.assigned_to_schedule, scheduleId)
-        )
-      );
+    .select()
+    .from(employees)
+    .where(
+      and(
+        eq(employees.user_id, userId),
+        eq(employees.assigned_to_schedule, scheduleId)
+      )
+    );
+    
+    console.log(checkIfExistEmp)
+
 
     if (checkIfExistEmp.length > 0) {
       return NextResponse.json(
         { error: "Employee already exists for this schedule" },
         { status: 400 }
-      );
-    }
-
-    // Dodatkowo możesz sprawdzić czy użytkownik istnieje
-    const userExists = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
-
-    if (userExists.length === 0) {
-      return NextResponse.json(
-        { error: "User does not exist" },
-        { status: 404 }
       );
     }
 
@@ -133,7 +124,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newEmployee[0], { status: 201 });
   } catch (error: any) {
-    console.error("Error creating employee:", error);
+    console.error(error);
 
     let errorMessage = "Failed to create employee";
     let statusCode = 500;

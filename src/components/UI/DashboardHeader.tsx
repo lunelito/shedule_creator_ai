@@ -17,7 +17,7 @@ export default function DashboardHeader({
 }: DashboardHeadertype) {
   return (
     <div className="mb-[10vh]">
-      <div className="flex w-full justify-center items-center p-10 gap-4 h-[10vh] fixed top-0 bg-zinc-900 z-10">
+      <div className="flex w-full justify-between items-center p-10 gap-4 h-[10vh] fixed top-0 bg-zinc-900 z-10">
         {onClick && (
           <button
             onClick={onClick}

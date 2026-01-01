@@ -9,38 +9,12 @@ type SheduleCardType = {
   fetchedShift: ShiftFetched | undefined;
   addShow: boolean;
   emp: InferSelectModel<typeof employees>;
-  setError: React.Dispatch<SetStateAction<string>>;
-  setFetchedShiftsData: React.Dispatch<
-    SetStateAction<ShiftFetched[]>
-  >;
 };
 export default function SheduleCard({
   fetchedShift,
   addShow,
   emp,
-  setError,
-  setFetchedShiftsData,
 }: SheduleCardType) {
-  const deleteDay = async (id: number) => {
-    try {
-      if (fetchedShift) {
-        const result = await deleteSingleScheduleDay(id);
-        console.log(result);
-
-        if (result.success) {
-          setError(result.errors?._form?.[0] ?? "Something went to shit");
-          setFetchedShiftsData(
-            (prev) => prev.filter((el) => el.id !== id)
-          );
-          return;
-        }
-        setTimeout(() => setError(""), 2000);
-      }
-    } catch (e: any) {
-      setError(e?.message ?? "server error");
-    }
-  };
-
   return (
     <div className="w-full p-5 border border-teal-600 rounded-lg">
       <h2 className="text-xl mb-5 m-2 text-center">
@@ -78,9 +52,6 @@ export default function SheduleCard({
                     {fetchedShift?.end_hour - fetchedShift?.start_hour}h
                   </span>
                 </p>
-                <PrimaryButton onClick={() => deleteDay(fetchedShift.id)}>
-                  delete
-                </PrimaryButton>
               </div>
             )}
           </>

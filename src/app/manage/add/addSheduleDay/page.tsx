@@ -19,6 +19,8 @@ import SheduleCard from "@/components/addSheduleDay/ScheduleCard";
 import EditScheduleCard from "@/components/addSheduleDay/EditScheduleCard";
 import { editSingleSheduleDay } from "@/lib/actions/Schedule/editSingleSheduleDay";
 import DashboardHeader from "@/components/UI/DashboardHeader";
+import { includes } from "zod";
+import SecondaryButton from "@/components/UI/SecondaryButton";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -142,6 +144,8 @@ export default function AddScheduleDay() {
           };
         });
 
+      // const shiftWithoutFetched = newShifts.filter((el,i) => el.includes(fetchedShiftsData.id))
+
       setShifts(newShifts);
       return newShifts;
     }
@@ -183,16 +187,24 @@ export default function AddScheduleDay() {
 
   const handleSubmit = async () => {
     const shifts = fillShifts();
-    if (shifts) {
+    const existingEmployeeIds = new Set(
+      fetchedShiftsData.map((s) => s.employee_id)
+    );
+
+    const newShifts = shifts?.filter(
+      (s) => !existingEmployeeIds.has(s.assigned_employee_id!)
+    );
+    if (newShifts) {
       const formData = new FormData();
-      formData.append("shifts", JSON.stringify(shifts));
+      formData.append("shifts", JSON.stringify(newShifts));
       try {
         const result = await addSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
           const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
-          console.log(parsed);
-          setFetchedShiftsData(parsed);
-          setEditFetchedShiftsData(parsed);
+
+          setFetchedShiftsData((prev) => [...prev, ...parsed]);
+          setEditFetchedShiftsData((prev) => [...prev, ...parsed]);
+
           setError("Shifts Added");
           setAddShow(false);
         } else {
@@ -270,6 +282,7 @@ export default function AddScheduleDay() {
   }, [shiftsData]);
 
   console.log(fetchedShiftsData);
+  console.log(editFetchedShiftsData);
 
   if (isPending || !shiftsData) {
     return <Loader />;
@@ -304,7 +317,7 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
-              if (editleShow && fetchedShift) {
+              if (editleShow) {
                 return (
                   <EditScheduleCard
                     key={emp.id}
@@ -313,16 +326,21 @@ export default function AddScheduleDay() {
                     editShift={editShift}
                     fetchedShift={fetchedShift}
                     i={i}
+                    setEditleShow={setEditleShow}
+                    setError={setError}
+                    editFetchedShiftsData={editFetchedShiftsData}
+                    setFetchedShiftsData={setFetchedShiftsData}
                     setEditFetchedShiftsData={setEditFetchedShiftsData}
                   />
                 );
               }
 
-              if (addShow && !fetchedShift) {
+              if (employeeShift && addShow && !fetchedShift) {
                 return (
                   <AddSheduleCard
                     key={emp.id}
                     emp={emp}
+                    fetchedShiftsData={fetchedShiftsData}
                     employeeShifts={employeeShifts}
                     employeeShift={employeeShift}
                     setEmployeeShifts={setEmployeeShifts}
@@ -330,29 +348,29 @@ export default function AddScheduleDay() {
                 );
               }
 
-              return (
-                <SheduleCard
-                  key={emp.id}
-                  addShow={addShow}
-                  emp={emp}
-                  setError={setError}
-                  fetchedShift={fetchedShift}
-                  setFetchedShiftsData={setFetchedShiftsData}
-                />
-              );
+              if ( !addShow) {
+                return (
+                  <SheduleCard
+                    key={emp.id}
+                    addShow={addShow}
+                    emp={emp}
+                    fetchedShift={fetchedShift}
+                  />
+                );
+              }
             })
           )}
         </div>
 
         {employeeLogInRole === "admin" && (
           <>
-            {editleShow && fetchedShiftsData.length >= 1 && (
+            {editleShow && (
               <div className="mt-8 flex justify-center gap-4">
                 <PrimaryButton onClick={handleEdit}>Edit Shifts</PrimaryButton>
               </div>
             )}
 
-            {addShow && fetchedShiftsData.length === 0 && (
+            {addShow && (
               <div className="mt-8 flex justify-center gap-4">
                 <PrimaryButton onClick={handleSubmit}>Add Shifts</PrimaryButton>
               </div>
@@ -370,26 +388,29 @@ export default function AddScheduleDay() {
         </div>
 
         <div className="m-5 text-center">
-          {employeeLogInRole === "admin" &&
-            (fetchedShiftsData.length > 0 ? (
-              <PrimaryButton
-                onClick={() => {
-                  setEditleShow((prev) => !prev), setError("");
-                }}
-              >
-                click here if you want to {editleShow ? "see" : "edit"} schedule
-                hours
-              </PrimaryButton>
-            ) : (
-              <PrimaryButton
-                onClick={() => {
-                  setAddShow((prev) => !prev), setError("");
-                }}
-              >
-                click here if you want to {addShow ? "see" : "add"} schedule
-                hours
-              </PrimaryButton>
-            ))}
+          {employeeLogInRole === "admin" && (
+            <div className="flex justify-center  gap-5">
+              {!addShow && (
+                <SecondaryButton
+                  onClick={() => {
+                    setEditleShow((prev) => !prev), setError("");
+                  }}
+                >
+                  {editleShow ? "see" : "edit"} schedule hours
+                </SecondaryButton>
+              )}
+
+              {!editleShow && (
+                <SecondaryButton
+                  onClick={() => {
+                    setAddShow((prev) => !prev), setError("");
+                  }}
+                >
+                  {addShow ? "see" : "add"} schedule hours
+                </SecondaryButton>
+              )}
+            </div>
+          )}
         </div>
       </RenderAnimation>
     </div>

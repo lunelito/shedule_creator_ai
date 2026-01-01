@@ -56,6 +56,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  console.log("TU TEZ DOTARLEm")
   try {
     const deletedShiftTemplate = await db
       .delete(schedules)

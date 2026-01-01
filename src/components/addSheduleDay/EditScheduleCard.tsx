@@ -6,14 +6,20 @@ import {
 } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
 import { employees } from "@/db/schema";
+import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
+import PrimaryButton from "../UI/PrimaryButton";
 
 type AddSheduleCardType = {
-  fetchedShift: EmployeeShift;
+  fetchedShift: ShiftFetched | undefined;
   addShow: boolean;
   emp: InferSelectModel<typeof employees>;
   i: number;
+  setEditleShow: React.Dispatch<React.SetStateAction<boolean>>;
   editShift: ShiftFetched | undefined;
   setEditFetchedShiftsData: React.Dispatch<SetStateAction<ShiftFetched[]>>;
+  setError: React.Dispatch<SetStateAction<string>>;
+  setFetchedShiftsData: React.Dispatch<SetStateAction<ShiftFetched[]>>;
+  editFetchedShiftsData: ShiftFetched[];
 };
 
 export default function EditScheduleCard({
@@ -22,6 +28,10 @@ export default function EditScheduleCard({
   emp,
   i,
   editShift,
+  setEditleShow,
+  setError,
+  setFetchedShiftsData,
+  editFetchedShiftsData,
   setEditFetchedShiftsData,
 }: AddSheduleCardType) {
   const handleTimeChange = (
@@ -51,13 +61,31 @@ export default function EditScheduleCard({
     });
   };
 
-  // tu jest undefined
-  console.log(fetchedShift?.start_hour);
+  const deleteDay = async (id: number) => {
+    try {
+      if (fetchedShift) {
+        const result = await deleteSingleScheduleDay(id);
+        console.log(result);
+
+        if (result.success) {
+          setError(result.errors?._form?.[0] ?? "");
+          setFetchedShiftsData((prev) => prev.filter((el) => el.id !== id));
+          setEditFetchedShiftsData((prev) => prev.filter((el) => el.id !== id));
+        }
+
+        setTimeout(() => {
+          setError(""), setEditleShow(false);
+        }, 2000);
+      }
+    } catch (e: any) {
+      setError(e?.message ?? "server error");
+    }
+  };
 
   return (
     <div
       className={`w-full p-5 border border-teal-600 rounded-lg ${
-        fetchedShift?.start_hour == null ? "opacity-50" : ""
+        editShift?.start_hour == null ? "opacity-50" : ""
       }`}
     >
       <div className="flex flex-col justify-center items-center gap-3 mb-5">
@@ -66,76 +94,64 @@ export default function EditScheduleCard({
           <br />
         </h2>
         <p className="text-sm text-gray-400">{emp.email || "No email"}</p>
-        {fetchedShift?.start_hour != null && (
+        {editShift?.start_hour != null ? (
           <p className="text-sm font-bold">
             currently working from{" "}
             <span className="text-teal-500">
               {/* a tu normalnie jest wartosc XD? */}
-              {fetchedShift?.start_hour}
+              {editShift?.start_hour}
             </span>{" "}
-            to{" "}
-            <span className="text-teal-500">
-              {fetchedShift?.end_hour}
-            </span>
+            to <span className="text-teal-500">{editShift?.end_hour}</span>
           </p>
+        ) : (
+          <p className="text-sm font-bold">deosnt work</p>
         )}
       </div>
       <div className="flex justify-center items-center flex-col">
-        {fetchedShift?.start_hour == null ? (
-          <p className="text-center text-teal-600 text-xl font-bold">
-            deosnt work
-          </p>
-        ) : (
-          <>
-            <div className="mb-4">
-              <div>
-                <p className="text-center mb-2">Shift Start:</p>
-                <NumberPicker
-                  disabled={fetchedShift?.start_hour == null}
-                  from={0}
-                  to={Math.min(
-                    editShift?.end_hour ?? 24,
-                    (editShift?.start_hour ?? 0) + 12
-                  )}
-                  orientation="horizontal"
-                  title=""
-                  rangeDefault={editShift?.start_hour ?? 8}
-                  onChange={(value) => handleTimeChange(emp.id, "start", value)}
-                />
-                <p className="text-center mb-2">Shift End:</p>
-                <NumberPicker
-                  disabled={fetchedShift?.start_hour == null}
-                  from={
-                    editShift
-                      ? Math.max(0, editShift?.start_hour)
-                      : 0
-                  }
-                  to={
-                    editShift
-                      ? Math.min(24, editShift?.start_hour + 12)
-                      : 24
-                  }
-                  orientation="horizontal"
-                  title=""
-                  rangeDefault={editShift?.end_hour ?? 16}
-                  onChange={(value) => handleTimeChange(emp.id, "end", value)}
-                />
-              </div>
+        <>
+          <div className="mb-4">
+            <div>
+              <p className="text-center mb-2">Shift Start:</p>
+              <NumberPicker
+                disabled={editShift?.start_hour == null}
+                from={0}
+                to={Math.min(
+                  editShift?.end_hour ?? 24,
+                  (editShift?.start_hour ?? 0) + 12
+                )}
+                orientation="horizontal"
+                title=""
+                rangeDefault={editShift?.start_hour ?? 8}
+                onChange={(value) => handleTimeChange(emp.id, "start", value)}
+              />
+              <p className="text-center mb-2">Shift End:</p>
+              <NumberPicker
+                disabled={editShift?.start_hour == null}
+                from={editShift ? Math.max(0, editShift?.start_hour) : 0}
+                to={editShift ? Math.min(24, editShift?.start_hour + 12) : 24}
+                orientation="horizontal"
+                title=""
+                rangeDefault={editShift?.end_hour ?? 16}
+                onChange={(value) => handleTimeChange(emp.id, "end", value)}
+              />
             </div>
-            {editShift && (
-              <div className="mt-4 p-2 rounded text-center">
-                <p className="text-sm">
-                  Duration:{" "}
-                  <span className="font-bold text-teal-400">
-                    {editShift?.end_hour -
-                      editShift?.start_hour}
-                    h
-                  </span>
-                </p>
-              </div>
-            )}
-          </>
-        )}
+          </div>
+          {editShift && (
+            <div className="mt-4 p-2 rounded text-center">
+              <p className="text-sm">
+                Duration:{" "}
+                <span className="font-bold text-teal-400">
+                  {editShift?.end_hour - editShift?.start_hour}h
+                </span>
+              </p>
+              {fetchedShift?.id && (
+                <PrimaryButton onClick={() => deleteDay(fetchedShift.id)}>
+                  delete
+                </PrimaryButton>
+              )}
+            </div>
+          )}
+        </>
       </div>
     </div>
   );

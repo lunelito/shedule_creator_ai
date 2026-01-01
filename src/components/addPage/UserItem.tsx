@@ -4,8 +4,8 @@ import UserDetails from "./UserDetails";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/db/schema";
 import { employeType } from "@/app/manage/add/schedule/page";
-import SecondaryButton from "../UI/SecondaryButton";
 import SlideFromBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
+import IconButton from "../UI/IconButton";
 
 type UserItemProps = {
   index: number;
@@ -40,14 +40,14 @@ export default function UserItem({
             {user.email} - {user.name}
           </span>
 
-          <SecondaryButton
+          <IconButton
             onClick={() => toggleUserOpen(user.user_id)}
             tailwindPropsImage="hover:rotate-180"
             src="/Icons/arrowIcon.svg"
           />
 
           {user.role !== "admin" && (
-            <SecondaryButton
+            <IconButton
               onClick={() => removeUser(user.user_id)}
               src="/Icons/cross.svg"
             />

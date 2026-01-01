@@ -9,7 +9,6 @@ import { AnimatePresence } from "framer-motion";
 import SlideFronBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
 import { employeType } from "@/app/manage/add/schedule/page";
 import Input from "../UI/Input";
-import SecondaryButton from "../UI/SecondaryButton";
 import UserDetails from "./UserDetails";
 import Fetchedusers from "./Fetchedusers";
 import UserItem from "./UserItem";
@@ -64,6 +63,7 @@ export default function UserSearchList({
             max_consecutive_days: 1,
             role: "employee",
             position: userRoleList.length > 0 ? userRoleList[0] : "",
+            accept_to_schedule:"waiting"
           },
         ]);
         setEmail("");
@@ -87,6 +87,7 @@ export default function UserSearchList({
           max_consecutive_days: 1,
           role: "employee",
           position: userRoleList.length > 0 ? userRoleList[0] : "",
+          accept_to_schedule:"waiting"
         },
       ]);
       setEmail("");

@@ -11,7 +11,6 @@ import { useUserDataContext } from "@/context/userContext";
 import { addEmployees } from "@/lib/actions/Schedule/addEmployees";
 import Input from "@/components/UI/Input";
 import { addSchedule } from "@/lib/actions/action";
-import SecondaryButton from "@/components/UI/SecondaryButton";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import FadeAnimation from "@/animations/FadeAnimation";
 import { AnimatePresence } from "framer-motion";
@@ -36,7 +35,6 @@ export type employeType = {
 
 export default function AddPageShedule() {
   const router = useRouter();
-  // future create employeees on this tab
   const searchParams = useSearchParams();
 
   const organizationId = searchParams.get("organizationId");
@@ -91,7 +89,7 @@ export default function AddPageShedule() {
       }
     });
 
-    console.log(data)
+    console.log(data);
 
     const formData = new FormData();
     formData.append("employees", JSON.stringify(data));
@@ -102,7 +100,7 @@ export default function AddPageShedule() {
       console.log(result);
       if (result.success) {
         setError("Employees added");
-        return true;
+        return { result: result };
       } else {
         const userErrors = result.errors.users?.[0]
           ? result.errors.users[0] + " in employees fields"
@@ -111,7 +109,7 @@ export default function AddPageShedule() {
           result.errors._form?.[0] ?? "Error while inserting employees";
 
         setError(userErrors ?? formError);
-        return false;
+        return { result: result };
       }
     } catch (err) {
       console.error(err);
@@ -138,7 +136,7 @@ export default function AddPageShedule() {
 
       if (result.success) {
         setError("Schedule Added");
-        return result.schedule_id;
+        return { result: result };
       } else {
         const userErrors =
           result.errors.name?.[0] ||
@@ -151,7 +149,7 @@ export default function AddPageShedule() {
           : result.errors._form?.[0] ?? "Error while inserting schedule";
 
         setError(errorMsg);
-        return false;
+        return { result: result };
       }
     } catch (err) {
       console.error(err);
@@ -161,20 +159,24 @@ export default function AddPageShedule() {
 
   const createSheduleWithEmployees = async () => {
     try {
-      const scheduleId = await sendShedule();
-      if (!scheduleId) return;
+      const result = await sendShedule();
+      if (!result?.result.schedule_id) return;
 
-      const empResult = await sendEmployees(scheduleId);
+      const empResult = await sendEmployees(result.result.schedule_id);
 
-      if (empResult) {
+      if (empResult?.result.success) {
         router.back();
         return;
       }
 
-      if (userList.length > 1) {
+      if (
+        empResult?.result.errors._form?.[0]?.startsWith(
+          "Failed to add employee"
+        )
+      ) {
         for (const user of userList.slice(0, userList.length - 1)) {
           try {
-            await deleteEmployee(user.user_id);
+            await deleteEmployee(user.user_id, result.result.schedule_id);
           } catch (err) {
             console.error(
               "Nie udało się usunąć pracownika:",
@@ -186,9 +188,13 @@ export default function AddPageShedule() {
       }
 
       try {
-        await deleteSchedule(scheduleId);
+        await deleteSchedule(result.result.schedule_id);
       } catch (err) {
-        console.error("Nie udało się usunąć grafiku:", scheduleId, err);
+        console.error(
+          "Nie udało się usunąć grafiku:",
+          result.result.schedule_id,
+          err
+        );
       }
     } catch (err) {
       console.error("Błąd w createSheduleWithEmployees:", err);

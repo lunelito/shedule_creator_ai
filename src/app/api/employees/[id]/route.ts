@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { employees } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq,and } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
@@ -56,20 +56,22 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const deletedEmployee = await db
+    const updatedEmployee = await db
       .delete(employees)
       .where(eq(employees.id, parseInt(params.id)))
       .returning();
-    if (deletedEmployee.length === 0)
+    if (updatedEmployee.length === 0)
       return NextResponse.json(
         { error: "Employee not found" },
         { status: 404 }
       );
-    return NextResponse.json({ message: "Employee deleted successfully" });
+    return NextResponse.json(updatedEmployee[0]);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to delete employee" },
+      { error: "Failed to update employee" },
       { status: 500 }
     );
   }
 }
+
+
