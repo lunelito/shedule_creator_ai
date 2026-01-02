@@ -50,7 +50,7 @@ export default function ClassicCalendar({
 
   const [year, setYear] = useState(date.getFullYear());
   const [month, setMonth] = useState(date.getMonth());
-  const day = date.getDay();
+
   const todayDate = date.toISOString().split("T")[0];
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();

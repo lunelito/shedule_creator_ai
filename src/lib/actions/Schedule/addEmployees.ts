@@ -39,6 +39,7 @@ const employeesSchema = z.object({
     .int("Max consecutive days must be an integer")
     .positive("Max consecutive days must be positive"),
   accept_to_schedule: z.string().min(1, "accept to shedule must have value"),
+  image: z.string().min(1, "image must have value"),
 });
 
 const employeesArraySchema = z.array(employeesSchema);
@@ -109,7 +110,8 @@ export async function addEmployees(
           contracted_hours_per_week: Number(emp.contracted_hours_per_week),
           max_consecutive_days: Number(emp.max_consecutive_days),
           assigned_to_schedule: Number(schedule_id),
-          accept_to_schedule:emp.accept_to_schedule
+          accept_to_schedule: emp.accept_to_schedule,
+          image: emp.image,
         }),
       });
 
@@ -128,23 +130,23 @@ export async function addEmployees(
 
       addedEmployees.push(employeeData);
 
-      const resRole = await fetch(apiUrlRoles, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          employee_id: employeeData.id,
-          schedule_id,
-          role,
-        }),
-      });
+      // const resRole = await fetch(apiUrlRoles, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     employee_id: employeeData.id,
+      //     schedule_id,
+      //     role,
+      //   }),
+      // });
 
-      if (!resRole.ok) {
-        return {
-          errors: {
-            _form: [`Could not assign role to ${emp.name}`],
-          },
-        };
-      }
+      // if (!resRole.ok) {
+      //   return {
+      //     errors: {
+      //       _form: [`Could not assign role to ${emp.name}`],
+      //     },
+      //   };
+      // }
     }
 
     return {

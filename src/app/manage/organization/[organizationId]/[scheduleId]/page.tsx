@@ -49,14 +49,17 @@ export default function Page() {
     `/api/schedules_day/${scheduleId}`
   );
 
-  const { data: employeeLogInData, error } =
-    useFetch<InferSelectModel<typeof employees>>(`/api/employees/me`);
+  const { data: employeeLogInData, error } = useFetch<
+    InferSelectModel<typeof employees>
+  >(`/api/employees/me/${scheduleId}`);
 
   useEffect(() => {
     if (employeeLogInData) {
       setEmployeeLogInRole(employeeLogInData.role);
     }
   }, [employeeLogInData]);
+
+  console.log(employeeLogInData);
 
   useEffect(() => {
     if (dataEmployees) {

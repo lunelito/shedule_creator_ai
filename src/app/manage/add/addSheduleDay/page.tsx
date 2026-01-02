@@ -348,7 +348,7 @@ export default function AddScheduleDay() {
                 );
               }
 
-              if ( !addShow) {
+              if (!addShow) {
                 return (
                   <SheduleCard
                     key={emp.id}
@@ -387,31 +387,70 @@ export default function AddScheduleDay() {
           )}
         </div>
 
-        <div className="m-5 text-center">
-          {employeeLogInRole === "admin" && (
-            <div className="flex justify-center  gap-5">
-              {!addShow && (
-                <SecondaryButton
-                  onClick={() => {
-                    setEditleShow((prev) => !prev), setError("");
-                  }}
-                >
-                  {editleShow ? "see" : "edit"} schedule hours
-                </SecondaryButton>
-              )}
+        {employeeLogInRole === "admin" && (
+          <div className="flex justify-center gap-5 m-5">
+            {!employeeId && (
+              <>
+                {!addShow && (
+                  <SecondaryButton
+                    onClick={() => {
+                      setEditleShow((prev) => !prev);
+                      setError("");
+                    }}
+                  >
+                    {editleShow ? "see" : "edit"} schedule hours
+                  </SecondaryButton>
+                )}
 
-              {!editleShow && (
-                <SecondaryButton
-                  onClick={() => {
-                    setAddShow((prev) => !prev), setError("");
-                  }}
-                >
-                  {addShow ? "see" : "add"} schedule hours
-                </SecondaryButton>
-              )}
-            </div>
-          )}
-        </div>
+                {!editleShow && (
+                  <SecondaryButton
+                    onClick={() => {
+                      setAddShow((prev) => !prev);
+                      setError("");
+                    }}
+                  >
+                    {addShow ? "see" : "add"} schedule hours
+                  </SecondaryButton>
+                )}
+              </>
+            )}
+
+            {employeeId && (
+              <div className="m-5">
+                {employeesTab.map((emp) => {
+                  const fetchedShift = fetchedShiftsData.find(
+                    (s) => s.employee_id === emp.id
+                  );
+                  if (fetchedShift) {
+                    return (
+                      <SecondaryButton
+                        key={"btn"}
+                        onClick={() => {
+                          setEditleShow((prev) => !prev);
+                          setError("");
+                        }}
+                      >
+                        {editleShow ? "see" : "edit"} schedule hours
+                      </SecondaryButton>
+                    );
+                  } else {
+                    return (
+                      <SecondaryButton
+                        key={"btn"}
+                        onClick={() => {
+                          setAddShow((prev) => !prev);
+                          setError("");
+                        }}
+                      >
+                        {addShow ? "see" : "add"} schedule hours
+                      </SecondaryButton>
+                    );
+                  }
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </RenderAnimation>
     </div>
   );

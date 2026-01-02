@@ -63,7 +63,8 @@ export default function UserSearchList({
             max_consecutive_days: 1,
             role: "employee",
             position: userRoleList.length > 0 ? userRoleList[0] : "",
-            accept_to_schedule:"waiting"
+            accept_to_schedule: "waiting",
+            image: userData.image || "/images/pfp-placeholder.png",
           },
         ]);
         setEmail("");
@@ -87,7 +88,8 @@ export default function UserSearchList({
           max_consecutive_days: 1,
           role: "employee",
           position: userRoleList.length > 0 ? userRoleList[0] : "",
-          accept_to_schedule:"waiting"
+          accept_to_schedule: "waiting",
+          image: user.image || "/images/pfp-placeholder.png",
         },
       ]);
       setEmail("");
@@ -151,23 +153,23 @@ export default function UserSearchList({
             shouldFetch={shouldFetch}
           />
         )}
-          {emailVal.length === 0 &&
-            userList.length > 0 &&
-            userList.map((user, i) => (
-              <UserItem
-                key={user.user_id}
-                user={user}
-                index={i}
-                lastIndex={userList.length - 1}
-                isOpen={openUsers[user.user_id]}
-                toggleUserOpen={toggleUserOpen}
-                removeUser={removeUser}
-                organizationId={organizationId}
-                userList={userList}
-                userRoleList={userRoleList}
-                setUserList={setUserList}
-              />
-            ))}
+        {emailVal.length === 0 &&
+          userList.length > 0 &&
+          userList.map((user, i) => (
+            <UserItem
+              key={user.user_id}
+              user={user}
+              index={i}
+              lastIndex={userList.length - 1}
+              isOpen={openUsers[user.user_id]}
+              toggleUserOpen={toggleUserOpen}
+              removeUser={removeUser}
+              organizationId={organizationId}
+              userList={userList}
+              userRoleList={userRoleList}
+              setUserList={setUserList}
+            />
+          ))}
         {emailVal.length === 0 && userList.length === 0 && (
           <li className="flex justify-center p-5">no added users</li>
         )}

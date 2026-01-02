@@ -47,7 +47,7 @@ export async function GET(req: NextResponse) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log(body)
+    console.log(body);
 
     // Jeśli assigned_to_schedule jest wymagane, dodaj do requiredFields
     const requiredFields = [
@@ -67,11 +67,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    
     // Parsuj user_id raz
     const userId = parseInt(body.user_id);
     const scheduleId = body.assigned_to_schedule;
-    
+
     // Walidacja czy user_id jest poprawną liczbą
     if (isNaN(userId)) {
       return NextResponse.json(
@@ -79,20 +78,19 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Sprawdź czy pracownik już istnieje
     const checkIfExistEmp = await db
-    .select()
-    .from(employees)
-    .where(
-      and(
-        eq(employees.user_id, userId),
-        eq(employees.assigned_to_schedule, scheduleId)
-      )
-    );
-    
-    console.log(checkIfExistEmp)
+      .select()
+      .from(employees)
+      .where(
+        and(
+          eq(employees.user_id, userId),
+          eq(employees.assigned_to_schedule, scheduleId)
+        )
+      );
 
+    console.log(checkIfExistEmp);
 
     if (checkIfExistEmp.length > 0) {
       return NextResponse.json(
@@ -119,6 +117,7 @@ export async function POST(request: NextRequest) {
         max_consecutive_days: body.max_consecutive_days || 7,
         assigned_to_schedule: scheduleId,
         accept_to_schedule: body.accept_to_schedule,
+        image: body.image,
       })
       .returning();
 

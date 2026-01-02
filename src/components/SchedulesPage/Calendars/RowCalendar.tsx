@@ -48,6 +48,7 @@ export default function RowCalendar({
 
   const [year, setYear] = useState(date.getFullYear());
   const [month, setMonth] = useState(date.getMonth());
+
   const todayDate = date.toISOString().split("T")[0];
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -74,7 +75,7 @@ export default function RowCalendar({
     const mappedEmployees = employeesTab.map((emp) => ({
       ...emp,
       schedule: dataSingleScheduleDay.filter(
-        (el) => el.assigned_employee_id !== emp.id
+        (el) => el.assigned_employee_id === emp.id
       ),
     }));
 
@@ -89,18 +90,15 @@ export default function RowCalendar({
   }
   console.log(year);
 
-  const RouteToAdd = (value: boolean, day: number, employeeId: number) => {
-    console.log(day);
-    if (value) {
-      const selectedDate = new Date(year, month, day);
-      const yyyy = selectedDate.getFullYear();
-      const mm = String(selectedDate.getMonth() + 1).padStart(2, "0");
-      const dd = String(selectedDate.getDate()).padStart(2, "0");
-      const dateString = `${yyyy}-${mm}-${dd}`;
-      router.replace(
-        `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}&employeeId=${employeeId}`
-      );
-    }
+  const RouteToAdd = (day: number, employeeId: number) => {
+    const selectedDate = new Date(year, month, day);
+    const yyyy = selectedDate.getFullYear();
+    const mm = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(selectedDate.getDate()).padStart(2, "0");
+    const dateString = `${yyyy}-${mm}-${dd}`;
+    router.replace(
+      `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}&employeeId=${employeeId}`
+    );
   };
 
   return (
@@ -175,7 +173,6 @@ export default function RowCalendar({
                         key={`emp-${emp.id}-day-${dayIndex}`}
                         onClick={() =>
                           RouteToAdd(
-                            scheduleForDay !== undefined,
                             dayIndex + 1,
                             emp.id
                           )

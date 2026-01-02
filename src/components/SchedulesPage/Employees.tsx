@@ -20,7 +20,6 @@ export default function EmployeesDatalist({
   employeeLogInRole,
   scheduleId,
 }: EmployeesDatalistType) {
-
   const [error, setError] = useState("");
 
   const [employeesTabFilter, setEmployeesTabFilter] = useState<
@@ -39,6 +38,7 @@ export default function EmployeesDatalist({
         <div>
           <h2 className="p-2 text-2xl font-bold mb-2">Filter Employees:</h2>
           <EmployeeFilter
+            employeeLogInRole={employeeLogInRole}
             employeesTab={employeesTab}
             setEmployeesTabFilter={setEmployeesTabFilter}
           />

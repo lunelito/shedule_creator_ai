@@ -24,6 +24,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
         height: size,
         borderRadius: '50%',
         overflow: 'hidden',
+        flexShrink:0,
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       }}
     >

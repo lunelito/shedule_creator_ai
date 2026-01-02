@@ -153,6 +153,7 @@ export const employees = pgTable("employees", {
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   accept_to_schedule: state_of_schedule_accept().default("waiting"),
+  image: varchar("image", { length: 2048 }),
 });
 
 //not need to use it

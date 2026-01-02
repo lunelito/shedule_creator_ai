@@ -22,6 +22,7 @@ export type employeType = {
   email: string;
   name: string;
   user_id: number;
+  image: string;
   role: string;
   position: string;
   employee_code: string;
@@ -54,6 +55,7 @@ export default function AddPageShedule() {
       const newAdminUser: employeType = {
         email: userData.email ?? "admin@example.com",
         name: userData.name ?? "Admin",
+        image: userData.image || "/images/pfp-placeholder.png",
         user_id: userData.id,
         employee_code: "",
         organization_id: organizationId ? Number(organizationId) : 0,
@@ -169,23 +171,23 @@ export default function AddPageShedule() {
         return;
       }
 
-      if (
-        empResult?.result.errors._form?.[0]?.startsWith(
-          "Failed to add employee"
-        )
-      ) {
-        for (const user of userList.slice(0, userList.length - 1)) {
-          try {
-            await deleteEmployee(user.user_id, result.result.schedule_id);
-          } catch (err) {
-            console.error(
-              "Nie udało się usunąć pracownika:",
-              user.user_id,
-              err
-            );
-          }
-        }
-      }
+      // if (
+      //   empResult?.result.errors._form?.[0]?.startsWith(
+      //     "Failed to add employee"
+      //   )
+      // ) {
+      //   for (const user of userList.slice(0, userList.length - 1)) {
+      //     try {
+      //       await deleteEmployee(user.user_id, result.result.schedule_id);
+      //     } catch (err) {
+      //       console.error(
+      //         "Nie udało się usunąć pracownika:",
+      //         user.user_id,
+      //         err
+      //       );
+      //     }
+      //   }
+      // }
 
       try {
         await deleteSchedule(result.result.schedule_id);
