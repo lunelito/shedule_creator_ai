@@ -96,7 +96,7 @@ export default function AddScheduleDay() {
   };
 
   const { data: employeeLogInData } =
-    useFetch<InferSelectModel<typeof employees>>(`/api/employees/me`);
+    useFetch<InferSelectModel<typeof employees>>(`/api/employees/me/${scheduleId}`);
 
   const {
     data: shiftsData,

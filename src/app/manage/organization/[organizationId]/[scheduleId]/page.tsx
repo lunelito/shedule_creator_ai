@@ -12,6 +12,7 @@ import { useUserDataContext } from "@/context/userContext";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
 import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
+import EmployeeWork from "@/components/SchedulesPage/EmployeeWork";
 
 export default function Page() {
   const params = useParams();
@@ -59,8 +60,6 @@ export default function Page() {
     }
   }, [employeeLogInData]);
 
-  console.log(employeeLogInData);
-
   useEffect(() => {
     if (dataEmployees) {
       setEmployeesTab(dataEmployees);
@@ -107,15 +106,19 @@ export default function Page() {
             scheduleId={scheduleId}
             organizationId={organizationId}
           />
+          <EmployeeWork
+            dataSingleScheduleDay={dataSingleScheduleDay}
+            employeesTab={employeesTab}
+          />
           <RowCalendar
             organizationId={organizationId}
             dataSingleScheduleDay={dataSingleScheduleDay}
-            employeesTab={employeesTab ? employeesTab : []}
+            employeesTab={employeesTab}
             scheduleId={scheduleId}
           />
           <EmployeesDatalist
             scheduleId={scheduleId}
-            employeesTab={employeesTab ? employeesTab : []}
+            employeesTab={employeesTab}
             employeeLogInRole={employeeLogInRole}
           />
         </div>

@@ -2,6 +2,8 @@ import { employees, users } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { useEffect } from "react";
 import ProfileImage from "../ProfileImage/ProfileImage";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 type EmployeeListType = {
   employeesTabFilter: InferSelectModel<typeof employees>[];
   employeeLogInRole: string;
@@ -11,6 +13,7 @@ export default function EmployeeList({
   employeesTabFilter,
   employeeLogInRole,
 }: EmployeeListType) {
+  const pathname = usePathname();
   return (
     <div>
       {employeesTabFilter.length === 0 ? (
@@ -90,6 +93,12 @@ export default function EmployeeList({
                       </div>
                     ))}
                   </div>
+                  <Link
+                    href={`${pathname}/${emp.id}`}
+                    className="text-center text-xl font-bold hover:scale-105 transition-all ease-in-out"
+                  >
+                    see more
+                  </Link>
                 </div>
               </div>
             );

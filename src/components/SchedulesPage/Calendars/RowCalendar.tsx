@@ -9,8 +9,8 @@ import React, { useEffect, useState } from "react";
 
 type RowCalendartype = {
   employeesTab: InferSelectModel<typeof employees>[];
-  scheduleId: ParamValue;
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
+  scheduleId: ParamValue;
   organizationId: string;
 };
 
