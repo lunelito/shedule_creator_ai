@@ -244,7 +244,6 @@ export default function AddScheduleDay() {
         const result = await editSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
           const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
-          console.log(parsed);
           setFetchedShiftsData(parsed);
           setEditFetchedShiftsData(parsed);
           setError("Shifts Updated");
@@ -280,9 +279,6 @@ export default function AddScheduleDay() {
       }
     }
   }, [shiftsData]);
-
-  console.log(fetchedShiftsData);
-  console.log(editFetchedShiftsData);
 
   if (isPending || !shiftsData) {
     return <Loader />;

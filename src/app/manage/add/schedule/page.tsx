@@ -91,15 +91,12 @@ export default function AddPageShedule() {
       }
     });
 
-    console.log(data);
-
     const formData = new FormData();
     formData.append("employees", JSON.stringify(data));
     formData.append("schedule_id", value);
 
     try {
       const result = await addEmployees({ errors: {} }, formData);
-      console.log(result);
       if (result.success) {
         setError("Employees added");
         return { result: result };
@@ -205,7 +202,6 @@ export default function AddPageShedule() {
   };
 
   const [userRoleList, setUserRoleList] = useState<string[]>([]);
-  console.log(userList);
 
   if (!userData) {
     <Loader />;

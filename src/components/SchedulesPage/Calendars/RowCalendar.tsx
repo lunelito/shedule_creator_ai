@@ -4,7 +4,8 @@ import { employees, schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 type RowCalendartype = {
@@ -42,6 +43,7 @@ export default function RowCalendar({
 
   const date: Date = new Date();
   const router = useRouter();
+  const pathname = usePathname();
 
   //temp table
   const CalenderFull: string[] = [];
@@ -82,13 +84,10 @@ export default function RowCalendar({
     setEmployees(mappedEmployees);
   }, [employeesTab, dataSingleScheduleDay]);
 
-  console.log(employees);
-
   for (let i = 1; i < daysInMonth + 1; i++) {
     const date = new Date(year, month, i + 1);
     CalenderFull.push(date.toISOString().split("T")[0]);
   }
-  console.log(year);
 
   const RouteToAdd = (day: number, employeeId: number) => {
     const selectedDate = new Date(year, month, day);
@@ -120,18 +119,19 @@ export default function RowCalendar({
         <p className="mb-4 text-white">
           {year}-{months[month]}
         </p>
-        <div className="flex w-[80vw] gap-2 max-w-4xl bg-teal-600 p-4 rounded-lg overflow-auto scrollbar-thin">
+        <div className="flex gap-2 w-[80vw] bg-teal-600 p-4 rounded-lg overflow-auto scrollbar-thin">
           <div className="flex flex-col gap-2">
             <div
               className={`h-18 aspect-square p-4 rounded-lg flex justify-center items-center bg-transparent text-teal-600 hover:scale-105 transition ease-in-out `}
             />
             {employeesTab.map((el, i) => (
-              <div
+              <Link
+                href={`${pathname}/${el.id}`}
                 key={el.user_id}
                 className={`h-18 aspect-square p-4 rounded-lg flex justify-center items-center bg-white text-teal-600 hover:scale-105 transition ease-in-out `}
               >
                 {el.email}
-              </div>
+              </Link>
             ))}
           </div>
           <div className="flex flex-col gap-2">
@@ -171,12 +171,7 @@ export default function RowCalendar({
                     return (
                       <div
                         key={`emp-${emp.id}-day-${dayIndex}`}
-                        onClick={() =>
-                          RouteToAdd(
-                            dayIndex + 1,
-                            emp.id
-                          )
-                        }
+                        onClick={() => RouteToAdd(dayIndex + 1, emp.id)}
                         className={`cursor-pointer text-center aspect-square h-18 p-2 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
                           day === date.toISOString().split("T")[0]
                             ? "bg-teal-600 text-white border-2"

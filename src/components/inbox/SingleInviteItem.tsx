@@ -58,8 +58,6 @@ export default function SingleInviteItem({
     }
   };
 
-  console.log;
-
   useEffect(() => {
     if (decision !== null) {
       setPending(true);

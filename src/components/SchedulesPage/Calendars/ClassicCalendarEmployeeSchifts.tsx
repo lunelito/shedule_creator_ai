@@ -1,19 +1,22 @@
 "use client";
 
-import { employees } from "@/db/schema";
+import { employees, schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 type ClassicCalendartype = {
-  scheduleId: ParamValue;
-  organizationId: ParamValue;
+  dataSingleScheduleDayOfEmployee: InferSelectModel<typeof schedules_day>[];
 };
 
-export default function ClassicCalendar({
-  scheduleId,
-  organizationId,
+type ParsedScheduleDay = {
+  date: string | null;
+  hours: string;
+};
+
+export default function ClassicCalendarEmployeeSchifts({
+  dataSingleScheduleDayOfEmployee,
 }: ClassicCalendartype) {
   // text to display and easier to map
   const daysOfWeek: string[] = [
@@ -46,7 +49,7 @@ export default function ClassicCalendar({
   const router = useRouter();
 
   //temp table
-  const CalenderFull = [];
+  const CalenderFull: (string | null)[] = [];
 
   const [year, setYear] = useState(date.getFullYear());
   const [month, setMonth] = useState(date.getMonth());
@@ -73,21 +76,30 @@ export default function ClassicCalendar({
     setYear(newYear);
   };
 
-  //push blank spots if month starts not in monady
+  const parsedDataSingleScheduleDayOfEmployee: ParsedScheduleDay[] =
+    dataSingleScheduleDayOfEmployee.map((el) => {
+      const start = new Date(el.start_at).getHours();
+      const end = new Date(el.end_at).getHours();
+      const str = `${start} - ${end}`;
+
+      return {
+        date: el.date,
+        hours: str,
+      };
+    });
+
   for (let i = 0; i < firstDayInMonth; i++) {
     CalenderFull.push(null);
   }
 
   //push rest of the day
-  for (let i = 0; i < daysInMonth; i++) {
-    CalenderFull.push({
-      day: i + 1,
-      workers: [],
-    });
+  for (let i = 1; i < daysInMonth + 1; i++) {
+    const date = new Date(year, month, i + 1);
+    CalenderFull.push(date.toISOString().split("T")[0]);
   }
 
   return (
-    <div className="flex m-5 justify-center text-lg">
+    <div className="flex m-5 justify-center">
       <button
         className="hover:scale-105 transition ease-in-out"
         onClick={() => changeMonth(-1)}
@@ -100,44 +112,43 @@ export default function ClassicCalendar({
           height={50}
         />
       </button>
-      <div className="flex flex-col items-center p-5 w-full">
-        <p className="mb-4 text-white">Today is {todayDate}</p>
+      <div className="flex flex-col items-center p-5">
         <p className="mb-4 text-white">
           {year}-{months[month]}
         </p>
-        <div className="grid grid-cols-7 gap-2 w-[80vh] bg-teal-600 p-4 rounded-lg">
+        <div className="grid grid-cols-7 gap-2 w-[80vw] max-w-4xl bg-teal-600 p-4 rounded-lg">
           {daysOfWeek.map((el, i) => (
             <div
               key={i}
-              className="flex justify-center h-18 text-center font-semibold text-white items-center"
+              className="flex justify-center h-16 text-center font-semibold text-white items-center"
             >
               <p>{el}</p>
             </div>
           ))}
-          {CalenderFull.map((el, i) => (
-            <div
-              onClick={() => {
-                const selectedDate = new Date(year, month, el?.day);
-                const yyyy = selectedDate.getFullYear();
-                const mm = String(selectedDate.getMonth() + 1).padStart(2, "0");
-                const dd = String(selectedDate.getDate()).padStart(2, "0");
-                const dateString = `${yyyy}-${mm}-${dd}`;
-                router.replace(
-                  `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}`
-                );
-              }}
-              key={i}
-              className={`cursor-pointer h-18 p-4 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
-                el?.day === date.getDate() &&
-                month === date.getMonth() &&
-                year === date.getFullYear()
-                  ? "bg-teal-600 text-white border-2"
-                  : "bg-white"
-              }`}
-            >
-              <p>{el?.day}</p>
-            </div>
-          ))}
+          {CalenderFull.map((el, i) => {
+            if (el === null) {
+              return <div key={i} className="h-16 p-4 bg-transparent" />;
+            }
+
+            const daySchedule = parsedDataSingleScheduleDayOfEmployee.find(
+              (d) => d.date === el
+            );
+
+            return (
+              <div
+                key={i}
+                className={`cursor-pointer h-16 p-4 rounded-lg flex justify-center items-center hover:scale-105 transition ${
+                  daySchedule
+                    ? "bg-teal-600 text-white border-2"
+                    : "bg-white text-teal-600"
+                }`}
+              >
+                <p className="text-sm">
+                  {daySchedule ? daySchedule.hours : ""}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
       <button

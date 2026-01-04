@@ -37,7 +37,6 @@ export default function EmployeeNote({
     formData.append("employee_id", employee_id.toString());
     try {
       const result = await addEmployeeNote({ errors: {} }, formData);
-      console.log(result);
       if (result.success) {
         setError("Note aded");
         setEmployeesFetched((prev) =>
@@ -60,7 +59,6 @@ export default function EmployeeNote({
     formData.append("employee_id", employee_id.toString());
     try {
       const result = await addEmployeeNote({ errors: {} }, formData);
-      console.log(result);
       if (result.success) {
         setError("Note updated");
         setEmployeesFetched((prev) =>
@@ -76,7 +74,6 @@ export default function EmployeeNote({
   const deleteNote = async () => {
     try {
       const result = await deleteEmployeeNote(employee_id);
-      console.log(result);
       if (result.success) {
         setError("Note deleted");
         setEmployeesFetched((prev) =>

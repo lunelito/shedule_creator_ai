@@ -39,7 +39,6 @@ export default function EmployeeAddForm({
 
     try {
       const result = await addEmployees({ errors: {} }, formData);
-      console.log(result);
       if (result.success) {
         setError("Employees added");
         return result.employees;

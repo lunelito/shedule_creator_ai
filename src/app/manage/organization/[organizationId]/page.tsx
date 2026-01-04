@@ -27,8 +27,6 @@ export default function SchedulePage() {
 
   const organization = dataOrganization as OrganizationType;
 
-  console.log(userId)
-
   const {
     data: dataSchedule,
     isPending: isPendingSchedule,

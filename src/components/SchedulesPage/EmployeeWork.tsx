@@ -52,7 +52,7 @@ export default function EmployeeWork({
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-5 h-[40vh]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 w-full h-fit gap-5 xl:gap-10">
       <SingleEmployeeWorkCard
         employeeLogInRole={employeeLogInRole}
         tab={yesterdayEmployees}

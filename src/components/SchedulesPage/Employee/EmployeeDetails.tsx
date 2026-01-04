@@ -5,7 +5,6 @@ import React, { SetStateAction } from "react";
 import EmployeeNote from "./EmployeeNote";
 
 type EmployeeDetailsType = {
-  dataSingleScheduleDayOfEmployee: InferSelectModel<typeof schedules_day>;
   setEmployeesFetched: React.Dispatch<
     SetStateAction<InferSelectModel<typeof employees>[]>
   >;
@@ -15,7 +14,6 @@ type EmployeeDetailsType = {
 };
 
 export default function EmployeeDetails({
-  dataSingleScheduleDayOfEmployee,
   dataEmployee,
   dataEmployees,
   setEmployeesFetched,

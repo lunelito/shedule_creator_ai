@@ -20,7 +20,6 @@ export default function Page() {
   const scheduleId = params.scheduleId;
   const pathname = usePathname();
   const organizationId = pathname.split("/")[3];
-  console.log(organizationId);
   const [employeeLogInRole, setEmployeeLogInRole] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
@@ -102,20 +101,20 @@ export default function Page() {
       />
       <RenderAnimation animationKey={"AddPage"}>
         <div className="w-full flex flex-col items-center h-full p-10">
-          <ClassicCalendar
-            scheduleId={scheduleId}
+          <RowCalendar
             organizationId={organizationId}
+            dataSingleScheduleDay={dataSingleScheduleDay}
+            employeesTab={employeesTab}
+            scheduleId={scheduleId}
           />
           <EmployeeWork
             employeeLogInRole={employeeLogInRole}
             dataSingleScheduleDay={dataSingleScheduleDay}
             employeesTab={employeesTab}
           />
-          <RowCalendar
-            organizationId={organizationId}
-            dataSingleScheduleDay={dataSingleScheduleDay}
-            employeesTab={employeesTab}
+          <ClassicCalendar
             scheduleId={scheduleId}
+            organizationId={organizationId}
           />
           <EmployeesDatalist
             scheduleId={scheduleId}

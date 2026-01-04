@@ -9,6 +9,8 @@ import Loader from "@/components/UI/Loader";
 import EmployeeDetails from "@/components/SchedulesPage/Employee/EmployeeDetails";
 import EmployeeCalcSalary from "@/components/SchedulesPage/Employee/EmployeeCalcSalary";
 import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
+import ClassicCalendarEmployeeSchifts from "@/components/SchedulesPage/Calendars/ClassicCalendarEmployeeSchifts";
+import RenderAnimation from "@/animations/RenderAnimation";
 
 export default function page() {
   const params = useParams();
@@ -35,7 +37,7 @@ export default function page() {
     data: dataSingleScheduleDayOfEmployee,
     isPending: isPendingSingleScheduleDayOfEmployee,
     error: errorSingleScheduleDayOfEmployee,
-  } = useFetch<InferSelectModel<typeof schedules_day>>(
+  } = useFetch<InferSelectModel<typeof schedules_day>[]>(
     `/api/schedules_day/${scheduleId}/${employeeId}`
   );
 
@@ -79,27 +81,27 @@ export default function page() {
     return <Loader />;
   }
 
-  console.log(dataSingleScheduleDayOfEmployee, employeeFetched);
-
   return (
-    <div className="w-full">
+    <div className="flex w-full h-full flex-col scrollbar-none overflow-y-auto">
       <DashboardHeader
         onClick={() => router.back()}
         title={employeeFetched.name ?? ""}
         error={error}
       />
-      {/* jego dane */}
-      <EmployeeDetails
-        dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
-        dataEmployee={employeeFetched}
-        setEmployeesFetched={setEmployeesFetched}
-        dataEmployees={employeesFetched}
-        setError={setError}
-      />
-      {/* wyswietl kalendarz i zaznacz kiedy pracuje */}
-      <EmployeeShifts />
-      {/* liczy ile zxarobi w tamtym i w przyszlym miesiacu oraz ile przepracował godzin w tym ile go czeka jeszcze ile juz zaraobił */}
-      <EmployeeCalcSalary />
+      <RenderAnimation animationKey={"AddPage"}>
+        <EmployeeDetails
+          dataEmployee={employeeFetched}
+          setEmployeesFetched={setEmployeesFetched}
+          dataEmployees={employeesFetched}
+          setError={setError}
+        />
+        {/* wyswietl kalendarz i zaznacz kiedy pracuje */}
+        <ClassicCalendarEmployeeSchifts
+          dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
+        />
+        {/* liczy ile zxarobi w tamtym i w przyszlym miesiacu oraz ile przepracował godzin w tym ile go czeka jeszcze ile juz zaraobił */}
+        <EmployeeCalcSalary />
+      </RenderAnimation>
     </div>
   );
 }

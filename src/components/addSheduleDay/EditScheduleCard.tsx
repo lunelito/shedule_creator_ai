@@ -65,7 +65,6 @@ export default function EditScheduleCard({
     try {
       if (fetchedShift) {
         const result = await deleteSingleScheduleDay(id);
-        console.log(result);
 
         if (result.success) {
           setError(result.errors?._form?.[0] ?? "");
