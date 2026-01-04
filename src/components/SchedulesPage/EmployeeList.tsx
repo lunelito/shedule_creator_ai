@@ -23,18 +23,10 @@ export default function EmployeeList({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {employeesTabFilter.map((emp, i) => {
-            const formatDate = (date: Date) =>
-              date ? new Date(date).toISOString().split("T")[0] : "";
-
             const commonFields = [
               { label: "role", value: emp.role },
               { label: "position", value: emp.position },
               { label: "code", value: emp.employee_code },
-            ];
-
-            const adminFields = [
-              { label: "created at", value: formatDate(emp.created_at) },
-              { label: "last update at", value: formatDate(emp.updated_at) },
             ];
 
             const managerFields = [
@@ -50,7 +42,6 @@ export default function EmployeeList({
 
             const fieldsToRender = [
               ...commonFields,
-              ...(employeeLogInRole === "admin" ? adminFields : []),
               ...(employeeLogInRole === "manager" ||
               employeeLogInRole === "admin"
                 ? managerFields

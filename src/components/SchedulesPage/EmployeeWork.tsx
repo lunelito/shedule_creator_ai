@@ -8,11 +8,13 @@ import SingleEmployeeWorkCard from "./SingleEmployeeWorkCard";
 type EmployeeWorktype = {
   employeesTab: InferSelectModel<typeof employees>[];
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
+  employeeLogInRole: string;
 };
 
 export default function EmployeeWork({
   employeesTab,
   dataSingleScheduleDay,
+  employeeLogInRole,
 }: EmployeeWorktype) {
   const format = (d: Date) => d.toISOString().split("T")[0];
 
@@ -52,14 +54,17 @@ export default function EmployeeWork({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-5 h-[40vh]">
       <SingleEmployeeWorkCard
-        tab={todayEmployees}
+        employeeLogInRole={employeeLogInRole}
+        tab={yesterdayEmployees}
         title={"Yesterday employees on shift"}
       />
       <SingleEmployeeWorkCard
-        tab={yesterdayEmployees}
+        employeeLogInRole={employeeLogInRole}
+        tab={todayEmployees}
         title={"Today employees on shift"}
       />
       <SingleEmployeeWorkCard
+        employeeLogInRole={employeeLogInRole}
         tab={tomorrowEmployees}
         title={"Tommorow employees on shift"}
       />

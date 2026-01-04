@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
@@ -16,8 +16,9 @@ export default function DashboardHeader({
   error,
 }: DashboardHeadertype) {
   return (
-    <div className="mb-[10vh]">
-      <div className="flex w-full justify-between items-center p-10 gap-4 h-[10vh] fixed top-0 bg-zinc-900 z-10">
+    <div className="mb-[10vh] w-full">
+      {/* !!!!!!!!FIX THIS */}
+      <div className="flex w-[90vw] justify-between items-center p-10 gap-4 h-[10vh] fixed top-0 bg-zinc-900 z-10">
         {onClick && (
           <button
             onClick={onClick}

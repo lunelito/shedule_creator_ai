@@ -107,6 +107,7 @@ export default function Page() {
             organizationId={organizationId}
           />
           <EmployeeWork
+            employeeLogInRole={employeeLogInRole}
             dataSingleScheduleDay={dataSingleScheduleDay}
             employeesTab={employeesTab}
           />

@@ -34,6 +34,7 @@ export async function GET(
 
     return NextResponse.json([orgsWhereCreatedByUser, orgsWhereEmployeed]);
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: "Failed to fetch organizations" },
       { status: 500 }

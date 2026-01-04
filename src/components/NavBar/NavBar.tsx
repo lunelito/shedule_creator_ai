@@ -39,7 +39,7 @@ export default function NavBar({
 
   return (
     <div
-      className=" bg-zinc-800 h-screen flex relative  w-fit"
+      className=" bg-zinc-800 h-screen flex relative w-fit"
       onMouseEnter={() => setShowNavbar(true)}
       onMouseLeave={() => setShowNavbar(false)}
     >

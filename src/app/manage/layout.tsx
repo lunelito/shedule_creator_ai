@@ -46,7 +46,7 @@ export default function ManageLayout({
         </RenderNavBar>
       </aside>
 
-      <main className="h-screen w-screen flex mb-10 text-white overflow-y-hidden">
+      <main className="h-screen w-full flex mb-10 text-white overflow-y-hidden">
         <AnimatePresence mode="wait">{children}</AnimatePresence>
       </main>
     </div>
