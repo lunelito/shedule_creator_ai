@@ -28,7 +28,7 @@ export default function EmployeeDetails({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 p-4 md:p-6 lg:p-10 pt-10 h-fit w-full gap-4 md:gap-6 lg:gap-10">
-      <div className="flex flex-col lg:flex-row lg:justify-between bg-zinc-700 rounded-lg p-4 lg:col-span-2">
+      <div className="flex flex-col lg:flex-row lg:justify-between bg-zinc-800/50 rounded-lg p-4 lg:col-span-2">
         <div className="w-full lg:w-3/4 border-b-2 pb-4 lg:pb-0 lg:pr-8 lg:border-r-2 lg:border-b-0 border-zinc-600">
           <h2 className="text-2xl font-bold text-white mb-4">Employee Data</h2>
 

@@ -25,6 +25,26 @@ export default function page() {
   >({} as InferSelectModel<typeof employees>);
   const [error, setError] = useState<string>("");
 
+  const today = new Date();
+
+  const pastMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() - 1,
+    today.getDate()
+  )
+    .toISOString()
+    .split("T")[0];
+
+  const presentMonth = today.toISOString().split("T")[0];
+
+  const futureMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    today.getDate()
+  )
+    .toISOString()
+    .split("T")[0];
+
   const {
     data: dataEmployees,
     isPending: isPendingEmployees,
@@ -40,6 +60,25 @@ export default function page() {
   } = useFetch<InferSelectModel<typeof schedules_day>[]>(
     `/api/schedules_day/${scheduleId}/${employeeId}`
   );
+
+  const {
+    data: dataThreeMonthScheduleDay,
+    isPending: isPendingThreeMonthScheduleDay,
+    error: errorThreeMonthScheduleDay,
+  } = useFetch<InferSelectModel<typeof schedules_day>[][]>(
+    `/api/schedules_day/${scheduleId}/${employeeId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
+  );
+
+  const {
+    data: dataThreeMonthScheduleDayAll,
+    isPending: isPendingThreeMonthScheduleDayAll,
+    error: errorThreeMonthScheduleDayAll,
+  } = useFetch<InferSelectModel<typeof schedules_day>[][]>(
+    `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
+  );
+
+
+  console.log(dataThreeMonthScheduleDayAll);
 
   useEffect(() => {
     if (dataEmployees) {
@@ -63,7 +102,12 @@ export default function page() {
     }
   }, [dataEmployees]);
 
-  if (errorSingleScheduleDayOfEmployee || errorEmployees) {
+  if (
+    errorSingleScheduleDayOfEmployee ||
+    errorEmployees ||
+    errorThreeMonthScheduleDay ||
+    errorThreeMonthScheduleDayAll
+  ) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading employee data</p>
@@ -74,9 +118,13 @@ export default function page() {
   if (
     isPendingSingleScheduleDayOfEmployee ||
     isPendingEmployees ||
+    isPendingThreeMonthScheduleDayAll ||
+    isPendingThreeMonthScheduleDay ||
     !employeeFetched ||
     !dataSingleScheduleDayOfEmployee ||
-    !employeesFetched
+    !employeesFetched ||
+    !dataThreeMonthScheduleDay ||
+    !dataThreeMonthScheduleDayAll
   ) {
     return <Loader />;
   }
@@ -95,12 +143,18 @@ export default function page() {
           dataEmployees={employeesFetched}
           setError={setError}
         />
+        {/* liczy ile zxarobi w tamtym i w przyszlym miesiacu oraz ile przepracował godzin w tym ile go czeka jeszcze ile juz zaraobił */}
+        <EmployeeCalcSalary
+          employeeFetched={employeeFetched}
+          dataThreeMonthScheduleDay={dataThreeMonthScheduleDay}
+          dataThreeMonthScheduleDayAll={dataThreeMonthScheduleDayAll}
+          presentMonth={presentMonth}
+          employeesFetched={employeesFetched}
+        />
         {/* wyswietl kalendarz i zaznacz kiedy pracuje */}
         <ClassicCalendarEmployeeSchifts
           dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
         />
-        {/* liczy ile zxarobi w tamtym i w przyszlym miesiacu oraz ile przepracował godzin w tym ile go czeka jeszcze ile juz zaraobił */}
-        <EmployeeCalcSalary />
       </RenderAnimation>
     </div>
   );

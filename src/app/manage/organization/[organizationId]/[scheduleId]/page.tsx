@@ -49,6 +49,7 @@ export default function Page() {
     `/api/schedules_day/${scheduleId}`
   );
 
+
   const { data: employeeLogInData, error } = useFetch<
     InferSelectModel<typeof employees>
   >(`/api/employees/me/${scheduleId}`);
