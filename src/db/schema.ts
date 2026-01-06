@@ -144,9 +144,9 @@ export const employees = pgTable("employees", {
   contracted_hours_per_week: numeric("contracted_hours_per_week", {
     precision: 5,
     scale: 2,
-  }).default("40"),
+  }).default("40").notNull(),
   role: roles("role").notNull(),
-  max_consecutive_days: integer("max_consecutive_days").default(7),
+  max_consecutive_days: integer("max_consecutive_days").default(7).notNull(),
   assigned_to_schedule: integer("assigned_to_schedule").references(
     () => schedules.id
   ),
@@ -273,7 +273,7 @@ export const schedules_day = pgTable("schedules_day", {
   ),
   start_at: timestamp("start_at").notNull(),
   end_at: timestamp("end_at").notNull(),
-  date: text("date"),
+  date: text("date").notNull(),
   scheduled_hours: numeric("scheduled_hours", {
     precision: 6,
     scale: 2,

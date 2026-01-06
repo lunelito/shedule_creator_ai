@@ -1,11 +1,17 @@
-import React, { SetStateAction } from "react";
+import React, {
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import NumberPicker from "../UI/NumberPicker";
 import {
   EmployeeShift,
   ShiftFetched,
 } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
-import { employees } from "@/db/schema";
+import { employees, schedules_day } from "@/db/schema";
 import PrimaryButton from "../UI/PrimaryButton";
 import Image from "next/image";
 
@@ -15,6 +21,13 @@ type AddSheduleCardType = {
   employeeShift: EmployeeShift;
   fetchedShiftsData: ShiftFetched[];
   setEmployeeShifts: React.Dispatch<SetStateAction<EmployeeShift[]>>;
+  dataThreeMonthScheduleDayAllFetched: InferSelectModel<
+    typeof schedules_day
+  >[][];
+  setDataThreeMonthScheduleDayAllFetched: React.Dispatch<
+    SetStateAction<InferSelectModel<typeof schedules_day>[][]>
+  >;
+  selectedDate: Date;
 };
 
 export default function AddSheduleCard({
@@ -23,33 +36,44 @@ export default function AddSheduleCard({
   fetchedShiftsData,
   employeeShift,
   setEmployeeShifts,
+  dataThreeMonthScheduleDayAllFetched,
+  selectedDate,
 }: AddSheduleCardType) {
+  const expendDisabled = employeeShift.remainingWeeklyHours <= 0;
   const handleTimeChange = (
     employeeId: number,
     type: "start" | "end",
     hour: number
   ) => {
     setEmployeeShifts((prev) => {
-      const shift = prev.find((s) => s.employee_id === employeeId);
-      if (!shift) return prev;
+      return prev.map((s) => {
+        if (s.employee_id !== employeeId) return s;
 
-      const start = type === "start" ? hour : shift.start_hour;
-      const end = type === "end" ? hour : shift.end_hour;
+        const start = type === "start" ? hour : s.start_hour;
+        const end = type === "end" ? hour : s.end_hour;
 
-      const diff = end - start;
+        const prevDiff = s.end_hour - s.start_hour;
+        const newDiff = end - start;
+        const diffChange = newDiff - prevDiff;
+        console.log(diffChange);
 
-      if (hour < 0 || hour > 24 || diff > 12 || diff < 0) {
-        return prev;
-      }
+        if (
+          hour < 0 ||
+          hour > 23 ||
+          newDiff < 0 ||
+          newDiff > 12 ||
+          s.remainingWeeklyHours - diffChange < 0
+        ) {
+          return s;
+        }
 
-      return prev.map((s) =>
-        s.employee_id === employeeId
-          ? {
-              ...s,
-              [type === "start" ? "start_hour" : "end_hour"]: hour,
-            }
-          : s
-      );
+        return {
+          ...s,
+          start_hour: start,
+          end_hour: end,
+          remainingWeeklyHours: s.remainingWeeklyHours - diffChange,
+        };
+      });
     });
   };
 
@@ -75,73 +99,75 @@ export default function AddSheduleCard({
 
   return (
     <div
-      className={`w-full p-5 border border-teal-600 rounded-lg select-none relative ${
+      className={`w-full p-5 border border-teal-600 rounded-lg select-none relative transition-all ease-in-out ${
         employeeShift?.selected ? "opacity-50" : ""
-      } transition-all ease-in-out`}
+      }`}
     >
       <h2 className="text-xl mb-5 m-2 text-center">
         {emp.name || "Unknown User"}
         <br />
         <span className="text-sm text-gray-400">{emp.email || "No email"}</span>
       </h2>
-      <div className="flex justify-center items-center flex-col">
+
+      <div className="flex flex-col items-center">
         <div className="mb-4">
-          <div>
-            <p className="text-center mb-2">Shift Start:</p>
-            <NumberPicker
-              disabled={employeeShift?.selected}
-              from={0}
-              to={
-                employeeShift
-                  ? Math.min(
-                      employeeShift.end_hour,
-                      employeeShift.start_hour + 12
-                    )
-                  : 24
-              }
-              orientation="horizontal"
-              title=""
-              rangeDefault={employeeShift?.start_hour || 8}
-              onChange={(value) => handleTimeChange(emp.id, "start", value)}
-            />
-            <p className="text-center mb-2">Shift End:</p>
-            <NumberPicker
-              disabled={employeeShift?.selected}
-              from={employeeShift ? Math.max(0, employeeShift.start_hour) : 0}
-              to={
-                employeeShift ? Math.min(24, employeeShift.start_hour + 12) : 24
-              }
-              orientation="horizontal"
-              title=""
-              rangeDefault={employeeShift?.end_hour || 16}
-              onChange={(value) => handleTimeChange(emp.id, "end", value)}
-            />
-          </div>
-        </div>
+          <p className="text-center mb-2">Shift Start:</p>
+          <NumberPicker
+            disabled={employeeShift?.selected}
+            expendDisabled={expendDisabled}
+            expendSide={"L"}
+            from={0}
+            to={23}
+            orientation="horizontal"
+            title=""
+            rangeDefault={employeeShift?.start_hour || 0}
+            onChange={(value) => handleTimeChange(emp.id, "start", value)}
+          />
 
-        {employeeShift && (
-          <div className="mt-4 p-2 rounded text-center">
-            <p className="text-sm">
-              Duration:{" "}
-              <span className="font-bold text-teal-400">
-                {employeeShift?.end_hour - employeeShift?.start_hour}h
-              </span>
-            </p>
-          </div>
-        )}
+          <p className="text-center mb-2">Shift End:</p>
+          <NumberPicker
+            expendSide={"R"}
+            disabled={employeeShift?.selected}
+            expendDisabled={expendDisabled}
+            from={0}
+            to={23}
+            orientation="horizontal"
+            title=""
+            rangeDefault={employeeShift?.end_hour || 0}
+            onChange={(value) => handleTimeChange(emp.id, "end", value)}
+          />
 
-        <div className="absolute -top-4 -left-4">
-          <button
-            onClick={() => toggleSelect(employeeShift?.employee_id)}
-            className="relative bg-teal-600 h-8 w-8 rounded-full flex items-center justify-center"
-          >
-            <Image
-              src={`/Icons/${employeeShift?.selected ? "addIcon" :"minus"}.svg`}
-              alt="cross"
-              fill
-              style={{ objectFit: "contain" }}
-            />
-          </button>
+          {employeeShift && (
+            <div className="mt-4 p-2 rounded text-center">
+              <p className="text-sm">
+                Duration:{" "}
+                <span className="font-bold text-teal-400">
+                  {employeeShift.end_hour - employeeShift.start_hour}h
+                </span>
+              </p>
+              <p className="text-sm">
+                Remaning Hours this Week:{" "}
+                <span className="font-bold text-teal-400">
+                  {employeeShift.remainingWeeklyHours}h
+                </span>
+              </p>
+            </div>
+          )}
+          <div className="absolute -top-4 -left-4">
+            <button
+              onClick={() => toggleSelect(employeeShift?.employee_id)}
+              className="relative bg-teal-600 h-8 w-8 rounded-full flex items-center justify-center"
+            >
+              <Image
+                src={`/Icons/${
+                  employeeShift?.selected ? "addIcon" : "minus"
+                }.svg`}
+                alt="cross"
+                fill
+                style={{ objectFit: "contain" }}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

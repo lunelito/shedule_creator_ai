@@ -41,10 +41,13 @@ export type EmployeeShift = {
   start_hour: number;
   end_hour: number;
   selected: boolean;
+  cantWork: boolean;
+  remainingWeeklyHours: number;
 };
 
 export type ShiftFetched = EmployeeShift & {
   id: number;
+  date: string | null;
 };
 
 export default function AddScheduleDay() {
@@ -56,6 +59,7 @@ export default function AddScheduleDay() {
   const employeeId = searchParams.get("employeeId");
   const { userData } = useUserDataContext();
   const [error, setError] = useState("");
+  // const [cantWork, setCantWork] = useState<boolean>(false);
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
   >([]);
@@ -65,12 +69,19 @@ export default function AddScheduleDay() {
   const [selectedDate, setSelectedDate] = useState<Date>(
     dateParam ? new Date(dateParam) : new Date()
   );
+
   const [fetchedShiftsData, setFetchedShiftsData] = useState<ShiftFetched[]>(
     []
   );
+  const [
+    dataThreeMonthScheduleDayAllFetched,
+    setDataThreeMonthScheduleDayAllFetched,
+  ] = useState<InferSelectModel<typeof schedules_day>[][]>([]);
+
   const [editFetchedShiftsData, setEditFetchedShiftsData] = useState<
     ShiftFetched[]
   >([]);
+
   const [editleShow, setEditleShow] = useState(false);
   const [addShow, setAddShow] = useState(false);
 
@@ -80,6 +91,100 @@ export default function AddScheduleDay() {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const getWeekRangeMondaySunday = (date: Date) => {
+    const day = date.getDay(); // 0 = niedziela
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    const monday = new Date(date);
+    monday.setDate(date.getDate() + diffToMonday);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    return { monday, sunday };
+  };
+
+  const presentMonth = formatedData(new Date(selectedDate));
+
+  const pastMonth = formatedData(
+    new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() - 1,
+      selectedDate.getDate()
+    )
+  );
+  const futureMonth = formatedData(
+    new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      selectedDate.getDate()
+    )
+  );
+
+  const [cantWork, setCantWork] = useState<Record<number, boolean>>({});
+
+  const CheckIfCanWork = (maxDays: number, empId: number): boolean => {
+    if (maxDays === 0) return false; // Jeśli nie ma ograniczenia
+
+    const dataAll = dataThreeMonthScheduleDayAllFetched.flat();
+
+    const today = new Date(selectedDate).toISOString().split("T")[0];
+
+    const minDate = new Date(selectedDate);
+    minDate.setDate(minDate.getDate() - maxDays);
+    const minDateStr = minDate.toISOString().split("T")[0];
+
+    const maxDate = new Date(selectedDate);
+    maxDate.setDate(maxDate.getDate() + maxDays);
+    const maxDateStr = maxDate.toISOString().split("T")[0];
+
+    // Filtrujemy tylko zmiany dla danego pracownika w zakresie dat
+    const employeeShifts = dataAll.filter(
+      (shift) =>
+        shift.date &&
+        shift.date >= minDateStr &&
+        shift.date <= maxDateStr &&
+        shift.assigned_employee_id === empId
+    );
+
+    // Sortuj po dacie
+    employeeShifts.sort((a, b) => {
+      return new Date(a.date!).getTime() - new Date(b.date!).getTime();
+    });
+
+    // Sprawdzamy ciągłość dni pracy
+    const shiftDates = employeeShifts.map((shift) => shift.date!);
+
+    // Sprawdzamy czy dzisiejszy dzień już ma przypisany shift
+    const hasShiftToday = shiftDates.includes(today);
+
+    // Jeśli dzisiaj już ma shift, nie może dostać kolejnego
+    if (hasShiftToday) return true;
+
+    // Szukamy najdłuższego ciągłego okresu pracy
+    let maxConsecutive = 0;
+    let currentConsecutive = 0;
+
+    // Przekształcamy daty na timestampy i szukamy ciągów
+    const allDatesInRange: string[] = [];
+    for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
+      allDatesInRange.push(d.toISOString().split("T")[0]);
+    }
+
+    // Sprawdzamy ciągłość
+    for (const date of allDatesInRange) {
+      if (shiftDates.includes(date)) {
+        currentConsecutive++;
+        maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
+      } else {
+        currentConsecutive = 0;
+      }
+    }
+
+    // Sprawdzamy czy przekracza limit
+    return maxConsecutive >= maxDays;
   };
 
   const parseData = (
@@ -92,11 +197,41 @@ export default function AddScheduleDay() {
       start_hour: new Date(shift.start_at).getHours(),
       end_hour: new Date(shift.end_at).getHours(),
       selected: false,
+      date: shift.date,
+      cantWork: false,
+      remainingWeeklyHours: 40,
     }));
   };
 
-  const { data: employeeLogInData } =
-    useFetch<InferSelectModel<typeof employees>>(`/api/employees/me/${scheduleId}`);
+  const getRemainingWeeklyHours = (
+    empId: number,
+    contractedHoursPerWeek: number,
+    selectedDate: Date
+  ): number => {
+    const dataAll = dataThreeMonthScheduleDayAllFetched
+      .flat()
+      .filter((el) => el.assigned_employee_id === empId);
+
+    const { monday, sunday } = getWeekRangeMondaySunday(selectedDate);
+
+    const start = formatedData(monday);
+    const end = formatedData(sunday);
+
+    const weekOfShifts = dataAll.filter(
+      (el) => el.date >= start && el.date <= end
+    );
+
+    const sumHours = weekOfShifts.reduce(
+      (acc, curr) => acc + Number(curr.scheduled_hours),
+      0
+    );
+
+    return contractedHoursPerWeek - sumHours;
+  };
+
+  const { data: employeeLogInData } = useFetch<
+    InferSelectModel<typeof employees>
+  >(`/api/employees/me/${scheduleId}`);
 
   const {
     data: shiftsData,
@@ -108,11 +243,25 @@ export default function AddScheduleDay() {
     )}&schedule_id=${scheduleId}`
   );
 
+  const {
+    data: dataThreeMonthScheduleDayAll,
+    isPending: isPendingThreeMonthScheduleDayAll,
+    error: errorThreeMonthScheduleDayAll,
+  } = useFetch<InferSelectModel<typeof schedules_day>[][]>(
+    `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
+  );
+
   useEffect(() => {
     if (employeeLogInData) {
       setEmployeeLogInRole(employeeLogInData.role);
     }
   }, [employeeLogInData]);
+
+  useEffect(() => {
+    if (dataThreeMonthScheduleDayAll) {
+      setDataThreeMonthScheduleDayAllFetched(dataThreeMonthScheduleDayAll);
+    }
+  }, [dataThreeMonthScheduleDayAll]);
 
   const fillShifts = () => {
     const currentUserId = userData?.id;
@@ -121,6 +270,7 @@ export default function AddScheduleDay() {
     if (currentUserId && scheduleId) {
       const newShifts: Shift[] = employeeShifts
         .filter((employeeShift) => !employeeShift.selected)
+        .filter((employeeShift) => !employeeShift.cantWork)
         .map((employeeShift) => {
           const startDate = new Date(baseDate);
           startDate.setHours(employeeShift.start_hour, 0, 0, 0);
@@ -158,13 +308,36 @@ export default function AddScheduleDay() {
         const parsedEmployees: InferSelectModel<typeof employees>[] =
           JSON.parse(storedEmployees);
 
-        const initialShifts: EmployeeShift[] = parsedEmployees.map((emp) => ({
-          employee_id: emp.id as number,
-          user_id: emp.user_id,
-          start_hour: 8,
-          selected: false,
-          end_hour: 16,
-        }));
+        // Obliczamy cantWork dla każdego pracownika
+        const cantWorkMap: Record<number, boolean> = {};
+        const initialShifts: EmployeeShift[] = parsedEmployees.map((emp) => {
+          const cantWorkResult = CheckIfCanWork(
+            emp.max_consecutive_days,
+            emp.id as number
+          );
+
+          const howManyHoursLeft = getRemainingWeeklyHours(
+            emp.id as number,
+            Number(emp.contracted_hours_per_week),
+            selectedDate
+          );
+
+          console.log(howManyHoursLeft, emp.id);
+
+          cantWorkMap[emp.id as number] = cantWorkResult;
+
+          return {
+            employee_id: emp.id as number,
+            user_id: emp.user_id,
+            start_hour: 8,
+            selected: false,
+            end_hour: 8,
+            cantWork: cantWorkResult,
+            remainingWeeklyHours: howManyHoursLeft,
+          };
+        });
+
+        setCantWork(cantWorkMap);
 
         if (employeeId) {
           setEmployeeShifts(
@@ -194,6 +367,7 @@ export default function AddScheduleDay() {
     const newShifts = shifts?.filter(
       (s) => !existingEmployeeIds.has(s.assigned_employee_id!)
     );
+
     if (newShifts) {
       const formData = new FormData();
       formData.append("shifts", JSON.stringify(newShifts));
@@ -261,8 +435,10 @@ export default function AddScheduleDay() {
   };
 
   useEffect(() => {
-    getDataFromLocalHost();
-  }, []);
+    if (dataThreeMonthScheduleDayAllFetched.length !== 0) {
+      getDataFromLocalHost();
+    }
+  }, [dataThreeMonthScheduleDayAllFetched]);
 
   useEffect(() => {
     if (shiftsData) {
@@ -280,7 +456,12 @@ export default function AddScheduleDay() {
     }
   }, [shiftsData]);
 
-  if (isPending || !shiftsData) {
+  if (
+    isPending ||
+    !shiftsData ||
+    !dataThreeMonthScheduleDayAll ||
+    isPendingThreeMonthScheduleDayAll
+  ) {
     return <Loader />;
   }
 
@@ -313,10 +494,16 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
+              const employeeCantWork = cantWork[emp.id as number] || false;
+
               if (editleShow) {
                 return (
                   <EditScheduleCard
                     key={emp.id}
+                    employeesTab={employeesTab}
+                    setEmployeeShifts={setEmployeeShifts}
+                    CheckIfCanWork={CheckIfCanWork}
+                    setCantWork={setCantWork}
                     addShow={addShow}
                     emp={emp}
                     editShift={editShift}
@@ -327,18 +514,33 @@ export default function AddScheduleDay() {
                     editFetchedShiftsData={editFetchedShiftsData}
                     setFetchedShiftsData={setFetchedShiftsData}
                     setEditFetchedShiftsData={setEditFetchedShiftsData}
+                    setDataThreeMonthScheduleDayAllFetched={
+                      setDataThreeMonthScheduleDayAllFetched
+                    }
                   />
                 );
               }
 
-              if (employeeShift && addShow && !fetchedShift) {
+              if (
+                employeeShift &&
+                addShow &&
+                !fetchedShift &&
+                !employeeCantWork
+              ) {
                 return (
                   <AddSheduleCard
                     key={emp.id}
                     emp={emp}
+                    dataThreeMonthScheduleDayAllFetched={
+                      dataThreeMonthScheduleDayAllFetched
+                    }
+                    setDataThreeMonthScheduleDayAllFetched={
+                      setDataThreeMonthScheduleDayAllFetched
+                    }
                     fetchedShiftsData={fetchedShiftsData}
                     employeeShifts={employeeShifts}
                     employeeShift={employeeShift}
+                    selectedDate={selectedDate}
                     setEmployeeShifts={setEmployeeShifts}
                   />
                 );
@@ -347,6 +549,7 @@ export default function AddScheduleDay() {
               if (!addShow) {
                 return (
                   <SheduleCard
+                    cantWork={employeeCantWork}
                     key={emp.id}
                     addShow={addShow}
                     emp={emp}
@@ -365,8 +568,7 @@ export default function AddScheduleDay() {
                 <PrimaryButton onClick={handleEdit}>Edit Shifts</PrimaryButton>
               </div>
             )}
-
-            {addShow && (
+            {addShow && (!employeeId || !cantWork[Number(employeeId)]) && (
               <div className="mt-8 flex justify-center gap-4">
                 <PrimaryButton onClick={handleSubmit}>Add Shifts</PrimaryButton>
               </div>
@@ -375,7 +577,7 @@ export default function AddScheduleDay() {
         )}
 
         <div className="mt-6 text-center text-sm ">
-          {employeesTab.length > 0 && (
+          {employeesTab.length > 0 && !cantWork && (
             <p className="text-gray-400">
               Configuring shifts for {employeesTab.length} employee
               {employeesTab.length !== 1 ? "s" : ""}
@@ -397,7 +599,8 @@ export default function AddScheduleDay() {
                     {editleShow ? "see" : "edit"} schedule hours
                   </SecondaryButton>
                 )}
-
+                {/* jeszcze popraw */}
+                {/* || fetchedShiftsData.length !== employeeShifts.filter(el => !el.cantWork).length */}
                 {!editleShow && (
                   <SecondaryButton
                     onClick={() => {
@@ -429,7 +632,7 @@ export default function AddScheduleDay() {
                         {editleShow ? "see" : "edit"} schedule hours
                       </SecondaryButton>
                     );
-                  } else {
+                  } else if (!cantWork[Number(employeeId)]) {
                     return (
                       <SecondaryButton
                         key={"btn"}

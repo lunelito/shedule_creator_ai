@@ -5,7 +5,7 @@ import {
   ShiftFetched,
 } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
-import { employees } from "@/db/schema";
+import { employees, schedules_day } from "@/db/schema";
 import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
 import PrimaryButton from "../UI/PrimaryButton";
 
@@ -20,19 +20,29 @@ type AddSheduleCardType = {
   setError: React.Dispatch<SetStateAction<string>>;
   setFetchedShiftsData: React.Dispatch<SetStateAction<ShiftFetched[]>>;
   editFetchedShiftsData: ShiftFetched[];
+  setDataThreeMonthScheduleDayAllFetched: React.Dispatch<
+    SetStateAction<InferSelectModel<typeof schedules_day>[][]>
+  >;
+  CheckIfCanWork: (maxDays: number, empId: number) => boolean;
+  setCantWork: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+  setEmployeeShifts: React.Dispatch<React.SetStateAction<EmployeeShift[]>>;
+  employeesTab: InferSelectModel<typeof employees>[];
 };
 
 export default function EditScheduleCard({
   fetchedShift,
-  addShow,
   emp,
   i,
+  employeesTab,
   editShift,
+  setCantWork,
+  CheckIfCanWork,
+  setEmployeeShifts,
   setEditleShow,
   setError,
   setFetchedShiftsData,
-  editFetchedShiftsData,
   setEditFetchedShiftsData,
+  setDataThreeMonthScheduleDayAllFetched,
 }: AddSheduleCardType) {
   const handleTimeChange = (
     employeeId: number,
@@ -61,6 +71,32 @@ export default function EditScheduleCard({
     });
   };
 
+  const updateCantWorkForEmployee = (employeeId: number) => {
+    const employee = employeesTab.find((emp) => emp.id === employeeId);
+    console.log(employee);
+    if (employee) {
+      const cantWorkResult = CheckIfCanWork(
+        employee.max_consecutive_days || 0,
+        employeeId
+      );
+
+      console.log(cantWorkResult);
+
+      setCantWork((prev) => ({
+        ...prev,
+        [employeeId]: cantWorkResult,
+      }));
+
+      setEmployeeShifts((prev) =>
+        prev.map((shift) =>
+          shift.employee_id === employeeId
+            ? { ...shift, cantWork: cantWorkResult }
+            : shift
+        )
+      );
+    }
+  };
+
   const deleteDay = async (id: number) => {
     try {
       if (fetchedShift) {
@@ -68,13 +104,25 @@ export default function EditScheduleCard({
 
         if (result.success) {
           setError(result.errors?._form?.[0] ?? "");
+
+          const waitForStateUpdate = async () => {
+            setDataThreeMonthScheduleDayAllFetched((prev) => {
+              const updated = prev.map((monthArray) =>
+                monthArray.filter((shift) => shift.id !== id)
+              );
+              return updated;
+            });
+          };
           setFetchedShiftsData((prev) => prev.filter((el) => el.id !== id));
           setEditFetchedShiftsData((prev) => prev.filter((el) => el.id !== id));
-        }
+          await waitForStateUpdate();
+          updateCantWorkForEmployee(fetchedShift.employee_id);
 
-        setTimeout(() => {
-          setError(""), setEditleShow(false);
-        }, 2000);
+          setTimeout(() => {
+            setError("");
+            setEditleShow(false);
+          }, 2000);
+        }
       }
     } catch (e: any) {
       setError(e?.message ?? "server error");

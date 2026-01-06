@@ -9,6 +9,8 @@ type NumberPickerType = {
   orientation: "vertical" | "horizontal";
   onChange?: (value: number) => void;
   disabled?: boolean;
+  expendDisabled?: boolean;
+  expendSide?: string;
 };
 
 export default function NumberPicker({
@@ -19,6 +21,8 @@ export default function NumberPicker({
   orientation,
   onChange,
   disabled,
+  expendDisabled,
+  expendSide,
 }: NumberPickerType) {
   const [selected, setSelected] = useState(rangeDefault);
   const [animating, setAnimating] = useState(false);
@@ -27,6 +31,8 @@ export default function NumberPicker({
   const getNext = (num: number) => (num + 1 > to ? from : num + 1);
 
   const scrollUp = (step: number = 1) => {
+    if (disabled || (expendDisabled && expendSide == "L")) return;
+
     setAnimating(true);
     setSelected((prev) => {
       let newVal = prev - step;
@@ -37,6 +43,8 @@ export default function NumberPicker({
   };
 
   const scrollDown = (step: number = 1) => {
+    if (disabled || (expendDisabled && expendSide == "R")) return;
+
     setAnimating(true);
     setSelected((prev) => {
       let newVal = prev + step;
@@ -61,12 +69,14 @@ export default function NumberPicker({
         }`}
       >
         <button
-          disabled={disabled}
+          disabled={disabled || (expendDisabled && expendSide == "L")}
           onClick={() => scrollUp(1)}
-          onDoubleClick={() => scrollUp(5)}
-          className={`relative flex invert justify-center items-center rounded ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${
-            isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"
-          }`}
+          onDoubleClick={() => scrollUp(2)}
+          className={`relative flex invert justify-center items-center rounded ${
+            disabled || (expendDisabled && expendSide == "L")
+              ? "cursor-not-allowed opacity-40"
+              : "cursor-pointer"
+          } ${isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"}`}
         >
           <Image
             src="/icons/arrowIcon.svg"
@@ -101,10 +111,14 @@ export default function NumberPicker({
         </div>
 
         <button
-          disabled={disabled}
+          disabled={disabled || (expendDisabled && expendSide == "R")}
           onClick={() => scrollDown(1)}
-          onDoubleClick={() => scrollDown(5)}
-          className={`flex justify-center invert items-center rounded ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${
+          onDoubleClick={() => scrollDown(2)}
+          className={`flex justify-center invert items-center rounded ${
+            disabled || (expendDisabled && expendSide == "R")
+              ? "cursor-not-allowed opacity-40"
+              : "cursor-pointer"
+          } ${
             isHorizontal ? "h-full w-10 rotate-90" : "h-10 w-full rotate-180"
           }`}
         >
