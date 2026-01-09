@@ -33,15 +33,8 @@ export default function NumberPicker({
   const [selected, setSelected] = useState(rangeDefault);
   const [animating, setAnimating] = useState(false);
 
-  const getPrev = (num: number) => {
-    const prev = num - 1;
-    return prev < from ? null : prev;
-  };
-
-  const getNext = (num: number) => {
-    const next = num + 1;
-    return next > to ? null : next;
-  };
+  const getPrev = (num: number) => (num - 1 < from ? to : num - 1);
+  const getNext = (num: number) => (num + 1 > to ? from : num + 1);
 
   const scrollUp = (step: number = 1) => {
     if (disabled || disabledLeft || (expendDisabled && expendSide == "L"))
@@ -50,10 +43,7 @@ export default function NumberPicker({
     setAnimating(true);
     setSelected((prev) => {
       let newVal = prev - step;
-      // Blokuj na dolnym limicie
-      if (newVal < from) {
-        return from;
-      }
+      if (newVal < from) newVal = to - (step - (prev - from));
       return newVal;
     });
     setTimeout(() => setAnimating(false), 100);
@@ -66,18 +56,11 @@ export default function NumberPicker({
     setAnimating(true);
     setSelected((prev) => {
       let newVal = prev + step;
-      // Blokuj na górnym limicie
-      if (newVal > to) {
-        return to;
-      }
+      if (newVal > to) newVal = from + (step - (to - prev));
       return newVal;
     });
     setTimeout(() => setAnimating(false), 100);
   };
-
-  useEffect(() => {
-    setSelected(rangeDefault);
-  }, [rangeDefault]);
 
   useEffect(() => {
     onChange && onChange(selected);
@@ -98,12 +81,9 @@ export default function NumberPicker({
             disabled || disabledLeft || (expendDisabled && expendSide == "L")
           }
           onClick={() => scrollUp(1)}
-          onDoubleClick={() => canDBclick && scrollUp(2)}
+          onDoubleClick={() => scrollUp(canDBclick ? 2 : 1)}
           className={`relative flex invert justify-center items-center rounded ${
-            disabled ||
-            disabledLeft ||
-            (expendDisabled && expendSide == "L") ||
-            getPrev(selected) === null
+            disabled || disabledLeft || (expendDisabled && expendSide == "L")
               ? "cursor-not-allowed opacity-40"
               : "cursor-pointer"
           } ${isHorizontal ? "h-full w-10 -rotate-90" : "h-10 w-full"}`}
@@ -121,7 +101,7 @@ export default function NumberPicker({
             isHorizontal ? "w-16 h-full" : "h-16 w-full"
           }`}
         >
-          {getPrev(selected) !== null ? getPrev(selected) : ""}
+          {getPrev(selected)}
         </div>
 
         <div
@@ -137,7 +117,7 @@ export default function NumberPicker({
             isHorizontal ? "w-16 h-full" : "h-16 w-full"
           }`}
         >
-          {getNext(selected) !== null ? getNext(selected) : ""}
+          {getNext(selected)}
         </div>
 
         <button
@@ -145,12 +125,9 @@ export default function NumberPicker({
             disabled || disabledRight || (expendDisabled && expendSide == "R")
           }
           onClick={() => scrollDown(1)}
-          onDoubleClick={() => canDBclick && scrollDown(2)}
+          onDoubleClick={() => scrollUp(canDBclick ? 2 : 1)}
           className={`flex justify-center invert items-center rounded ${
-            disabled ||
-            disabledRight ||
-            (expendDisabled && expendSide == "R") ||
-            getNext(selected) === null
+            disabled || disabledRight || (expendDisabled && expendSide == "R")
               ? "cursor-not-allowed opacity-40"
               : "cursor-pointer"
           } ${

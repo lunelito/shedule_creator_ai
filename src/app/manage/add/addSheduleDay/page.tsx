@@ -19,8 +19,9 @@ import SheduleCard from "@/components/addSheduleDay/ScheduleCard";
 import EditScheduleCard from "@/components/addSheduleDay/EditScheduleCard";
 import { editSingleSheduleDay } from "@/lib/actions/Schedule/editSingleSheduleDay";
 import DashboardHeader from "@/components/UI/DashboardHeader";
-import { includes } from "zod";
+import { boolean, includes } from "zod";
 import SecondaryButton from "@/components/UI/SecondaryButton";
+import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -41,13 +42,14 @@ export type EmployeeShift = {
   start_hour: number;
   end_hour: number;
   selected: boolean;
-  cantWork: boolean;
+  cantWork: boolean | null;
   remainingWeeklyHours: number;
 };
 
 export type ShiftFetched = EmployeeShift & {
   id: number;
   date: string | null;
+  remainingWeeklyHours: number;
 };
 
 export default function AddScheduleDay() {
@@ -123,10 +125,10 @@ export default function AddScheduleDay() {
     )
   );
 
-  const [cantWork, setCantWork] = useState<Record<number, boolean>>({});
+  const [cantWork, setCantWork] = useState<Record<number, boolean | null>>({});
 
-  const CheckIfCanWork = (maxDays: number, empId: number): boolean => {
-    if (maxDays === 0) return false; // Jeśli nie ma ograniczenia
+  const CheckIfCanWork = (maxDays: number, empId: number): boolean | null => {
+    if (maxDays === 0) return false;
 
     const dataAll = dataThreeMonthScheduleDayAllFetched.flat();
 
@@ -140,7 +142,6 @@ export default function AddScheduleDay() {
     maxDate.setDate(maxDate.getDate() + maxDays);
     const maxDateStr = maxDate.toISOString().split("T")[0];
 
-    // Filtrujemy tylko zmiany dla danego pracownika w zakresie dat
     const employeeShifts = dataAll.filter(
       (shift) =>
         shift.date &&
@@ -149,31 +150,24 @@ export default function AddScheduleDay() {
         shift.assigned_employee_id === empId
     );
 
-    // Sortuj po dacie
     employeeShifts.sort((a, b) => {
       return new Date(a.date!).getTime() - new Date(b.date!).getTime();
     });
 
-    // Sprawdzamy ciągłość dni pracy
     const shiftDates = employeeShifts.map((shift) => shift.date!);
 
-    // Sprawdzamy czy dzisiejszy dzień już ma przypisany shift
     const hasShiftToday = shiftDates.includes(today);
 
-    // Jeśli dzisiaj już ma shift, nie może dostać kolejnego
-    if (hasShiftToday) return true;
+    if (hasShiftToday) return null;
 
-    // Szukamy najdłuższego ciągłego okresu pracy
     let maxConsecutive = 0;
     let currentConsecutive = 0;
 
-    // Przekształcamy daty na timestampy i szukamy ciągów
     const allDatesInRange: string[] = [];
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
       allDatesInRange.push(d.toISOString().split("T")[0]);
     }
 
-    // Sprawdzamy ciągłość
     for (const date of allDatesInRange) {
       if (shiftDates.includes(date)) {
         currentConsecutive++;
@@ -183,24 +177,31 @@ export default function AddScheduleDay() {
       }
     }
 
-    // Sprawdzamy czy przekracza limit
     return maxConsecutive >= maxDays;
   };
 
   const parseData = (
-    data: InferSelectModel<typeof schedules_day>[]
+    data: InferSelectModel<typeof schedules_day>[],
+    employeeShifts: EmployeeShift[]
   ): ShiftFetched[] => {
-    return data.map((shift) => ({
-      id: shift.id,
-      employee_id: shift.assigned_employee_id ?? 0,
-      user_id: shift.created_by ?? 0,
-      start_hour: new Date(shift.start_at).getHours(),
-      end_hour: new Date(shift.end_at).getHours(),
-      selected: false,
-      date: shift.date,
-      cantWork: false,
-      remainingWeeklyHours: 40,
-    }));
+    return data.map((shift) => {
+      // Znajdź odpowiedni employeeShift
+      const employeeShift = employeeShifts.find(
+        (el) => el.employee_id === shift.assigned_employee_id
+      );
+
+      return {
+        id: shift.id,
+        employee_id: shift.assigned_employee_id ?? 0,
+        user_id: shift.created_by ?? 0,
+        start_hour: new Date(shift.start_at).getHours(),
+        end_hour: new Date(shift.end_at).getHours(),
+        selected: false,
+        date: shift.date,
+        cantWork: false,
+        remainingWeeklyHours: employeeShift?.remainingWeeklyHours ?? 40,
+      };
+    });
   };
 
   const getRemainingWeeklyHours = (
@@ -294,13 +295,11 @@ export default function AddScheduleDay() {
           };
         });
 
-      // const shiftWithoutFetched = newShifts.filter((el,i) => el.includes(fetchedShiftsData.id))
-
       setShifts(newShifts);
       return newShifts;
     }
   };
-
+  
   const getDataFromLocalHost = () => {
     try {
       const storedEmployees = localStorage.getItem("employeesTab");
@@ -309,7 +308,7 @@ export default function AddScheduleDay() {
           JSON.parse(storedEmployees);
 
         // Obliczamy cantWork dla każdego pracownika
-        const cantWorkMap: Record<number, boolean> = {};
+        const cantWorkMap: Record<number, boolean | null> = {};
         const initialShifts: EmployeeShift[] = parsedEmployees.map((emp) => {
           const cantWorkResult = CheckIfCanWork(
             emp.max_consecutive_days,
@@ -321,8 +320,6 @@ export default function AddScheduleDay() {
             Number(emp.contracted_hours_per_week),
             selectedDate
           );
-
-          console.log(howManyHoursLeft, emp.id);
 
           cantWorkMap[emp.id as number] = cantWorkResult;
 
@@ -374,7 +371,10 @@ export default function AddScheduleDay() {
       try {
         const result = await addSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
-          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
+          const parsed: ShiftFetched[] = parseData(
+            result.schedulesDays.shifts,
+            employeeShifts
+          );
 
           setFetchedShiftsData((prev) => [...prev, ...parsed]);
           setEditFetchedShiftsData((prev) => [...prev, ...parsed]);
@@ -417,7 +417,10 @@ export default function AddScheduleDay() {
       try {
         const result = await editSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
-          const parsed: ShiftFetched[] = parseData(result.schedulesDays.shifts);
+          const parsed: ShiftFetched[] = parseData(
+            result.schedulesDays.shifts,
+            employeeShifts
+          );
           setFetchedShiftsData(parsed);
           setEditFetchedShiftsData(parsed);
           setError("Shifts Updated");
@@ -442,7 +445,7 @@ export default function AddScheduleDay() {
 
   useEffect(() => {
     if (shiftsData) {
-      const parsed: ShiftFetched[] = parseData(shiftsData);
+      const parsed: ShiftFetched[] = parseData(shiftsData, employeeShifts);
       if (employeeId !== undefined && employeeId !== null) {
         const data = parsed.filter(
           (el) => Number(el.employee_id) === Number(employeeId)
@@ -464,6 +467,8 @@ export default function AddScheduleDay() {
   ) {
     return <Loader />;
   }
+
+  console.log(employeeShifts);
 
   return (
     <div className="flex w-full h-full flex-col scroll-none">
@@ -496,11 +501,14 @@ export default function AddScheduleDay() {
 
               const employeeCantWork = cantWork[emp.id as number] || false;
 
-              if (editleShow) {
+              if (editleShow && fetchedShift && editShift) {
                 return (
                   <EditScheduleCard
+                    selectedDate={selectedDate}
                     key={emp.id}
+                    getRemainingWeeklyHours={getRemainingWeeklyHours}
                     employeesTab={employeesTab}
+                    employeeShifts={employeeShifts}
                     setEmployeeShifts={setEmployeeShifts}
                     CheckIfCanWork={CheckIfCanWork}
                     setCantWork={setCantWork}
@@ -599,9 +607,14 @@ export default function AddScheduleDay() {
                     {editleShow ? "see" : "edit"} schedule hours
                   </SecondaryButton>
                 )}
-                {/* jeszcze popraw */}
-                {/* || fetchedShiftsData.length !== employeeShifts.filter(el => !el.cantWork).length */}
-                {!editleShow && (
+                {!(
+                  !editleShow &&
+                  employeeShifts.length ===
+                    fetchedShiftsData.length +
+                      employeeShifts.filter(
+                        (el) => el.cantWork !== null && el.cantWork !== false
+                      ).length
+                ) && (
                   <SecondaryButton
                     onClick={() => {
                       setAddShow((prev) => !prev);

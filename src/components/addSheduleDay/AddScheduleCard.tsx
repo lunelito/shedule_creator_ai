@@ -40,6 +40,15 @@ export default function AddSheduleCard({
   selectedDate,
 }: AddSheduleCardType) {
   const expendDisabled = employeeShift.remainingWeeklyHours <= 0;
+
+  const calculateDuration = (start: number, end: number) => {
+    if (end >= start) {
+      return end - start;
+    } else {
+      return 24 - start + end;
+    }
+  };
+
   const handleTimeChange = (
     employeeId: number,
     type: "start" | "end",
@@ -49,33 +58,86 @@ export default function AddSheduleCard({
       return prev.map((s) => {
         if (s.employee_id !== employeeId) return s;
 
-        const start = type === "start" ? hour : s.start_hour;
-        const end = type === "end" ? hour : s.end_hour;
+        let newStart = s.start_hour;
+        let newEnd = s.end_hour;
 
-        const prevDiff = s.end_hour - s.start_hour;
-        const newDiff = end - start;
-        const diffChange = newDiff - prevDiff;
-        console.log(diffChange);
+        if (type === "start") {
+          newStart = hour;
+        } else {
+          newEnd = hour;
+        }
 
-        if (
-          hour < 0 ||
-          hour > 23 ||
-          newDiff < 0 ||
-          newDiff > 12 ||
-          s.remainingWeeklyHours - diffChange < 0
-        ) {
+        const newDuration = calculateDuration(newStart, newEnd);
+
+        if (newDuration < 1) {
+          if (type === "start") {
+            newEnd = (newStart + 1) % 24;
+          } else {
+            newStart = (newEnd - 1 + 24) % 24;
+          }
+        }
+
+        let finalDuration = calculateDuration(newStart, newEnd);
+        if (finalDuration > 12) {
+          if (type === "start") {
+            newEnd = (newStart + 12) % 24;
+          } else {
+            newStart = (newEnd - 12 + 24) % 24;
+          }
+          finalDuration = 12;
+        }
+
+        const prevDuration = calculateDuration(s.start_hour, s.end_hour);
+        const durationChange = finalDuration - prevDuration;
+
+        if (durationChange > 0 && s.remainingWeeklyHours - durationChange < 0) {
           return s;
         }
+        const newRemainingWeeklyHours = Math.max(
+          0,
+          s.remainingWeeklyHours - durationChange
+        );
 
         return {
           ...s,
-          start_hour: start,
-          end_hour: end,
-          remainingWeeklyHours: s.remainingWeeklyHours - diffChange,
+          start_hour: newStart,
+          end_hour: newEnd,
+          remainingWeeklyHours: newRemainingWeeklyHours,
         };
       });
     });
   };
+
+  const getStartLimits = () => {
+    const currentDuration = calculateDuration(
+      employeeShift.start_hour,
+      employeeShift.end_hour
+    );
+
+    const canDecreaseStart =
+      employeeShift.start_hour > 0 && employeeShift.remainingWeeklyHours > 0;
+
+    const canIncreaseStart = currentDuration < 12;
+
+    return { canDecreaseStart, canIncreaseStart };
+  };
+
+  const getEndLimits = () => {
+    const currentDuration = calculateDuration(
+      employeeShift.start_hour,
+      employeeShift.end_hour
+    );
+
+    const canDecreaseEnd = currentDuration > 1;
+
+    const canIncreaseEnd =
+      currentDuration < 12 && employeeShift.remainingWeeklyHours > 0;
+
+    return { canDecreaseEnd, canIncreaseEnd };
+  };
+
+  const startLimits = getStartLimits();
+  const endLimits = getEndLimits();
 
   const toggleSelect = (employeeId: number) => {
     if (employeeShift) {
@@ -111,29 +173,33 @@ export default function AddSheduleCard({
 
       <div className="flex flex-col items-center">
         <div className="mb-4">
-          <p className="text-center mb-2">Shift Start:</p>
           <NumberPicker
-            disabled={employeeShift?.selected}
+            disabled={employeeShift.selected}
+            disabledLeft={!startLimits.canDecreaseStart}
+            disabledRight={!startLimits.canIncreaseStart}
             expendDisabled={expendDisabled}
             expendSide={"L"}
             from={0}
-            to={23}
+            to={24}
+            canDBclick={false}
             orientation="horizontal"
-            title=""
-            rangeDefault={employeeShift?.start_hour || 0}
+            title="Shift Start:"
+            rangeDefault={employeeShift.start_hour}
             onChange={(value) => handleTimeChange(emp.id, "start", value)}
           />
 
-          <p className="text-center mb-2">Shift End:</p>
           <NumberPicker
             expendSide={"R"}
-            disabled={employeeShift?.selected}
+            disabled={employeeShift.selected}
+            disabledLeft={!endLimits.canDecreaseEnd}
+            disabledRight={!endLimits.canIncreaseEnd}
             expendDisabled={expendDisabled}
             from={0}
-            to={23}
+            canDBclick={false}
+            to={24}
             orientation="horizontal"
-            title=""
-            rangeDefault={employeeShift?.end_hour || 0}
+            title="Shift End:"
+            rangeDefault={employeeShift.end_hour}
             onChange={(value) => handleTimeChange(emp.id, "end", value)}
           />
 
@@ -141,13 +207,17 @@ export default function AddSheduleCard({
             <div className="mt-4 p-2 rounded text-center">
               <p className="text-sm">
                 Duration:{" "}
-                <span className="font-bold text-teal-400">
-                  {employeeShift.end_hour - employeeShift.start_hour}h
+                <span className={`font-bold text-teal-500`}>
+                  {calculateDuration(
+                    employeeShift.start_hour,
+                    employeeShift.end_hour
+                  )}
+                  h
                 </span>
               </p>
               <p className="text-sm">
-                Remaning Hours this Week:{" "}
-                <span className="font-bold text-teal-400">
+                Remaining Hours this Week:{" "}
+                <span className={`font-bold text-teal-500`}>
                   {employeeShift.remainingWeeklyHours}h
                 </span>
               </p>

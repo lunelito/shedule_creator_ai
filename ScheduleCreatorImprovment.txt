@@ -18,8 +18,5 @@ DIFFICULT:
 
 I TRIED...
 
-THIS MAY BE EASY
-- Notice that if you have, for example, 5 days fetched and 3 are not working, the add button is displayed. Make it so it's not there.
-
 BUT IT'S NOT...
 - Notice that the weekly hours limit is also bugged. It calculates it correctly, but the number picker has a problem blocking the increase of hours, etc. Also, add it to the editSchedule when someone wants to edit days.
