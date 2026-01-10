@@ -36,11 +36,6 @@ export async function GET(
         .select()
         .from(schedules_day)
         .where(eq(schedules_day.template_id, parseInt(schedule_id)));
-      if (employee.length === 0)
-        return NextResponse.json(
-          { error: "schedules day not found" },
-          { status: 404 }
-        );
       return NextResponse.json(employee);
     }
   } catch (error) {

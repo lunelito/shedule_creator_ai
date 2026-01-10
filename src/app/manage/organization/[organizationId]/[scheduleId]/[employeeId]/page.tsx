@@ -77,7 +77,6 @@ export default function page() {
     `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
   );
 
-
   console.log(dataThreeMonthScheduleDayAll);
 
   useEffect(() => {
@@ -143,17 +142,18 @@ export default function page() {
           dataEmployees={employeesFetched}
           setError={setError}
         />
-        {/* liczy ile zxarobi w tamtym i w przyszlym miesiacu oraz ile przepracował godzin w tym ile go czeka jeszcze ile juz zaraobił */}
+        <ClassicCalendarEmployeeSchifts
+          dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
+          employeeId={employeeId}
+          scheduleId={scheduleId}
+          setError={setError}
+        />
         <EmployeeCalcSalary
           employeeFetched={employeeFetched}
           dataThreeMonthScheduleDay={dataThreeMonthScheduleDay}
           dataThreeMonthScheduleDayAll={dataThreeMonthScheduleDayAll}
           presentMonth={presentMonth}
           employeesFetched={employeesFetched}
-        />
-        {/* wyswietl kalendarz i zaznacz kiedy pracuje */}
-        <ClassicCalendarEmployeeSchifts
-          dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
         />
       </RenderAnimation>
     </div>

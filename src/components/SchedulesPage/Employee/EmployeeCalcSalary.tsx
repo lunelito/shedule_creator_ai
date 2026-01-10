@@ -90,7 +90,7 @@ export default function EmployeeCalcSalary({
     const suma = tab.reduce((acc, cur) => {
       return acc + Number(cur.scheduled_hours);
     }, 0);
-    return suma * Number(employeeFetched.default_hourly_rate);
+    return suma * Number(employeeFetched.default_hourly_rate) || 0;
   };
 
   const countHoursWorked = (tab: InferSelectModel<typeof schedules_day>[]) => {
@@ -106,11 +106,16 @@ export default function EmployeeCalcSalary({
       date: el.date,
     }));
 
-    const theDay = dateHoursObj.reduce((min, el) =>
-      el.scheduled_hours < min.scheduled_hours ? el : min
-    );
+    const theDay =
+      dateHoursObj.length === 0
+        ? null
+        : dateHoursObj.reduce((min, el) => {
+            return Number(el.scheduled_hours) < Number(min.scheduled_hours)
+              ? el
+              : min;
+          });
 
-    return theDay;
+    return theDay || { scheduled_hours: "-", date: "---- -- --" };
   };
 
   const getMyWorkBuddyPresent = (
@@ -159,10 +164,16 @@ export default function EmployeeCalcSalary({
   };
 
   const getMonth = (tab: InferSelectModel<typeof schedules_day>[]) => {
-    if (tab[0].date) {
-      const date = new Date(tab[0].date);
-      return months[date.getMonth()];
-    }
+    if (!tab.length || !tab[0].date) return null;
+
+    const date = new Date(tab[0].date);
+    const monthIndex = date.getMonth();
+
+    return {
+      past: months[(monthIndex + 11) % 12],
+      present: months[monthIndex],
+      future: months[(monthIndex + 1) % 12],
+    };
   };
 
   if (!detailScheduleDays) {
@@ -197,7 +208,7 @@ export default function EmployeeCalcSalary({
         <div className="relative z-10">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />
           <h3 className="mb-8 text-center text-3xl font-bold text-teal-400">
-            {getMonth(detailScheduleDays.pastMonth)}
+            {getMonth(detailScheduleDays.PresentMonth.after)?.past}
           </h3>
 
           <div className="space-y-6">
@@ -205,13 +216,13 @@ export default function EmployeeCalcSalary({
               <div className="rounded-lg bg-zinc-800/50  p-4">
                 <p className="mb-2 text-sm text-gray-400">Total Earned</p>
                 <p className="text-2xl font-bold text-white">
-                  ${countMoneyEarned(detailScheduleDays.pastMonth)}
+                  ${countMoneyEarned(detailScheduleDays.pastMonth) || "-"}
                 </p>
               </div>
               <div className="rounded-lg bg-zinc-800/50 p-4">
                 <p className="mb-2 text-sm text-gray-400">Hours Worked</p>
                 <p className="text-2xl font-bold text-white">
-                  {countHoursWorked(detailScheduleDays.pastMonth)}
+                  {countHoursWorked(detailScheduleDays.pastMonth) || "-"}
                   <span className="text-sm text-gray-400 ml-1">hrs</span>
                 </p>
               </div>
@@ -224,16 +235,14 @@ export default function EmployeeCalcSalary({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-semibold text-white">
-                    {countDaysWorked(detailScheduleDays.pastMonth).date}
+                    {countDaysWorked(detailScheduleDays.pastMonth).date || "-"}
                   </p>
                   <p className="text-sm text-gray-400">Date</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-semibold text-teal-400">
-                    {Number(
-                      countDaysWorked(detailScheduleDays.pastMonth)
-                        .scheduled_hours
-                    )}
+                    {countDaysWorked(detailScheduleDays.pastMonth)
+                      .scheduled_hours || "-"}
                   </p>
                   <p className="text-sm text-gray-400">Hours</p>
                 </div>
@@ -247,7 +256,7 @@ export default function EmployeeCalcSalary({
                   : "Work Bestie"}
               </p>
               <p className="text-lg font-semibold text-white">
-                {pastBuddies?.join(", ")}
+                {pastBuddies?.join(", ") ?? "No Buddys Found :("}
               </p>
             </div>
           </div>
@@ -259,7 +268,7 @@ export default function EmployeeCalcSalary({
         <div className="relative z-10">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />
           <h3 className="mb-8 text-center text-3xl font-bold text-teal-600">
-            {getMonth(detailScheduleDays.PresentMonth.after)}
+            {getMonth(detailScheduleDays.PresentMonth.after)?.present}
           </h3>
 
           <div className="space-y-8">
@@ -272,13 +281,15 @@ export default function EmployeeCalcSalary({
                 <div className="rounded-lg bg-zinc-800/50  p-3">
                   <p className="text-xs text-gray-400">Earned</p>
                   <p className="text-lg font-bold text-white">
-                    ${countMoneyEarned(detailScheduleDays.PresentMonth.before)}
+                    {countMoneyEarned(detailScheduleDays.PresentMonth.before) ||
+                      "-"}
                   </p>
                 </div>
                 <div className="rounded-lg bg-zinc-800/50  p-3">
                   <p className="text-xs text-gray-400">Hours</p>
                   <p className="text-lg font-bold text-white">
-                    {countHoursWorked(detailScheduleDays.PresentMonth.before)}
+                    {countHoursWorked(detailScheduleDays.PresentMonth.before) ||
+                      "-"}
                   </p>
                 </div>
               </div>
@@ -293,13 +304,16 @@ export default function EmployeeCalcSalary({
                 <div className="rounded-lg bg-zinc-800/50  p-3">
                   <p className="text-xs text-gray-400">Earned</p>
                   <p className="text-lg font-bold text-white">
-                    ${countMoneyEarned(detailScheduleDays.PresentMonth.after)}
+                    $
+                    {countMoneyEarned(detailScheduleDays.PresentMonth.after) ||
+                      "-"}
                   </p>
                 </div>
                 <div className="rounded-lg bg-zinc-800/50  p-3">
                   <p className="text-xs text-gray-400">Hours</p>
                   <p className="text-lg font-bold text-white">
-                    {countHoursWorked(detailScheduleDays.PresentMonth.after)}
+                    {countHoursWorked(detailScheduleDays.PresentMonth.after) ||
+                      "-"}
                   </p>
                 </div>
               </div>
@@ -315,14 +329,16 @@ export default function EmployeeCalcSalary({
                   <p className="text-lg font-bold text-white">
                     $
                     {countMoneyEarned(detailScheduleDays.PresentMonth.after) +
-                      countMoneyEarned(detailScheduleDays.PresentMonth.before)}
+                      countMoneyEarned(
+                        detailScheduleDays.PresentMonth.before
+                      ) || "-"}
                   </p>
                 </div>
                 <div className="rounded-lg bg-zinc-800/50  p-3">
                   <p className="text-xs text-gray-400">Hours</p>
                   <p className="text-lg font-bold text-white">
                     {countHoursWorked(detailScheduleDays.PresentMonth.after) +
-                      countHoursWorked(detailScheduleDays.PresentMonth.before)}
+                      countHoursWorked(detailScheduleDays.PresentMonth.before) || "-"}
                   </p>
                 </div>
               </div>
@@ -333,16 +349,15 @@ export default function EmployeeCalcSalary({
               <div className="rounded-lg bg-teal-500/10 p-4">
                 <p className="mb-2 text-sm font-medium text-teal-300">
                   Longest Shift in Past in{" "}
-                  {getMonth(detailScheduleDays.PresentMonth.after)}
+                  {getMonth(detailScheduleDays.PresentMonth.after)?.present}
                 </p>
                 <p className="text-sm text-white">
-                  {countDaysWorked(detailScheduleDays.PresentMonth.before).date}
+                  {countDaysWorked(detailScheduleDays.PresentMonth.before)
+                    .date ?? "-"}
                 </p>
                 <p className="text-lg font-bold text-teal-300">
-                  {Number(
-                    countDaysWorked(detailScheduleDays.PresentMonth.before)
-                      .scheduled_hours
-                  )}
+                  {countDaysWorked(detailScheduleDays.PresentMonth.before)
+                    .scheduled_hours ?? "-"}
                   h
                 </p>
               </div>
@@ -350,15 +365,16 @@ export default function EmployeeCalcSalary({
               <div className="rounded-lg bg-teal-500/10 p-4">
                 <p className="mb-2 text-sm font-medium text-teal-300">
                   Longest Shift in future in{" "}
-                  {getMonth(detailScheduleDays.PresentMonth.after)}
+                  {getMonth(detailScheduleDays.PresentMonth.after)?.present}
                 </p>
                 <p className="text-sm text-white">
-                  {countDaysWorked(detailScheduleDays.PresentMonth.after).date}
+                  {countDaysWorked(detailScheduleDays.PresentMonth.after)
+                    .date ?? "-"}
                 </p>
                 <p className="text-lg font-bold text-teal-400">
                   {Number(
                     countDaysWorked(detailScheduleDays.PresentMonth.after)
-                      .scheduled_hours
+                      .scheduled_hours ?? "-"
                   )}
                   h
                 </p>
@@ -371,7 +387,7 @@ export default function EmployeeCalcSalary({
                   : "Work Bestie"}
               </p>
               <p className="text-lg font-semibold text-white">
-                {presentBuddies?.join(", ")}
+                {presentBuddies?.join(", ") ?? "No Buddys Found :("}
               </p>
             </div>
           </div>
@@ -386,20 +402,20 @@ export default function EmployeeCalcSalary({
         <div className="relative z-10 h-full">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />{" "}
           <h3 className="mb-8 text-center text-3xl font-bold text-teal-600">
-            {getMonth(detailScheduleDays.futureMonth)}
+            {getMonth(detailScheduleDays.PresentMonth.after)?.future}
           </h3>
           <div className="space-y-6 ">
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg bg-zinc-800/50  p-4">
                 <p className="mb-2 text-sm text-gray-400">Projected Earnings</p>
                 <p className="text-2xl font-bold text-white">
-                  ${countMoneyEarned(detailScheduleDays.futureMonth)}
+                  ${countMoneyEarned(detailScheduleDays.futureMonth) || "-"}
                 </p>
               </div>
               <div className="rounded-lg bg-zinc-800/50 p-4">
                 <p className="mb-2 text-sm text-gray-400">Scheduled Hours</p>
                 <p className="text-2xl font-bold text-white">
-                  {countHoursWorked(detailScheduleDays.futureMonth)}
+                  {countHoursWorked(detailScheduleDays.futureMonth) || "-"}
                   <span className="text-sm text-gray-400 ml-1">hrs</span>
                 </p>
               </div>
@@ -412,16 +428,15 @@ export default function EmployeeCalcSalary({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-semibold text-white">
-                    {countDaysWorked(detailScheduleDays.futureMonth).date}
+                    {countDaysWorked(detailScheduleDays.futureMonth).date ??
+                      "-"}
                   </p>
                   <p className="text-sm text-gray-400">Date</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-semibold text-teal-600">
-                    {Number(
-                      countDaysWorked(detailScheduleDays.futureMonth)
-                        .scheduled_hours
-                    )}
+                    {countDaysWorked(detailScheduleDays.futureMonth)
+                      .scheduled_hours ?? "-"}
                   </p>
                   <p className="text-sm text-gray-400">Hours</p>
                 </div>
@@ -435,7 +450,7 @@ export default function EmployeeCalcSalary({
                   : "Work Bestie"}
               </p>
               <p className="text-lg font-semibold text-white">
-                {futureBuddies?.join(", ")}
+                {futureBuddies?.join(", ") ?? "No Buddys Found :("}
               </p>
             </div>
           </div>

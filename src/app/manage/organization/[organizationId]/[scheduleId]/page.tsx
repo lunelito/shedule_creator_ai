@@ -13,6 +13,7 @@ import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
 import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
 import EmployeeWork from "@/components/SchedulesPage/EmployeeWork";
+import { useEmployeeDataContext } from "@/context/employeeContext";
 
 export default function Page() {
   const params = useParams();
@@ -24,6 +25,8 @@ export default function Page() {
   const [employeesTab, setEmployeesTab] = useState<
     InferSelectModel<typeof employees>[]
   >([]);
+
+  const { role, isPendingEmployee, dataEmployee } = useEmployeeDataContext();
 
   const {
     data: dataSchedule,
@@ -49,16 +52,11 @@ export default function Page() {
     `/api/schedules_day/${scheduleId}`
   );
 
-
-  const { data: employeeLogInData, error } = useFetch<
-    InferSelectModel<typeof employees>
-  >(`/api/employees/me/${scheduleId}`);
-
   useEffect(() => {
-    if (employeeLogInData) {
-      setEmployeeLogInRole(employeeLogInData.role);
+    if (role) {
+      setEmployeeLogInRole(role);
     }
-  }, [employeeLogInData]);
+  }, [role]);
 
   useEffect(() => {
     if (dataEmployees) {
@@ -71,9 +69,11 @@ export default function Page() {
     isPendingSchedule ||
     isPendingEmployees ||
     isPendingSingleScheduleDay ||
+    isPendingEmployee ||
     !dataSchedule ||
     !dataEmployees ||
-    !dataSingleScheduleDay
+    !dataSingleScheduleDay ||
+    !dataEmployee
   ) {
     return <Loader />;
   }
@@ -109,6 +109,7 @@ export default function Page() {
             scheduleId={scheduleId}
           />
           <EmployeeWork
+            dataEmployee={dataEmployee}
             employeeLogInRole={employeeLogInRole}
             dataSingleScheduleDay={dataSingleScheduleDay}
             employeesTab={employeesTab}

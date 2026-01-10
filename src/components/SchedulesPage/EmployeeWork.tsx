@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import SingleEmployeeWorkCard from "./SingleEmployeeWorkCard";
+import { useEmployeeDataContext } from "@/context/employeeContext";
 
 type EmployeeWorktype = {
   employeesTab: InferSelectModel<typeof employees>[];
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
   employeeLogInRole: string;
+  dataEmployee: InferSelectModel<typeof employees>;
 };
 
 export default function EmployeeWork({
   employeesTab,
+  dataEmployee,
   dataSingleScheduleDay,
   employeeLogInRole,
 }: EmployeeWorktype) {
@@ -51,19 +54,29 @@ export default function EmployeeWork({
     idsTomorrow.includes(emp.id)
   );
 
+  const roleCheck = (roleVal: string, id: number, idClicked: number) => {
+    const isPrivilegedRole = roleVal === "admin" || roleVal === "manager";
+    const isOwnRecord = id === idClicked;
+
+    return isPrivilegedRole || isOwnRecord;
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 w-full h-fit gap-5 xl:gap-10">
       <SingleEmployeeWorkCard
+        roleCheck={roleCheck}
         employeeLogInRole={employeeLogInRole}
         tab={yesterdayEmployees}
         title={"Yesterday employees on shift"}
       />
       <SingleEmployeeWorkCard
+        roleCheck={roleCheck}
         employeeLogInRole={employeeLogInRole}
         tab={todayEmployees}
         title={"Today employees on shift"}
       />
       <SingleEmployeeWorkCard
+        roleCheck={roleCheck}
         employeeLogInRole={employeeLogInRole}
         tab={tomorrowEmployees}
         title={"Tommorow employees on shift"}

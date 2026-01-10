@@ -27,9 +27,11 @@ export const ShiftStatus = pgEnum("shift_status", [
 export const TimeOffType = pgEnum("time_off_type", [
   "paid_leave",
   "unpaid_leave",
-  "sick",
-  "parental",
-  "other",
+  "sick_leave",
+  "parental_leave",
+  "special_leave",
+  "training_leave",
+  "other_leave",
 ]);
 export const RepeatFrequency = pgEnum("repeat_frequency", [
   "none",
@@ -144,7 +146,9 @@ export const employees = pgTable("employees", {
   contracted_hours_per_week: numeric("contracted_hours_per_week", {
     precision: 5,
     scale: 2,
-  }).default("40").notNull(),
+  })
+    .default("40")
+    .notNull(),
   role: roles("role").notNull(),
   max_consecutive_days: integer("max_consecutive_days").default(7).notNull(),
   assigned_to_schedule: integer("assigned_to_schedule").references(
@@ -241,17 +245,20 @@ export const time_off_requests = pgTable("time_off_requests", {
   employee_id: integer("employee_id")
     .references(() => employees.id)
     .notNull(),
+  schedule_id: integer("schedule_id")
+    .references(() => schedules.id)
+    .notNull(),
   type: TimeOffType("type").notNull().default("paid_leave"),
-  start_date: timestamp("start_date").notNull(),
-  end_date: timestamp("end_date").notNull(),
-  hours_per_day: numeric("hours_per_day", { precision: 5, scale: 2 }),
+  date: text("date").notNull(),
   approved_by: integer("approved_by").references(() => users.id),
   approved_at: timestamp("approved_at"),
   rejection_reason: text("rejection_reason"),
-  status: varchar("status", { length: 60 }).notNull().default("pending"),
+  status: varchar("status", { length: 60 }).notNull().default("waiting"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   meta: jsonb("meta").default("{}"),
+  hours_scheduled:numeric("hours_scheduled"),
+  is_scheduled:boolean("is_scheduled")
 });
 
 export const schedules = pgTable("schedules", {

@@ -22,6 +22,7 @@ import DashboardHeader from "@/components/UI/DashboardHeader";
 import { boolean, includes } from "zod";
 import SecondaryButton from "@/components/UI/SecondaryButton";
 import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
+import { useEmployeeDataContext } from "@/context/employeeContext";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -60,6 +61,7 @@ export default function AddScheduleDay() {
   const organizationId = searchParams.get("organization_id");
   const employeeId = searchParams.get("employeeId");
   const { userData } = useUserDataContext();
+  const { role } = useEmployeeDataContext();
   const [error, setError] = useState("");
   // const [cantWork, setCantWork] = useState<boolean>(false);
   const [employeesTab, setEmployeesTab] = useState<
@@ -230,10 +232,6 @@ export default function AddScheduleDay() {
     return contractedHoursPerWeek - sumHours;
   };
 
-  const { data: employeeLogInData } = useFetch<
-    InferSelectModel<typeof employees>
-  >(`/api/employees/me/${scheduleId}`);
-
   const {
     data: shiftsData,
     error: shiftError,
@@ -253,10 +251,10 @@ export default function AddScheduleDay() {
   );
 
   useEffect(() => {
-    if (employeeLogInData) {
-      setEmployeeLogInRole(employeeLogInData.role);
+    if (role) {
+      setEmployeeLogInRole(role);
     }
-  }, [employeeLogInData]);
+  }, [role]);
 
   useEffect(() => {
     if (dataThreeMonthScheduleDayAll) {
@@ -299,7 +297,7 @@ export default function AddScheduleDay() {
       return newShifts;
     }
   };
-  
+
   const getDataFromLocalHost = () => {
     try {
       const storedEmployees = localStorage.getItem("employeesTab");

@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import ProfileImage from "../ProfileImage/ProfileImage";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEmployeeDataContext } from "@/context/employeeContext";
 type EmployeeListType = {
   employeesTabFilter: InferSelectModel<typeof employees>[];
   employeeLogInRole: string;
@@ -14,6 +15,15 @@ export default function EmployeeList({
   employeeLogInRole,
 }: EmployeeListType) {
   const pathname = usePathname();
+
+  const { dataEmployee } = useEmployeeDataContext();
+
+  const roleCheck = (roleVal: string, id: number, idClicked: number) => {
+    const isPrivilegedRole = roleVal === "admin" || roleVal === "manager";
+    const isOwnRecord = id === idClicked;
+
+    return isPrivilegedRole || isOwnRecord;
+  };
   return (
     <div>
       {employeesTabFilter.length === 0 ? (
@@ -84,12 +94,15 @@ export default function EmployeeList({
                       </div>
                     ))}
                   </div>
-                  <Link
-                    href={`${pathname}/${emp.id}`}
-                    className="text-center text-xl font-bold hover:scale-105 transition-all ease-in-out"
-                  >
-                    see more
-                  </Link>
+                  {dataEmployee &&
+                    roleCheck(employeeLogInRole, dataEmployee.id, emp.id) && (
+                      <Link
+                        href={`${pathname}/${emp.id}`}
+                        className="text-center text-xl font-bold hover:scale-105 transition-all ease-in-out"
+                      >
+                        see more
+                      </Link>
+                    )}
                 </div>
               </div>
             );

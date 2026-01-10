@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 type SelectGroup = {
   options: string[];
-  title: string;
+  title?: string;
   onChange: (value: string) => void;
 };
 
@@ -31,7 +31,7 @@ export default function SelectGroup({ options, title, onChange }: SelectGroup) {
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 mt-1 w-full bg-zinc-800 border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+        <ul className="absolute z-10 mt-1 w-full bg-zinc-800 border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto scrollbar-thin">
           {options.map((option, i) => (
             <li
               key={i}

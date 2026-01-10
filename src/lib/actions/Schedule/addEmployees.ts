@@ -63,6 +63,7 @@ export async function addEmployees(
 
     // Walidacja pracowników
     const validation = employeesArraySchema.safeParse(employeesList);
+
     if (!validation.success) {
       const errors = Object.values(validation.error.flatten().fieldErrors)
         .flat()
@@ -83,6 +84,7 @@ export async function addEmployees(
       "/api/employees",
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     ).toString();
+    
     const apiUrlRoles = new URL(
       "/api/employee-roles",
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
