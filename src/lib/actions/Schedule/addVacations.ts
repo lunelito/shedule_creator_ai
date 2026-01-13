@@ -28,6 +28,7 @@ export async function addVacations(
     const vacations = JSON.parse(formData.get("vacations") as string);
     const scheduleId = formData.get("schedule_id");
     const employeeId = formData.get("employee_id");
+    const reason = formData.get("reason");
 
     const validation = vacationArrayScheam.safeParse(vacations);
 
@@ -53,6 +54,15 @@ export async function addVacations(
       };
     }
 
+    if (reason === null) {
+      return {
+        success: false,
+        errors: {
+          _form: ["No reason aded."],
+        },
+      };
+    }
+
     if (scheduleId === null) {
       return {
         success: false,
@@ -72,7 +82,7 @@ export async function addVacations(
     for (let i = 0; i < vacations.length; i++) {
       const vacation = vacations[i];
 
-      console.log(vacation.date)
+      console.log(vacation.date);
 
       const res = await fetch(apiUrl, {
         method: "POST",
@@ -87,11 +97,11 @@ export async function addVacations(
           date: vacation.date,
           hours_scheduled: vacation.scheduledHours,
           is_scheduled: vacation.isScheduled,
+          reason: reason,
         }),
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
         return {
           errors: {
             _form: [`Failed to add vacation on ${vacation.date}`],

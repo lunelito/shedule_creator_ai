@@ -6,7 +6,6 @@ import { InferSelectModel } from "drizzle-orm";
 import { employees, organizations, schedules } from "@/db/schema";
 import DashboardHeader from "@/components/UI/DashboardHeader";
 import { useRouter } from "next/navigation";
-import InboxList from "@/components/inbox/InboxList";
 import SingleInviteItem from "@/components/inbox/SingleInviteItem";
 import Loader from "@/components/UI/Loader";
 export type inviteDatatype = {

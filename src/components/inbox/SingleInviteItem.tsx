@@ -19,8 +19,8 @@ export default function SingleInviteItem({
   const [decision, setDecision] = useState<"declined" | "accepted" | null>(
     null
   );
-  const { setOrganizationsData } = useOrganizationContext();
   const [pending, setPending] = useState<boolean>(false);
+  const { setOrganizationsData } = useOrganizationContext();
 
   const Accept = async () => {
     const formData = new FormData();
@@ -85,7 +85,7 @@ export default function SingleInviteItem({
           {invite.role} on position named {invite.position}
         </p>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-3 md:justify-end">
         <button
           disabled={pending}
           className="bg-teal-600 py-1 px-3 rounded hover:scale-105 transition-all ease-in-out"

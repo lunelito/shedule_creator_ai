@@ -59,7 +59,7 @@ export const roles = pgEnum("roles", [
   "employee",
 ]);
 
-export const state_of_schedule_accept = pgEnum("roles", [
+export const status = pgEnum("roles", [
   "declined",
   "accepted",
   "waiting",
@@ -156,7 +156,7 @@ export const employees = pgTable("employees", {
   ),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
-  accept_to_schedule: state_of_schedule_accept().default("waiting"),
+  accept_to_schedule: status().default("waiting"),
   image: varchar("image", { length: 2048 }),
   note: text("note"),
 });
@@ -253,6 +253,7 @@ export const time_off_requests = pgTable("time_off_requests", {
   approved_by: integer("approved_by").references(() => users.id),
   approved_at: timestamp("approved_at"),
   rejection_reason: text("rejection_reason"),
+  reason: text("reason"),
   status: varchar("status", { length: 60 }).notNull().default("waiting"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),

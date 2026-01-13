@@ -31,7 +31,7 @@ export default function EmployeeList({
           No Employees found
         </p>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 h-fit gap-4">
           {employeesTabFilter.map((emp, i) => {
             const commonFields = [
               { label: "role", value: emp.role },

@@ -10,12 +10,10 @@ type EmployeeWorktype = {
   employeesTab: InferSelectModel<typeof employees>[];
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
   employeeLogInRole: string;
-  dataEmployee: InferSelectModel<typeof employees>;
 };
 
 export default function EmployeeWork({
   employeesTab,
-  dataEmployee,
   dataSingleScheduleDay,
   employeeLogInRole,
 }: EmployeeWorktype) {
