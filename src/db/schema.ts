@@ -59,11 +59,7 @@ export const roles = pgEnum("roles", [
   "employee",
 ]);
 
-export const status = pgEnum("roles", [
-  "declined",
-  "accepted",
-  "waiting",
-]);
+export const status = pgEnum("roles", ["declined", "accepted", "waiting"]);
 
 export const organizations = pgTable("organizations", {
   id: serial("id").primaryKey(),
@@ -258,8 +254,11 @@ export const time_off_requests = pgTable("time_off_requests", {
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
   meta: jsonb("meta").default("{}"),
-  hours_scheduled:numeric("hours_scheduled"),
-  is_scheduled:boolean("is_scheduled")
+  hours_scheduled: numeric("hours_scheduled"),
+  is_scheduled: boolean("is_scheduled"),
+  schedule_day_id: integer("schedule_day_id").references(
+    () => schedules_day.id
+  ),
 });
 
 export const schedules = pgTable("schedules", {

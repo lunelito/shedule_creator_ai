@@ -2,7 +2,7 @@ import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { useSession } from "next-auth/react";
 import React, { createContext, useContext } from "react";
-import useFetch from "../../hooks/useFetch";
+import useFetch from "../lib/hooks/useFetch";
 import { useParams } from "next/navigation";
 
 type Employee = InferSelectModel<typeof employees>;

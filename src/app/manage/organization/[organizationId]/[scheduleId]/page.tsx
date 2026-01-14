@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import useFetch from "../../../../../../hooks/useFetch";
+import useFetch from "../../../../../lib/hooks/useFetch";
 import RenderAnimation from "@/animations/RenderAnimation";
 import { InferSelectModel } from "drizzle-orm";
 import {
@@ -131,6 +131,7 @@ export default function Page() {
       <RenderAnimation animationKey={"AddPage"}>
         <div className="w-full flex flex-col items-center h-full p-10">
           <RowCalendar
+            timeOffRequestsData={timeOffRequestsData}
             organizationId={organizationId}
             dataSingleScheduleDay={dataSingleScheduleDay}
             employeesTab={employeesTab}
@@ -147,6 +148,7 @@ export default function Page() {
           />
           <VacationRequestContainer
             timeOffRequestsData={timeOffRequestsData}
+            setTimeOffRequestsData={setTimeOffRequestsData}
             scheduleId={scheduleId}
             employeesTab={employeesTab}
             setError={setError}

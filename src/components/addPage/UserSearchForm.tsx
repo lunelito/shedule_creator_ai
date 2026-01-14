@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FormEvent, Fragment } from "react";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/db/schema";
-import useFetch from "../../../hooks/useFetch";
+import useFetch from "../../lib/hooks/useFetch";
 import SelectGroup from "../UI/SelectGroup";
 import NumberPicker from "../UI/NumberPicker";
 import Image from "next/image";

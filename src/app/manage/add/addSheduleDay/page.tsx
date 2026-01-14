@@ -1,6 +1,11 @@
 "use client";
 
-import { employees, schedules_day, users } from "@/db/schema";
+import {
+  employees,
+  schedules_day,
+  time_off_requests,
+  users,
+} from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
@@ -12,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { addSingleSheduleDay } from "@/lib/actions/Schedule/addSingleSheduleDay";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
-import useFetch from "../../../../../hooks/useFetch";
+import useFetch from "../../../../lib/hooks/useFetch";
 import Loader from "@/components/UI/Loader";
 import AddSheduleCard from "@/components/addSheduleDay/AddScheduleCard";
 import SheduleCard from "@/components/addSheduleDay/ScheduleCard";
@@ -73,6 +78,9 @@ export default function AddScheduleDay() {
   const [selectedDate, setSelectedDate] = useState<Date>(
     dateParam ? new Date(dateParam) : new Date()
   );
+  const [timeOffRequestsData, setTimeOffRequestsData] = useState<
+    InferSelectModel<typeof time_off_requests>[]
+  >([]);
 
   const [fetchedShiftsData, setFetchedShiftsData] = useState<ShiftFetched[]>(
     []
@@ -187,7 +195,6 @@ export default function AddScheduleDay() {
     employeeShifts: EmployeeShift[]
   ): ShiftFetched[] => {
     return data.map((shift) => {
-      // Znajdź odpowiedni employeeShift
       const employeeShift = employeeShifts.find(
         (el) => el.employee_id === shift.assigned_employee_id
       );
@@ -250,11 +257,25 @@ export default function AddScheduleDay() {
     `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
   );
 
+  const {
+    data: dataTimeOffRequests,
+    isPending: isPendingTimeOffRequests,
+    error: errorTimeOffRequests,
+  } = useFetch<InferSelectModel<typeof time_off_requests>[]>(
+    `/api/time-off-request/${scheduleId}`
+  );
+
   useEffect(() => {
     if (role) {
       setEmployeeLogInRole(role);
     }
   }, [role]);
+
+  useEffect(() => {
+    if (dataTimeOffRequests) {
+      setTimeOffRequestsData(dataTimeOffRequests);
+    }
+  }, [dataTimeOffRequests]);
 
   useEffect(() => {
     if (dataThreeMonthScheduleDayAll) {
@@ -459,14 +480,14 @@ export default function AddScheduleDay() {
 
   if (
     isPending ||
+    isPendingTimeOffRequests ||
     !shiftsData ||
     !dataThreeMonthScheduleDayAll ||
-    isPendingThreeMonthScheduleDayAll
+    isPendingThreeMonthScheduleDayAll ||
+    !dataTimeOffRequests
   ) {
     return <Loader />;
   }
-
-  console.log(employeeShifts);
 
   return (
     <div className="flex w-full h-full flex-col scroll-none">
@@ -497,9 +518,13 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
+              const timeOff = dataTimeOffRequests?.find(
+                (s) => s.employee_id === emp.id && s.status === "accepted"
+              );
+
               const employeeCantWork = cantWork[emp.id as number] || false;
 
-              if (editleShow && fetchedShift && editShift) {
+              if (editleShow && fetchedShift && editShift && !timeOff) {
                 return (
                   <EditScheduleCard
                     selectedDate={selectedDate}
@@ -531,7 +556,8 @@ export default function AddScheduleDay() {
                 employeeShift &&
                 addShow &&
                 !fetchedShift &&
-                !employeeCantWork
+                !employeeCantWork &&
+                !timeOff
               ) {
                 return (
                   <AddSheduleCard
@@ -555,6 +581,7 @@ export default function AddScheduleDay() {
               if (!addShow) {
                 return (
                   <SheduleCard
+                    timeOff={timeOff}
                     cantWork={employeeCantWork}
                     key={emp.id}
                     addShow={addShow}

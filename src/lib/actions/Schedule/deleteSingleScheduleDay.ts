@@ -1,7 +1,7 @@
 "use server";
 
 export type deleteScheduleDayType = {
-  success?: boolean;
+  success: boolean;
   errors: {
     _form?: string[];
   };
@@ -13,6 +13,7 @@ export async function deleteSingleScheduleDay(
   try {
     if (!scheduleDayId) {
       return {
+        success:false,
         errors: { _form: ["No schedule day id provided."] },
       };
     }
@@ -36,6 +37,7 @@ export async function deleteSingleScheduleDay(
 
     if (!res.ok) {
       return {
+        success:false,
         errors: {
           _form: [
             responseData.error ||
@@ -51,6 +53,7 @@ export async function deleteSingleScheduleDay(
     };
   } catch (err: any) {
     return {
+      success:false,
       errors: {
         _form: [err?.message || "Unexpected error while deleting schedule day."],
       },

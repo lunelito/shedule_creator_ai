@@ -82,7 +82,8 @@ export async function addVacations(
     for (let i = 0; i < vacations.length; i++) {
       const vacation = vacations[i];
 
-      console.log(vacation.date);
+      console.log(vacation.schedule_day_id);
+
 
       const res = await fetch(apiUrl, {
         method: "POST",
@@ -98,6 +99,7 @@ export async function addVacations(
           hours_scheduled: vacation.scheduledHours,
           is_scheduled: vacation.isScheduled,
           reason: reason,
+          schedule_day_id: vacation.schedule_day_id,
         }),
       });
 
@@ -114,7 +116,8 @@ export async function addVacations(
       adedVacations.push(data);
     }
 
-    console.log(scheduleId, vacations, employeeId);
+    // console.log(scheduleId, vacations, employeeId);
+
     return {
       success: true,
       errors: { _form: ["Vacations added correctly"] },

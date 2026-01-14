@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import useFetch from "../../../../../hooks/useFetch";
+import useFetch from "../../../../lib/hooks/useFetch";
 import { useUserDataContext } from "@/context/userContext";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, organizations, schedules } from "@/db/schema";

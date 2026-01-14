@@ -1,6 +1,7 @@
 "use client";
 
-import { employees, schedules_day } from "@/db/schema";
+import { employees, schedules_day, time_off_requests } from "@/db/schema";
+import { getInitials } from "@/lib/hooks/useTimeOff";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
@@ -13,6 +14,7 @@ type RowCalendartype = {
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
   scheduleId: ParamValue;
   organizationId: string;
+  timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
 };
 
 type EmployeeWithSchedule = InferSelectModel<typeof employees> & {
@@ -24,6 +26,7 @@ export default function RowCalendar({
   scheduleId,
   dataSingleScheduleDay,
   organizationId,
+  timeOffRequestsData,
 }: RowCalendartype) {
   const months: string[] = [
     "January",
@@ -160,22 +163,37 @@ export default function RowCalendar({
                       return scheduledDate === day;
                     });
 
+                    const timeOffForDay = timeOffRequestsData.find((el) => {
+                      return (
+                        el.date === day &&
+                        el.employee_id === emp.id &&
+                        el.status !== "declined"
+                      );
+                    });
+
                     const start = scheduleForDay
                       ? new Date(scheduleForDay.start_at).getHours()
                       : null;
                     const end = scheduleForDay
                       ? new Date(scheduleForDay.end_at).getHours()
                       : null;
-                    const msg = scheduleForDay ? `${start} - ${end}` : "-";
+
+                    const msg = timeOffForDay
+                      ? getInitials(timeOffForDay.type, "_")
+                      : scheduleForDay
+                      ? `${start} - ${end}`
+                      : "-";
 
                     return (
                       <div
                         key={`emp-${emp.id}-day-${dayIndex}`}
                         onClick={() => RouteToAdd(dayIndex + 1, emp.id)}
                         className={`cursor-pointer text-center aspect-square h-18 p-2 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
-                          day === date.toISOString().split("T")[0]
+                          timeOffForDay?.status === "waiting"
+                            ? "bg-white text-teal-600 animate-pulse"
+                            : day === date.toISOString().split("T")[0]
                             ? "bg-teal-600 text-white border-2"
-                            : "bg-white"
+                            : "bg-white text-teal-600"
                         }`}
                       >
                         {msg}

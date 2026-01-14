@@ -1,7 +1,7 @@
 import { employees, users } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { SetStateAction, useEffect, useState } from "react";
-import useFetch from "../../../hooks/useFetch";
+import useFetch from "../../lib/hooks/useFetch";
 import EmployeeFilter from "./EmployeeFilter";
 import EmployeeAddForm from "./EmployeeAddForm";
 import EmployeeList from "./EmployeeList";

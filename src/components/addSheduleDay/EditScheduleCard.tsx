@@ -23,10 +23,19 @@ type AddSheduleCardType = {
   setDataThreeMonthScheduleDayAllFetched: React.Dispatch<
     SetStateAction<InferSelectModel<typeof schedules_day>[][]>
   >;
-  CheckIfCanWork: (maxDays: number, empId: number) => boolean;
-  setCantWork: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+  CheckIfCanWork: (maxDays: number, empId: number) => boolean | null;
+  setCantWork: React.Dispatch<
+    React.SetStateAction<Record<number, boolean | null>>
+  >;
+  getRemainingWeeklyHours: (
+    empId: number,
+    contractedHoursPerWeek: number,
+    selectedDate: Date
+  ) => number;
   setEmployeeShifts: React.Dispatch<React.SetStateAction<EmployeeShift[]>>;
   employeesTab: InferSelectModel<typeof employees>[];
+  selectedDate: Date;
+  employeeShifts: EmployeeShift[];
 };
 
 export default function EditScheduleCard({
@@ -35,6 +44,8 @@ export default function EditScheduleCard({
   i,
   employeesTab,
   editShift,
+  selectedDate,
+  employeeShifts,
   setCantWork,
   CheckIfCanWork,
   setEmployeeShifts,
@@ -43,6 +54,7 @@ export default function EditScheduleCard({
   setFetchedShiftsData,
   setEditFetchedShiftsData,
   setDataThreeMonthScheduleDayAllFetched,
+  getRemainingWeeklyHours,
 }: AddSheduleCardType) {
   const handleTimeChange = (
     employeeId: number,

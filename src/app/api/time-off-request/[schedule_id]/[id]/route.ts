@@ -9,7 +9,9 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
+    console.log("params");
     console.log(params);
+    console.log("body");
     console.log(body);
     const updatedTimeOffRequest = await db
       .update(time_off_requests)
@@ -18,6 +20,7 @@ export async function PUT(
         rejection_reason: body.reasonReject,
         approved_by: body.userId,
         approved_at: new Date(),
+        schedule_day_id: null,
       })
       .where(eq(time_off_requests.id, parseInt(params.id)))
       .returning();
@@ -28,6 +31,7 @@ export async function PUT(
       );
     return NextResponse.json(updatedTimeOffRequest[0]);
   } catch (error) {
+    // console.log(error)
     return NextResponse.json(
       { error: "Failed to update time off request" },
       { status: 500 }

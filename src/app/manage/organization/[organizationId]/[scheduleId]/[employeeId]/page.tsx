@@ -4,7 +4,7 @@ import { employees, schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import useFetch from "../../../../../../../hooks/useFetch";
+import useFetch from "../../../../../../lib/hooks/useFetch";
 import Loader from "@/components/UI/Loader";
 import EmployeeDetails from "@/components/SchedulesPage/Employee/EmployeeDetails";
 import EmployeeCalcSalary from "@/components/SchedulesPage/Employee/EmployeeCalcSalary";

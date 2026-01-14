@@ -11,8 +11,9 @@ type SingleVacationRequestItemType = {
     vacationId: number,
     empId: number,
     scheduleId: number,
+    schedule_day_id: number | null,
     reasonReject?: string | undefined
-  ) => void;
+  ) => Promise<void>;
 };
 
 export default function SingleVacationRequestItem({
@@ -34,6 +35,7 @@ export default function SingleVacationRequestItem({
     id: number;
     employee_id: number;
     schedule_id: number;
+    schedule_day_id: number | null;
   } | null>(null);
 
   const handleConfirmReject = () => {
@@ -43,6 +45,7 @@ export default function SingleVacationRequestItem({
         currentVacation.id,
         currentVacation.employee_id,
         currentVacation.schedule_id,
+        currentVacation.schedule_day_id,
         reasonRejectValue.trim() || undefined
       );
       setShowPopup(false);
@@ -113,7 +116,8 @@ export default function SingleVacationRequestItem({
                         "accepted",
                         el.id,
                         el.employee_id,
-                        el.schedule_id
+                        el.schedule_id,
+                        el.schedule_day_id
                       )
                     }
                     className="bg-teal-600 py-1 px-3 rounded hover:scale-105 transition-all ease-in-out"
@@ -126,6 +130,7 @@ export default function SingleVacationRequestItem({
                         id: el.id,
                         employee_id: el.employee_id,
                         schedule_id: el.schedule_id,
+                        schedule_day_id: el.schedule_day_id,
                       });
                       setShowPopup(true);
                     }}
@@ -176,6 +181,7 @@ export default function SingleVacationRequestItem({
                       currentVacation.id,
                       currentVacation.employee_id,
                       currentVacation.schedule_id,
+                      currentVacation.schedule_day_id,
                       reasonRejectValue.trim() || undefined
                     );
                     setShowPopup(false);

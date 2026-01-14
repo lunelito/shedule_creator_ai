@@ -1,16 +1,21 @@
 import React, { SetStateAction, useEffect, useState } from "react";
-import useFetch from "../../../hooks/useFetch";
+import useFetch from "../../lib/hooks/useFetch";
 import { ParamValue } from "next/dist/server/request/params";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, time_off_requests } from "@/db/schema";
 import SingleVacationRequestItem from "../inbox/SingleVacationRequestItem";
 import { editVacation } from "@/lib/actions/Schedule/editVacation";
+import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
+import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
 
 type VacationRequestContainerType = {
   scheduleId: ParamValue;
   employeesTab: InferSelectModel<typeof employees>[];
   timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
   setError: React.Dispatch<SetStateAction<string>>;
+  setTimeOffRequestsData: React.Dispatch<
+    SetStateAction<InferSelectModel<typeof time_off_requests>[]>
+  >;
   userId: number;
 };
 
@@ -24,6 +29,7 @@ export default function VacationRequestContainer({
   timeOffRequestsData,
   setError,
   userId,
+  setTimeOffRequestsData,
 }: VacationRequestContainerType) {
   const [vacationData, setVacationData] = useState<vacationDataType[]>([]);
 
@@ -51,51 +57,53 @@ export default function VacationRequestContainer({
     vacationId: number,
     empId: number,
     scheduleId: number,
+    schedule_day_id: number | null,
     reasonReject?: string
   ) => {
-    if (!vacationId || !empId || !scheduleId) return;
+    if (!vacationId || !empId || !scheduleId || !schedule_day_id) return;
 
     try {
       const formData = new FormData();
+      
       formData.append("vacationId", vacationId.toString());
       formData.append("empId", empId.toString());
       formData.append("decision", decision.toString());
       formData.append("scheduleId", scheduleId.toString());
-      formData.append("userId", scheduleId.toString());
+      formData.append("userId", userId.toString());
 
       if (reasonReject) {
         formData.append("reasonReject", reasonReject);
       }
 
-      const result = await editVacation({ errors: {} }, formData);
+      let resultDelete = true;
 
-      console.log(result);
+      const resultUpdate = await editVacation({ errors: {} }, formData);
 
-      if (result.success) {
-        setVacationData((prev) =>
-          prev.map((emp) => {
-            if (emp.id !== empId) return emp;
-            return {
-              ...emp,
-              vacations: emp.vacations.map((vac) =>
-                vac.id === vacationId
-                  ? {
-                      ...vac,
-                      status: decision,
-                      rejection_reason:
-                        reasonReject && reasonReject?.length > 0
-                          ? reasonReject
-                          : null,
-                    }
-                  : vac
-              ),
-            };
-          })
+      if (resultUpdate.success) {
+        resultDelete = (
+          await deleteSingleScheduleDay(schedule_day_id.toString())
+        ).success;
+      }
+
+      if (resultDelete) {
+        setTimeOffRequestsData((prev) =>
+          prev.map((vac) =>
+            vac.id === vacationId
+              ? {
+                  ...vac,
+                  status: decision,
+                  rejection_reason:
+                    reasonReject && reasonReject?.length > 0
+                      ? reasonReject
+                      : null,
+                }
+              : vac
+          )
         );
 
-        const errorMsg = result.errors._form
-          ? result.errors._form[0]
-          : result.errors._form?.[0] ?? "server error";
+        const errorMsg = resultUpdate.errors._form
+          ? resultUpdate.errors._form[0]
+          : resultUpdate.errors._form?.[0] ?? "server error";
 
         setError(errorMsg);
         setTimeout(() => setError(""), 2000);

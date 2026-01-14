@@ -18,6 +18,7 @@ type ClassicCalendartype = {
 };
 
 type ParsedScheduleDay = {
+  id: number;
   date: string | null;
   hours: string;
 };
@@ -27,6 +28,7 @@ type vacations = {
   type: string;
   isScheduled: boolean;
   scheduledHours: number;
+  schedule_day_id: number | null;
 };
 
 export default function ClassicCalendarEmployeeSchifts({
@@ -110,6 +112,7 @@ export default function ClassicCalendarEmployeeSchifts({
       const str = `${start} - ${end}`;
 
       return {
+        id: el.id,
         date: el.date,
         hours: str,
       };
@@ -244,6 +247,7 @@ export default function ClassicCalendarEmployeeSchifts({
                           type: vacationType,
                           isScheduled: !!daySchedule,
                           scheduledHours: daySchedule ? hoursNum ?? 0 : 0,
+                          schedule_day_id: daySchedule ? daySchedule.id : null,
                         },
                       ]);
                     } else if (dayVacation) {

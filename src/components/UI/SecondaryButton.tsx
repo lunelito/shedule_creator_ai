@@ -4,14 +4,14 @@ type SecondaryButtonType = {
   isPending?: boolean;
   children: ReactNode;
   onClick?: () => void;
-  bgColor: string;
+  bgColor?: string;
 };
 
 export default function SecondaryButton({
   isPending,
   children,
   onClick,
-  bgColor,
+  bgColor = "bg-teal-600",
 }: SecondaryButtonType) {
   return (
     <button

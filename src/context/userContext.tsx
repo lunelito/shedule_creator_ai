@@ -1,5 +1,5 @@
 "use client";
-import useFetch from "../../hooks/useFetch";
+import useFetch from "../lib/hooks/useFetch";
 import React, { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 import { users } from "@/db/schema";
