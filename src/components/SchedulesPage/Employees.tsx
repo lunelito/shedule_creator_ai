@@ -8,7 +8,7 @@ import EmployeeList from "./EmployeeList";
 import { ParamValue } from "next/dist/server/request/params";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
-import VacationRequestContainer from "./VacationRequestContainer";
+import VacationRequestContainer from "./VacationRequestContainerAdmin";
 
 type EmployeesDatalistType = {
   employeesTab: InferSelectModel<typeof employees>[];

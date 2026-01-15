@@ -1,6 +1,6 @@
 "use client";
 import DashboardHeader from "@/components/UI/DashboardHeader";
-import { employees, schedules_day } from "@/db/schema";
+import { employees, schedules_day, time_off_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -11,6 +11,9 @@ import EmployeeCalcSalary from "@/components/SchedulesPage/Employee/EmployeeCalc
 import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
 import ClassicCalendarEmployeeSchifts from "@/components/SchedulesPage/Calendars/ClassicCalendarEmployeeSchifts";
 import RenderAnimation from "@/animations/RenderAnimation";
+import VacationRequestContainer from "@/components/SchedulesPage/VacationRequestContainerAdmin";
+import VacationRequestContainerUser from "@/components/SchedulesPage/Employee/VacationRequestContainerUser";
+import { useEmployeeDataContext } from "@/context/employeeContext";
 
 export default function page() {
   const params = useParams();
@@ -23,6 +26,12 @@ export default function page() {
   const [employeeFetched, setEmployeeFetched] = useState<
     InferSelectModel<typeof employees>
   >({} as InferSelectModel<typeof employees>);
+  const [timeOffRequestsData, setTimeOffRequestsData] = useState<
+    InferSelectModel<typeof time_off_requests>[]
+  >([]);
+
+  const { role, isPendingEmployee } = useEmployeeDataContext();
+
   const [error, setError] = useState<string>("");
 
   const today = new Date();
@@ -77,7 +86,19 @@ export default function page() {
     `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
   );
 
-  console.log(dataThreeMonthScheduleDayAll);
+  const {
+    data: dataTimeOffRequests,
+    isPending: isPendingTimeOffRequests,
+    error: errorTimeOffRequests,
+  } = useFetch<InferSelectModel<typeof time_off_requests>[]>(
+    `/api/time-off-request/${scheduleId}/${employeeId}`
+  );
+
+  useEffect(() => {
+    if (dataTimeOffRequests) {
+      setTimeOffRequestsData(dataTimeOffRequests);
+    }
+  }, [dataTimeOffRequests]);
 
   useEffect(() => {
     if (dataEmployees) {
@@ -105,7 +126,8 @@ export default function page() {
     errorSingleScheduleDayOfEmployee ||
     errorEmployees ||
     errorThreeMonthScheduleDay ||
-    errorThreeMonthScheduleDayAll
+    errorThreeMonthScheduleDayAll ||
+    errorTimeOffRequests
   ) {
     return (
       <div className="flex justify-center items-center min-h-64">
@@ -116,14 +138,18 @@ export default function page() {
 
   if (
     isPendingSingleScheduleDayOfEmployee ||
+    isPendingTimeOffRequests ||
     isPendingEmployees ||
+    isPendingEmployee ||
     isPendingThreeMonthScheduleDayAll ||
     isPendingThreeMonthScheduleDay ||
     !employeeFetched ||
     !dataSingleScheduleDayOfEmployee ||
     !employeesFetched ||
     !dataThreeMonthScheduleDay ||
-    !dataThreeMonthScheduleDayAll
+    !dataThreeMonthScheduleDayAll ||
+    !dataTimeOffRequests ||
+    !role
   ) {
     return <Loader />;
   }
@@ -146,7 +172,14 @@ export default function page() {
           dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
           employeeId={employeeId}
           scheduleId={scheduleId}
+          timeOffRequestsData={timeOffRequestsData}
+          setTimeOffRequestsData={setTimeOffRequestsData}
           setError={setError}
+          role={role}
+        />
+        {/* center it */}
+        <VacationRequestContainerUser
+          timeOffRequestsData={timeOffRequestsData}
         />
         <EmployeeCalcSalary
           employeeFetched={employeeFetched}

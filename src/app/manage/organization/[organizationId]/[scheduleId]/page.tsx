@@ -19,7 +19,7 @@ import DashboardHeader from "@/components/UI/DashboardHeader";
 import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
 import EmployeeWork from "@/components/SchedulesPage/EmployeeWork";
 import { useEmployeeDataContext } from "@/context/employeeContext";
-import VacationRequestContainer from "@/components/SchedulesPage/VacationRequestContainer";
+import VacationRequestContainer from "@/components/SchedulesPage/VacationRequestContainerAdmin";
 
 export default function Page() {
   const params = useParams();

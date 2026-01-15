@@ -3,7 +3,7 @@ import useFetch from "../../lib/hooks/useFetch";
 import { ParamValue } from "next/dist/server/request/params";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, time_off_requests } from "@/db/schema";
-import SingleVacationRequestItem from "../inbox/SingleVacationRequestItem";
+import SingleVacationRequestItem from "../inbox/SingleVacationRequestItemAdmin";
 import { editVacation } from "@/lib/actions/Schedule/editVacation";
 import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
 import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
@@ -23,7 +23,7 @@ export type vacationDataType = InferSelectModel<typeof employees> & {
   vacations: InferSelectModel<typeof time_off_requests>[];
 };
 
-export default function VacationRequestContainer({
+export default function VacationRequestContainerAdmin({
   scheduleId,
   employeesTab,
   timeOffRequestsData,
@@ -64,7 +64,7 @@ export default function VacationRequestContainer({
 
     try {
       const formData = new FormData();
-      
+
       formData.append("vacationId", vacationId.toString());
       formData.append("empId", empId.toString());
       formData.append("decision", decision.toString());

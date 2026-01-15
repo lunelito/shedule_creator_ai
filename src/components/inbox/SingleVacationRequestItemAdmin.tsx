@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { vacationDataType } from "../SchedulesPage/VacationRequestContainer";
+import { vacationDataType } from "../SchedulesPage/VacationRequestContainerAdmin";
 import { AnimatePresence } from "framer-motion";
 import AnimatedDetailOnClick from "@/animations/AnimatedDetailOnClick";
 import Input from "../UI/Input";
@@ -16,7 +16,7 @@ type SingleVacationRequestItemType = {
   ) => Promise<void>;
 };
 
-export default function SingleVacationRequestItem({
+export default function SingleVacationRequestItemAdmin({
   empVacationRequest,
   changeDecision,
 }: SingleVacationRequestItemType) {
@@ -38,22 +38,6 @@ export default function SingleVacationRequestItem({
     schedule_day_id: number | null;
   } | null>(null);
 
-  const handleConfirmReject = () => {
-    if (currentVacation) {
-      changeDecision(
-        "declined",
-        currentVacation.id,
-        currentVacation.employee_id,
-        currentVacation.schedule_id,
-        currentVacation.schedule_day_id,
-        reasonRejectValue.trim() || undefined
-      );
-      setShowPopup(false);
-      setReasonRejectValue("");
-      setCurrentVacation(null);
-    }
-  };
-
   return (
     <div className="w-full rounded-2xl bg-zinc-900 p-[clamp(1rem,2vw,1.5rem)] text-white transition hover:border-teal-500">
       {/* Header */}
@@ -73,7 +57,7 @@ export default function SingleVacationRequestItem({
       <div className="flex flex-col gap-[clamp(0.5rem,1.5vw,1rem)]">
         {empVacationRequest.vacations.map((el) => (
           <div
-            key={el.date}
+            key={`${el.date}-${el.employee_id}`}
             className={`${
               el.status === "declined" ? "opacity-50" : ""
             } grid grid-cols-1 gap-[clamp(0.5rem,1.5vw,1rem)] rounded-xl bg-zinc-800 p-[clamp(0.75rem,2vw,1.25rem)] md:grid-cols-5 md:items-center justify-center`}

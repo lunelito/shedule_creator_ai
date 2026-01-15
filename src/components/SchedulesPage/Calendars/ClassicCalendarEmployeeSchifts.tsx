@@ -3,18 +3,26 @@
 import SecondaryButton from "@/components/UI/SecondaryButton";
 import SecondaryInput from "@/components/UI/SecondaryInput";
 import SelectGroup from "@/components/UI/SelectGroup";
-import { employees, schedules_day } from "@/db/schema";
+import { employees, schedules_day, time_off_requests } from "@/db/schema";
 import { addVacations } from "@/lib/actions/Schedule/addVacations";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import VacationExtension from "./CalendarsExtensions/VacationExtension";
+import { getInitials } from "@/lib/hooks/useTimeOff";
+import PrimaryButton from "@/components/UI/PrimaryButton";
 type ClassicCalendartype = {
   dataSingleScheduleDayOfEmployee: InferSelectModel<typeof schedules_day>[];
   scheduleId: ParamValue;
   employeeId: ParamValue;
+  timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
+  setTimeOffRequestsData: React.Dispatch<
+    SetStateAction<InferSelectModel<typeof time_off_requests>[]>
+  >;
   setError: React.Dispatch<SetStateAction<string>>;
+  role: string;
 };
 
 type ParsedScheduleDay = {
@@ -23,7 +31,7 @@ type ParsedScheduleDay = {
   hours: string;
 };
 
-type vacations = {
+export type vacations = {
   date: string;
   type: string;
   isScheduled: boolean;
@@ -36,6 +44,9 @@ export default function ClassicCalendarEmployeeSchifts({
   scheduleId,
   employeeId,
   setError,
+  role,
+  timeOffRequestsData,
+  setTimeOffRequestsData,
 }: ClassicCalendartype) {
   const daysOfWeek: string[] = [
     "Monday",
@@ -70,7 +81,6 @@ export default function ClassicCalendarEmployeeSchifts({
 
   const [year, setYear] = useState(date.getFullYear());
   const [month, setMonth] = useState(date.getMonth());
-  const [dateShow, setDateShow] = useState<string>("");
   const [calendarHeight, setCalendarHeight] = useState(0);
   const calendarRef = useRef<HTMLDivElement>(null);
   const vacationsMap = [
@@ -84,7 +94,7 @@ export default function ClassicCalendarEmployeeSchifts({
   ];
   const [vacations, setVacations] = useState<vacations[]>([]);
   const [vacationType, setVacationType] = useState<string>("paid_leave");
-  const [reason, setReason] = useState<string>("");
+  const [showVacationPanel, setShowVacationPanel] = useState<boolean>(false);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -128,63 +138,11 @@ export default function ClassicCalendarEmployeeSchifts({
     CalenderFull.push(date.toISOString().split("T")[0]);
   }
 
-  console.log(scheduleId, employeeId);
-
-  const requestVacation = async () => {
-    if (vacations.length === 0) {
-      setError("Fill your vacation time!");
-      setTimeout(() => setError(""), 2000);
-      return 0;
-    }
-
-    if (scheduleId === undefined || employeeId === undefined) {
-      setError("Please wait for your data!");
-      setTimeout(() => setError(""), 2000);
-      return 0;
-    }
-
-    if (reason.length === 0) {
-      setError("Fill your reason field!");
-      setTimeout(() => setError(""), 2000);
-      return 0;
-    }
-
-    const formData = new FormData();
-
-    formData.append("vacations", JSON.stringify(vacations));
-    formData.append("schedule_id", scheduleId.toString());
-    formData.append("employee_id", employeeId?.toString());
-    formData.append("reason", reason);
-
-    try {
-      const result = await addVacations({ errors: {} }, formData);
-      if (result.success) {
-        setError("Vacation request send");
-        setTimeout(() => setError(""), 2000);
-        return { result: result };
-      } else {
-        const userErrors = result.errors.vacations?.[0]
-          ? result.errors.vacations[0] + " in vacations fields"
-          : null;
-        const formError =
-          result.errors._form?.[0] ?? "Error while inserting vacations";
-
-        setError(userErrors ?? formError);
-        return { result: result };
-      }
-    } catch (err) {
-      console.error(err);
-      setError("server error");
-    }
-  };
-
   useEffect(() => {
     if (calendarRef.current) {
       setCalendarHeight(calendarRef.current.offsetHeight);
     }
   }, [CalenderFull]);
-
-  console.log(vacations);
 
   return (
     <div className="flex m-5 justify-center">
@@ -228,6 +186,14 @@ export default function ClassicCalendarEmployeeSchifts({
 
               const dayVacation = vacations.find((d) => d.date === el);
 
+              const timeOffForDay = timeOffRequestsData.find((timeOff) => {
+                return (
+                  timeOff.date === el &&
+                  timeOff.employee_id === Number(employeeId) &&
+                  timeOff.status !== "declined"
+                );
+              });
+
               const hoursNum = daySchedule?.hours
                 .split("-")
                 .map(Number)
@@ -237,9 +203,10 @@ export default function ClassicCalendarEmployeeSchifts({
                 <div
                   key={i}
                   onClick={() => {
-                    if (el !== null && !daySchedule) setDateShow(el);
-
-                    if (!dayVacation) {
+                    if (!showVacationPanel) return;
+                    // !!!!!!!!
+                    // in future make it a requst for not having a time off !!!!! schould be easy implementation.
+                    if (!dayVacation && !timeOffForDay) {
                       setVacations((prev) => [
                         ...prev,
                         {
@@ -250,20 +217,24 @@ export default function ClassicCalendarEmployeeSchifts({
                           schedule_day_id: daySchedule ? daySchedule.id : null,
                         },
                       ]);
-                    } else if (dayVacation) {
+                    } else if (dayVacation && !timeOffForDay) {
                       setVacations((prev) =>
                         prev.filter((v) => v.date !== dayVacation.date)
                       );
                     }
                   }}
                   className={`relative cursor-pointer h-16 p-4 rounded-lg flex justify-center items-center hover:scale-105 transition ${
-                    daySchedule
+                    timeOffForDay?.status === "waiting"
+                      ? "bg-white text-teal-600 animate-pulse"
+                      : daySchedule
                       ? "bg-teal-600 text-white border-2"
                       : "bg-white text-teal-600"
                   }`}
                 >
                   <p className="text-sm">
-                    {dayVacation
+                    {timeOffForDay
+                      ? getInitials(timeOffForDay.type, "_")
+                      : dayVacation
                       ? dayVacation.type
                       : daySchedule
                       ? daySchedule.hours
@@ -292,45 +263,31 @@ export default function ClassicCalendarEmployeeSchifts({
               );
             })}
           </div>
-          <div
-            style={{ height: calendarHeight }}
-            className="w-[20vw] max-w-4xl bg-teal-600 p-4 rounded-lg"
-          >
-            <div
-              className="flex flex-col justify-between items-center gap-5 bg-white h-full w-full p-10 rounded-xl"
-              onDoubleClick={() => setDateShow("")}
-            >
-              <p className="text-zinc-800 text-3xl p-1 font-bold">
-                {dateShow || "No date selected"}
-              </p>
-
-              <SelectGroup
-                options={vacationsMap.map((el) => {
-                  const val = el.replace("_", " ");
-                  return (
-                    val.slice(0, 1).toUpperCase() + val.slice(1, val.length)
-                  );
-                })}
-                onChange={(value) =>
-                  setVacationType(value.toLowerCase().replace(" ", "_"))
-                }
-              />
-
-              <SecondaryInput
-                name="note"
-                text="Whats your reason?"
-                type="text"
-                onChange={(e) => setReason(e)}
-              />
-              <SecondaryButton
-                bgColor={"bg-zinc-800"}
-                onClick={requestVacation}
-              >
-                dodaj
-              </SecondaryButton>
-            </div>
-          </div>
+          {showVacationPanel && (
+            <VacationExtension
+              calendarHeight={calendarHeight}
+              employeeId={employeeId}
+              scheduleId={scheduleId}
+              setError={setError}
+              setVacationType={setVacationType}
+              vacations={vacations}
+              vacationsMap={vacationsMap}
+              setVacations={setVacations}
+              setTimeOffRequestsData={setTimeOffRequestsData}
+            />
+          )}
         </div>
+        {/* !!!!!!!!!!!!!!!!!!! */}
+        {/* if you finish change it to role !== "admin" */}
+        {role === "admin" && (
+          <div className="mt-5">
+            <PrimaryButton
+              onClick={() => setShowVacationPanel((prev) => !prev)}
+            >
+              Time off panel
+            </PrimaryButton>
+          </div>
+        )}
       </div>
       <button
         className="hover:scale-105 transition ease-in-out invert"
