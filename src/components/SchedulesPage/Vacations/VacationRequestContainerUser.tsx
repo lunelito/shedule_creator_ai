@@ -1,12 +1,7 @@
-import React, { SetStateAction, useEffect, useState } from "react";
-import { ParamValue } from "next/dist/server/request/params";
+import React from "react";
 import { InferSelectModel } from "drizzle-orm";
-import { employees, time_off_requests } from "@/db/schema";
-import SingleVacationRequestItem from "../../inbox/SingleVacationRequestItemAdmin";
-import { editVacation } from "@/lib/actions/Schedule/editVacation";
-import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
-import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
-import SingleVacationRequestItemUser from "@/components/inbox/SingleVacationRequestItemUser";
+import { time_off_requests } from "@/db/schema";
+import SingleVacationRequestItemUser from "./SingleVacationRequestItemUser";
 
 type VacationRequestContainerType = {
   timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
@@ -29,7 +24,7 @@ export default function VacationRequestContainerUser({
               .sort(
                 (a, b) =>
                   new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
+                  new Date(a.created_at).getTime(),
               )
               .map((el, i) => (
                 <SingleVacationRequestItemUser

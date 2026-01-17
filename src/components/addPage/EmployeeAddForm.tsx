@@ -1,9 +1,9 @@
 import React, { SetStateAction, useState } from "react";
-import UserSearchList from "../addPage/UserSearchForm";
+import UserSearchList from "./UserSearchForm";
 import { employeType } from "@/app/manage/add/schedule/page";
 import { useSearchParams } from "next/navigation";
-import UserPositionForm from "../addPage/UserPostionForm";
-import { addEmployees } from "@/lib/actions/Schedule/addEmployees";
+import UserPositionForm from "./UserPostionForm";
+import { addEmployees } from "@/lib/actions/Employee/addEmployees";
 import { ParamValue } from "next/dist/server/request/params";
 import PrimaryButton from "../UI/PrimaryButton";
 import { InferSelectModel } from "drizzle-orm";

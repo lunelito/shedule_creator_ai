@@ -3,22 +3,23 @@ import { employees, time_off_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { SetStateAction } from "react";
 import PrimaryButton from "../UI/PrimaryButton";
-import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
-import { fromReadableToValue, fromValueToReadable } from "@/lib/hooks/useTimeOff";
+import { deleteSingleScheduleDay } from "@/lib/actions/ScheduleDay/deleteSingleScheduleDay";
+import {
+  fromReadableToValue,
+  fromValueToReadable,
+} from "@/lib/hooks/useTimeOff";
 
 type SheduleCardType = {
   fetchedShift: ShiftFetched | undefined;
   addShow: boolean;
   emp: InferSelectModel<typeof employees>;
   cantWork: boolean;
-  timeOff: InferSelectModel<typeof time_off_requests> | undefined;
 };
 export default function SheduleCard({
   fetchedShift,
   addShow,
   emp,
   cantWork,
-  timeOff,
 }: SheduleCardType) {
   return (
     <div className="w-full p-5 border border-teal-600 rounded-lg">
@@ -28,11 +29,7 @@ export default function SheduleCard({
         <span className="text-sm text-gray-400">{emp.email || "No email"}</span>
       </h2>
       <div className="flex justify-center items-center flex-col">
-        {timeOff ? (
-          <p className="text-center text-teal-600 text-xl font-bold">
-            {fromValueToReadable(timeOff.type, "_")}
-          </p>
-        ) : fetchedShift && fetchedShift.start_hour != null && !addShow ? (
+        {fetchedShift && fetchedShift.start_hour != null && !addShow ? (
           <>
             <div className="mb-4">
               <p className="text-center mb-2">Shift Start:</p>

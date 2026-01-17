@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from "react";
 import Input from "../UI/Input";
 import { useRouter } from "next/navigation";
-import * as actions from "@/lib/actions/action";
 import { RegisterFormType, FieldsType } from "@/lib/actions/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
 import LoginButtons from "./LoginButtons";
+import { logIn } from "@/lib/actions/Auth/logIn";
 
 export default function LoginForm({ setActiveForm }: RegisterFormType) {
   const [formState, setFormState] = useState<{
@@ -30,7 +30,7 @@ export default function LoginForm({ setActiveForm }: RegisterFormType) {
     try {
       const formData = new FormData(e.currentTarget);
 
-      const result = await actions.logIn(formData);
+      const result = await logIn(formData);
 
       setFormState(result);
 

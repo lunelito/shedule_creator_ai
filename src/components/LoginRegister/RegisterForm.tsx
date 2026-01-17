@@ -1,16 +1,16 @@
 "use client";
 import React, { useActionState, useEffect } from "react";
 import Input from "../UI/Input";
-import * as actions from "@/lib/actions/action";
 import { RegisterFormType, FieldsType } from "@/lib/actions/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
+import { register } from "@/lib/actions/Auth/register";
 
 export default function RegisterForm({ setActiveForm }: RegisterFormType) {
 
-  const [formState, action, isPending] = useActionState(actions.register, {
+  const [formState, action, isPending] = useActionState(register, {
     errors: {},
   });
 

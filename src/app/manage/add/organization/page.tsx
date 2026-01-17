@@ -3,15 +3,11 @@ import RenderAnimation from "@/animations/RenderAnimation";
 import React, { useActionState, useEffect, useState } from "react";
 import * as actions from "@/lib/actions/action";
 import { FieldsType } from "@/lib/actions/types/auth";
-import { AnimatePresence } from "framer-motion";
 import Input from "@/components/UI/Input";
-import FadeAnimation from "@/animations/FadeAnimation";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import FileInput from "@/components/UI/FileInput";
 import IconPicker from "@/components/addPage/IconPicker";
 import { useUserDataContext } from "@/context/userContext";
 import { useOrganizationContext } from "@/context/organizationsContext";
-import { useParams } from "next/navigation";
 import ErrorConatiner from "@/components/UI/ErrorConatiner";
 
 export default function AddPageShedule() {

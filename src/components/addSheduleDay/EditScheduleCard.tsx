@@ -6,7 +6,7 @@ import {
 } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, schedules_day } from "@/db/schema";
-import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
+import { deleteSingleScheduleDay } from "@/lib/actions/ScheduleDay/deleteSingleScheduleDay";
 import PrimaryButton from "../UI/PrimaryButton";
 import DeleteIcon from "../UI/DeleteIcon";
 

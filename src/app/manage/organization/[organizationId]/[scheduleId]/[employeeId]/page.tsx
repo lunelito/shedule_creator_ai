@@ -11,124 +11,39 @@ import EmployeeCalcSalary from "@/components/SchedulesPage/Employee/EmployeeCalc
 import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
 import ClassicCalendarEmployeeSchifts from "@/components/SchedulesPage/Calendars/ClassicCalendarEmployeeSchifts";
 import RenderAnimation from "@/animations/RenderAnimation";
-import VacationRequestContainer from "@/components/SchedulesPage/VacationRequestContainerAdmin";
-import VacationRequestContainerUser from "@/components/SchedulesPage/Employee/VacationRequestContainerUser";
+import VacationRequestContainer from "@/components/SchedulesPage/Vacations/VacationRequestContainerAdmin";
+import VacationRequestContainerUser from "@/components/SchedulesPage/Vacations/VacationRequestContainerUser";
 import { useEmployeeDataContext } from "@/context/employeeContext";
+import { useEmployeeFetch } from "@/lib/hooks/useEmployeeFetch";
 
 export default function page() {
   const params = useParams();
   const router = useRouter();
   const employeeId = params.employeeId;
   const scheduleId = params.scheduleId;
-  const [employeesFetched, setEmployeesFetched] = useState<
-    InferSelectModel<typeof employees>[]
-  >([]);
-  const [employeeFetched, setEmployeeFetched] = useState<
-    InferSelectModel<typeof employees>
-  >({} as InferSelectModel<typeof employees>);
-  const [timeOffRequestsData, setTimeOffRequestsData] = useState<
-    InferSelectModel<typeof time_off_requests>[]
-  >([]);
 
   const { role, isPendingEmployee } = useEmployeeDataContext();
 
   const [error, setError] = useState<string>("");
 
-  const today = new Date();
-
-  const pastMonth = new Date(
-    today.getFullYear(),
-    today.getMonth() - 1,
-    today.getDate()
-  )
-    .toISOString()
-    .split("T")[0];
-
-  const presentMonth = today.toISOString().split("T")[0];
-
-  const futureMonth = new Date(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate()
-  )
-    .toISOString()
-    .split("T")[0];
-
   const {
-    data: dataEmployees,
-    isPending: isPendingEmployees,
-    error: errorEmployees,
-  } = useFetch<InferSelectModel<typeof employees>[]>(
-    `/api/employees?id=${scheduleId}`
-  );
+    employeesFetched,
+    employeeFetched,
+    singleScheduleDayFetched,
+    threeMonthScheduleDayFetched,
+    threeMonthScheduleDayAllFetched,
+    timeOffRequestsFetched,
+    isPending,
+    presentMonth,
+    setEmployeesFetched,
+    setTimeOffRequestsFetched,
+    error: errorFetch,
+  } = useEmployeeFetch({
+    scheduleId: Number(scheduleId),
+    employeeId: Number(employeeId),
+  });
 
-  const {
-    data: dataSingleScheduleDayOfEmployee,
-    isPending: isPendingSingleScheduleDayOfEmployee,
-    error: errorSingleScheduleDayOfEmployee,
-  } = useFetch<InferSelectModel<typeof schedules_day>[]>(
-    `/api/schedules_day/${scheduleId}/${employeeId}`
-  );
-
-  const {
-    data: dataThreeMonthScheduleDay,
-    isPending: isPendingThreeMonthScheduleDay,
-    error: errorThreeMonthScheduleDay,
-  } = useFetch<InferSelectModel<typeof schedules_day>[][]>(
-    `/api/schedules_day/${scheduleId}/${employeeId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
-  );
-
-  const {
-    data: dataThreeMonthScheduleDayAll,
-    isPending: isPendingThreeMonthScheduleDayAll,
-    error: errorThreeMonthScheduleDayAll,
-  } = useFetch<InferSelectModel<typeof schedules_day>[][]>(
-    `/api/schedules_day/${scheduleId}?presentMonth=${presentMonth}&pastMonth=${pastMonth}&futureMonth=${futureMonth}`
-  );
-
-  const {
-    data: dataTimeOffRequests,
-    isPending: isPendingTimeOffRequests,
-    error: errorTimeOffRequests,
-  } = useFetch<InferSelectModel<typeof time_off_requests>[]>(
-    `/api/time-off-request/${scheduleId}/${employeeId}`
-  );
-
-  useEffect(() => {
-    if (dataTimeOffRequests) {
-      setTimeOffRequestsData(dataTimeOffRequests);
-    }
-  }, [dataTimeOffRequests]);
-
-  useEffect(() => {
-    if (dataEmployees) {
-      setEmployeeFetched(
-        dataEmployees.filter((el) => el.id === Number(employeeId))[0]
-      );
-    }
-  }, [dataEmployees]);
-
-  useEffect(() => {
-    if (employeesFetched) {
-      setEmployeeFetched(
-        employeesFetched.filter((el) => el.id === Number(employeeId))[0]
-      );
-    }
-  }, [employeesFetched]);
-
-  useEffect(() => {
-    if (dataEmployees) {
-      setEmployeesFetched(dataEmployees);
-    }
-  }, [dataEmployees]);
-
-  if (
-    errorSingleScheduleDayOfEmployee ||
-    errorEmployees ||
-    errorThreeMonthScheduleDay ||
-    errorThreeMonthScheduleDayAll ||
-    errorTimeOffRequests
-  ) {
+  if (errorFetch) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading employee data</p>
@@ -136,21 +51,7 @@ export default function page() {
     );
   }
 
-  if (
-    isPendingSingleScheduleDayOfEmployee ||
-    isPendingTimeOffRequests ||
-    isPendingEmployees ||
-    isPendingEmployee ||
-    isPendingThreeMonthScheduleDayAll ||
-    isPendingThreeMonthScheduleDay ||
-    !employeeFetched ||
-    !dataSingleScheduleDayOfEmployee ||
-    !employeesFetched ||
-    !dataThreeMonthScheduleDay ||
-    !dataThreeMonthScheduleDayAll ||
-    !dataTimeOffRequests ||
-    !role
-  ) {
+  if (isPending || isPendingEmployee|| !role) {
     return <Loader />;
   }
 
@@ -169,22 +70,22 @@ export default function page() {
           setError={setError}
         />
         <ClassicCalendarEmployeeSchifts
-          dataSingleScheduleDayOfEmployee={dataSingleScheduleDayOfEmployee}
+          dataSingleScheduleDayOfEmployee={singleScheduleDayFetched}
           employeeId={employeeId}
           scheduleId={scheduleId}
-          timeOffRequestsData={timeOffRequestsData}
-          setTimeOffRequestsData={setTimeOffRequestsData}
+          timeOffRequestsData={timeOffRequestsFetched}
+          setTimeOffRequestsData={setTimeOffRequestsFetched}
           setError={setError}
           role={role}
         />
         {/* center it */}
         <VacationRequestContainerUser
-          timeOffRequestsData={timeOffRequestsData}
+          timeOffRequestsData={timeOffRequestsFetched}
         />
         <EmployeeCalcSalary
           employeeFetched={employeeFetched}
-          dataThreeMonthScheduleDay={dataThreeMonthScheduleDay}
-          dataThreeMonthScheduleDayAll={dataThreeMonthScheduleDayAll}
+          dataThreeMonthScheduleDay={threeMonthScheduleDayFetched}
+          dataThreeMonthScheduleDayAll={threeMonthScheduleDayAllFetched}
           presentMonth={presentMonth}
           employeesFetched={employeesFetched}
         />

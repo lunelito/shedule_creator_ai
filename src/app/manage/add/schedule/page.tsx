@@ -1,20 +1,14 @@
 "use client";
 import RenderAnimation from "@/animations/RenderAnimation";
 import UserSearchList from "@/components/addPage/UserSearchForm";
-import { InferSelectModel } from "drizzle-orm";
-import { users } from "@/db/schema";
-import Image from "next/image";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import UserRoleForm from "@/components/addPage/UserPostionForm";
 import { useUserDataContext } from "@/context/userContext";
-import { addEmployees } from "@/lib/actions/Schedule/addEmployees";
+import { addEmployees } from "@/lib/actions/Employee/addEmployees";
 import Input from "@/components/UI/Input";
-import { addSchedule } from "@/lib/actions/action";
+import { addSchedule } from "@/lib/actions/Schedule/addSchedule";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import FadeAnimation from "@/animations/FadeAnimation";
-import { AnimatePresence } from "framer-motion";
-import { deleteEmployee } from "@/lib/actions/Schedule/deleteEmployee";
 import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
@@ -126,7 +120,7 @@ export default function AddPageShedule() {
     formData.append("name", shedule.name);
     formData.append(
       "organization_id",
-      shedule.organization_id?.toString() ?? "0"
+      shedule.organization_id?.toString() ?? "0",
     );
     formData.append("created_by", shedule.created_by?.toString() ?? "");
 
@@ -145,7 +139,7 @@ export default function AddPageShedule() {
 
         const errorMsg = userErrors
           ? userErrors + " in schedule fields"
-          : result.errors._form?.[0] ?? "Error while inserting schedule";
+          : (result.errors._form?.[0] ?? "Error while inserting schedule");
 
         setError(errorMsg);
         return { result: result };
@@ -192,7 +186,7 @@ export default function AddPageShedule() {
         console.error(
           "Nie udało się usunąć grafiku:",
           result.result.schedule_id,
-          err
+          err,
         );
       }
     } catch (err) {

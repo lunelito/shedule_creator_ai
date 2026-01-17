@@ -4,7 +4,7 @@ import SecondaryButton from "@/components/UI/SecondaryButton";
 import SecondaryInput from "@/components/UI/SecondaryInput";
 import SelectGroup from "@/components/UI/SelectGroup";
 import { employees, schedules_day, time_off_requests } from "@/db/schema";
-import { addVacations } from "@/lib/actions/Schedule/addVacations";
+import { addVacations } from "@/lib/actions/Vacations/addVacations";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";

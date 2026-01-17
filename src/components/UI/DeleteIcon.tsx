@@ -26,7 +26,7 @@ const sizeMap = {
     side: "-left-6 -right-6",
   },
   XL: {
-    button: "h-[18px] w-[18px]",
+    button: "h-16 w-16",
     top: "-top-8",
     side: "-left-8 -right-8",
   },

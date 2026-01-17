@@ -1,7 +1,7 @@
 import SecondaryButton from "@/components/UI/SecondaryButton";
 import SecondaryInput from "@/components/UI/SecondaryInput";
 import SelectGroup from "@/components/UI/SelectGroup";
-import { addVacations } from "@/lib/actions/Schedule/addVacations";
+import { addVacations } from "@/lib/actions/Vacations/addVacations";
 import React, { SetStateAction, useState } from "react";
 import { vacations } from "../ClassicCalendarEmployeeSchifts";
 import { ParamValue } from "next/dist/server/request/params";

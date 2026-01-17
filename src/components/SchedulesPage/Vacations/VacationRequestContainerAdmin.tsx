@@ -1,12 +1,12 @@
 import React, { SetStateAction, useEffect, useState } from "react";
-import useFetch from "../../lib/hooks/useFetch";
+import useFetch from "../../../lib/hooks/useFetch";
 import { ParamValue } from "next/dist/server/request/params";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, time_off_requests } from "@/db/schema";
-import SingleVacationRequestItem from "../inbox/SingleVacationRequestItemAdmin";
-import { editVacation } from "@/lib/actions/Schedule/editVacation";
+import SingleVacationRequestItemAdmin from "./SingleVacationRequestItemAdmin";
+import { editVacation } from "@/lib/actions/Vacations/editVacation";
 import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
-import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
+import { deleteSingleScheduleDay } from "@/lib/actions/ScheduleDay/deleteSingleScheduleDay";
 
 type VacationRequestContainerType = {
   scheduleId: ParamValue;
@@ -135,7 +135,7 @@ export default function VacationRequestContainerAdmin({
                 new Date(a.vacations[0].created_at).getTime()
             )
             .map((empVacationRequest) => (
-              <SingleVacationRequestItem
+              <SingleVacationRequestItemAdmin
                 key={empVacationRequest.user_id}
                 empVacationRequest={empVacationRequest}
                 changeDecision={changeDecision}

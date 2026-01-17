@@ -12,14 +12,14 @@ import {
   time_off_requests,
 } from "@/db/schema";
 import ClassicCalendar from "@/components/SchedulesPage/Calendars/ClassicCalendar";
-import EmployeesDatalist from "@/components/SchedulesPage/Employees";
+import EmployeesDatalist from "@/components/SchedulesPage/Schedule/Employees";
 import { useUserDataContext } from "@/context/userContext";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
 import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
-import EmployeeWork from "@/components/SchedulesPage/EmployeeWork";
+import EmployeeWork from "@/components/SchedulesPage/Schedule/EmployeeWork";
 import { useEmployeeDataContext } from "@/context/employeeContext";
-import VacationRequestContainer from "@/components/SchedulesPage/VacationRequestContainerAdmin";
+import VacationRequestContainer from "@/components/SchedulesPage/Vacations/VacationRequestContainerAdmin";
 
 export default function Page() {
   const params = useParams();

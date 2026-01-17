@@ -3,12 +3,12 @@ import { employees, time_off_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { SetStateAction } from "react";
 import PrimaryButton from "../UI/PrimaryButton";
-import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
+import { deleteSingleScheduleDay } from "@/lib/actions/ScheduleDay/deleteSingleScheduleDay";
 import {
   fromReadableToValue,
   fromValueToReadable,
 } from "@/lib/hooks/useTimeOff";
-import { deleteVacation } from "@/lib/actions/Schedule/deleteVacation";
+import { deleteVacation } from "@/lib/actions/Vacations/deleteVacation";
 import DeleteIcon from "../UI/DeleteIcon";
 
 type SheduleCardType = {

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { vacationDataType } from "../SchedulesPage/VacationRequestContainerAdmin";
+import { vacationDataType } from "./VacationRequestContainerAdmin";
 import { AnimatePresence } from "framer-motion";
 import AnimatedDetailOnClick from "@/animations/AnimatedDetailOnClick";
-import Input from "../UI/Input";
+import Input from "../../UI/Input";
 import Image from "next/image";
-import DeleteIcon from "../UI/DeleteIcon";
+import DeleteIcon from "../../UI/DeleteIcon";
 
 type SingleVacationRequestItemType = {
   empVacationRequest: vacationDataType;
@@ -14,7 +14,7 @@ type SingleVacationRequestItemType = {
     empId: number,
     scheduleId: number,
     schedule_day_id: number | null,
-    reasonReject?: string | undefined
+    reasonReject?: string | undefined,
   ) => Promise<void>;
 };
 
@@ -105,7 +105,7 @@ export default function SingleVacationRequestItemAdmin({
                         el.id,
                         el.employee_id,
                         el.schedule_id,
-                        el.schedule_day_id
+                        el.schedule_day_id,
                       )
                     }
                     className="bg-teal-600 py-1 px-3 rounded hover:scale-105 transition-all ease-in-out"
@@ -170,7 +170,7 @@ export default function SingleVacationRequestItemAdmin({
                       currentVacation.employee_id,
                       currentVacation.schedule_id,
                       currentVacation.schedule_day_id,
-                      reasonRejectValue.trim() || undefined
+                      reasonRejectValue.trim() || undefined,
                     );
                     setShowPopup(false);
                     setReasonRejectValue("");
@@ -182,11 +182,13 @@ export default function SingleVacationRequestItemAdmin({
                 Reject
               </button>
               <DeleteIcon
+                path="/Icons/minus.svg"
                 onClick={() => {
                   setShowPopup(false);
                   setReasonRejectValue("");
                   setCurrentVacation(null);
                 }}
+                size="L"
               />
             </div>
           </AnimatedDetailOnClick>

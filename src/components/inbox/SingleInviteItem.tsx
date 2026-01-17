@@ -1,7 +1,7 @@
 import { inviteDatatype } from "@/app/manage/settings/inbox/page";
 import { useOrganizationContext } from "@/context/organizationsContext";
 import { organizations } from "@/db/schema";
-import { editEmployeeInvite } from "@/lib/actions/Schedule/editEmployeeInvite";
+import { editEmployeeInvite } from "@/lib/actions/Employee/editEmployeeInvite";
 import { InferSelectModel } from "drizzle-orm";
 import React, { SetStateAction, useEffect, useState } from "react";
 type SingleInviteItemType = {

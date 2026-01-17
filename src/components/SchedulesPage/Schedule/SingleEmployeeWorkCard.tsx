@@ -18,7 +18,6 @@ export default function SingleEmployeeWorkCard({
   roleCheck,
 }: SingleEmployeeWorkCardType) {
   const { dataEmployee } = useEmployeeDataContext();
-  console.log(dataEmployee)
   const pathname = usePathname();
   return (
     <div className="aspect-[2/1] lg:aspect-[2/2] 2xl:aspect-[2/1] max-h-max p-4 justify-center bg-teal-600 rounded-4xl m-1 xl:m-4 2xl:m-8 text-white flex items-center flex-col gap-5 lg:gap-1">
@@ -43,7 +42,7 @@ export default function SingleEmployeeWorkCard({
                   </p>
                 )}
               </Fragment>
-            )
+            ),
         )}
       </div>
     </div>

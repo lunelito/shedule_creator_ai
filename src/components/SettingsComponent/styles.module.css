@@ -60,11 +60,11 @@
 }
 
 .logoutButton {
-    background-color: lab(55 -37.18 -3.18) !important;
+    background-color: rgb(180, 60, 60) !important;
 }
 
-.logoutButton:hover{
-    background-color: lab(42.81% -29.78 -2.26) !important;
+.logoutButton:hover {
+    background-color: rgb(150, 40, 40) !important;
 }
 
 .page button:hover {
