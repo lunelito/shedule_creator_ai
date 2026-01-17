@@ -3,6 +3,8 @@ import { vacationDataType } from "../SchedulesPage/VacationRequestContainerAdmin
 import { AnimatePresence } from "framer-motion";
 import AnimatedDetailOnClick from "@/animations/AnimatedDetailOnClick";
 import Input from "../UI/Input";
+import Image from "next/image";
+import DeleteIcon from "../UI/DeleteIcon";
 
 type SingleVacationRequestItemType = {
   empVacationRequest: vacationDataType;
@@ -38,6 +40,8 @@ export default function SingleVacationRequestItemAdmin({
     schedule_day_id: number | null;
   } | null>(null);
 
+  console.log(empVacationRequest);
+
   return (
     <div className="w-full rounded-2xl bg-zinc-900 p-[clamp(1rem,2vw,1.5rem)] text-white transition hover:border-teal-500">
       {/* Header */}
@@ -57,7 +61,7 @@ export default function SingleVacationRequestItemAdmin({
       <div className="flex flex-col gap-[clamp(0.5rem,1.5vw,1rem)]">
         {empVacationRequest.vacations.map((el) => (
           <div
-            key={`${el.date}-${el.employee_id}`}
+            key={`${el.id}`}
             className={`${
               el.status === "declined" ? "opacity-50" : ""
             } grid grid-cols-1 gap-[clamp(0.5rem,1.5vw,1rem)] rounded-xl bg-zinc-800 p-[clamp(0.75rem,2vw,1.25rem)] md:grid-cols-5 md:items-center justify-center`}
@@ -177,6 +181,13 @@ export default function SingleVacationRequestItemAdmin({
               >
                 Reject
               </button>
+              <DeleteIcon
+                onClick={() => {
+                  setShowPopup(false);
+                  setReasonRejectValue("");
+                  setCurrentVacation(null);
+                }}
+              />
             </div>
           </AnimatedDetailOnClick>
         )}

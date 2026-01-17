@@ -60,7 +60,8 @@ export default function VacationRequestContainerAdmin({
     schedule_day_id: number | null,
     reasonReject?: string
   ) => {
-    if (!vacationId || !empId || !scheduleId || !schedule_day_id) return;
+    console.log(vacationId, empId, scheduleId, schedule_day_id);
+    if (!vacationId || !empId || !scheduleId) return;
 
     try {
       const formData = new FormData();
@@ -79,7 +80,12 @@ export default function VacationRequestContainerAdmin({
 
       const resultUpdate = await editVacation({ errors: {} }, formData);
 
-      if (resultUpdate.success) {
+      if (decision === "declined" && reasonReject?.length === 0) {
+        setError("Please enter reject reason");
+        return;
+      }
+
+      if (resultUpdate.success && schedule_day_id) {
         resultDelete = (
           await deleteSingleScheduleDay(schedule_day_id.toString())
         ).success;
@@ -128,7 +134,7 @@ export default function VacationRequestContainerAdmin({
                 new Date(b.vacations[0].created_at).getTime() -
                 new Date(a.vacations[0].created_at).getTime()
             )
-            .map((empVacationRequest, i) => (
+            .map((empVacationRequest) => (
               <SingleVacationRequestItem
                 key={empVacationRequest.user_id}
                 empVacationRequest={empVacationRequest}

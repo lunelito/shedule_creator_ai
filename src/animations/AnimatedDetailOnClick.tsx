@@ -21,7 +21,6 @@ export default function AnimatedDetailOnClick({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      // onClick={() => setActiveModal(false)}
     >
       <motion.div
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-zinc-800 p-6 shadow-lg"

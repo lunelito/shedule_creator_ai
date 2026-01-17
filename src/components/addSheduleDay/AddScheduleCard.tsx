@@ -14,6 +14,7 @@ import { InferSelectModel } from "drizzle-orm";
 import { employees, schedules_day } from "@/db/schema";
 import PrimaryButton from "../UI/PrimaryButton";
 import Image from "next/image";
+import DeleteIcon from "../UI/DeleteIcon";
 
 type AddSheduleCardType = {
   emp: InferSelectModel<typeof employees>;
@@ -223,21 +224,12 @@ export default function AddSheduleCard({
               </p>
             </div>
           )}
-          <div className="absolute -top-4 -left-4">
-            <button
-              onClick={() => toggleSelect(employeeShift?.employee_id)}
-              className="relative bg-teal-600 h-8 w-8 rounded-full flex items-center justify-center"
-            >
-              <Image
-                src={`/Icons/${
-                  employeeShift?.selected ? "addIcon" : "minus"
-                }.svg`}
-                alt="cross"
-                fill
-                style={{ objectFit: "contain" }}
-              />
-            </button>
-          </div>
+          <DeleteIcon
+            onClick={() => toggleSelect(employeeShift?.employee_id)}
+            path={`/Icons/${employeeShift?.selected ? "addIcon" : "minus"}.svg`}
+            bgColor={"bg-teal-600"}
+            size="M"
+          />
         </div>
       </div>
     </div>

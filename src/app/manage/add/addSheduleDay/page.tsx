@@ -28,6 +28,7 @@ import { boolean, includes } from "zod";
 import SecondaryButton from "@/components/UI/SecondaryButton";
 import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
 import { useEmployeeDataContext } from "@/context/employeeContext";
+import EditVacationCard from "@/components/addSheduleDay/EditVacationCard";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -518,9 +519,10 @@ export default function AddScheduleDay() {
                 (s) => s.employee_id === emp.id
               );
 
-              const timeOff = dataTimeOffRequests?.find(
+              const timeOff = timeOffRequestsData?.find(
                 (s) => s.employee_id === emp.id && s.status === "accepted"
               );
+              console.log(timeOff);
 
               const employeeCantWork = cantWork[emp.id as number] || false;
 
@@ -548,6 +550,24 @@ export default function AddScheduleDay() {
                     setDataThreeMonthScheduleDayAllFetched={
                       setDataThreeMonthScheduleDayAllFetched
                     }
+                  />
+                );
+              }
+
+              if (timeOff && !addShow) {
+                return (
+                  <EditVacationCard
+                    scheduleId={scheduleId}
+                    setError={setError}
+                    setEditleShow={setEditleShow}
+                    timeOff={timeOff}
+                    cantWork={employeeCantWork}
+                    key={emp.id}
+                    addShow={addShow}
+                    editleShow={editleShow}
+                    emp={emp}
+                    setTimeOffRequestsData={setTimeOffRequestsData}
+                    fetchedShift={fetchedShift}
                   />
                 );
               }

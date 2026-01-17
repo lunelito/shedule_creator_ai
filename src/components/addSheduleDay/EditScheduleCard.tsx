@@ -8,6 +8,7 @@ import { InferSelectModel } from "drizzle-orm";
 import { employees, schedules_day } from "@/db/schema";
 import { deleteSingleScheduleDay } from "@/lib/actions/Schedule/deleteSingleScheduleDay";
 import PrimaryButton from "../UI/PrimaryButton";
+import DeleteIcon from "../UI/DeleteIcon";
 
 type AddSheduleCardType = {
   fetchedShift: ShiftFetched | undefined;
@@ -143,7 +144,7 @@ export default function EditScheduleCard({
 
   return (
     <div
-      className={`w-full p-5 border border-teal-600 rounded-lg ${
+      className={`w-full p-5 border border-teal-600 rounded-lg relative ${
         editShift?.start_hour == null ? "opacity-50" : ""
       }`}
     >
@@ -203,15 +204,17 @@ export default function EditScheduleCard({
                   {editShift?.end_hour - editShift?.start_hour}h
                 </span>
               </p>
-              {fetchedShift?.id && (
-                <PrimaryButton onClick={() => deleteDay(fetchedShift.id)}>
-                  delete
-                </PrimaryButton>
-              )}
             </div>
           )}
         </>
       </div>
+      {fetchedShift?.id && (
+        <DeleteIcon
+          onClick={() => deleteDay(fetchedShift.id)}
+          bgColor={"bg-teal-600"}
+          size="M"
+        />
+      )}
     </div>
   );
 }

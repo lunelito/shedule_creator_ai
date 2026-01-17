@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { time_off_requests } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-
 // there id is a employeeId
 export async function GET(
   request: NextRequest,
@@ -31,10 +30,6 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    console.log("params");
-    console.log(params);
-    console.log("body");
-    console.log(body);
     const updatedTimeOffRequest = await db
       .update(time_off_requests)
       .set({
@@ -56,6 +51,32 @@ export async function PUT(
     // console.log(error)
     return NextResponse.json(
       { error: "Failed to update time off request" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const deletedShiftTemplate = await db
+      .delete(time_off_requests)
+      .where(eq(time_off_requests.id, parseInt(params.id)))
+      .returning();
+    if (deletedShiftTemplate.length === 0)
+      return NextResponse.json(
+        { error: "Shift template not found" },
+        { status: 404 }
+      );
+    return NextResponse.json({
+      message: "Shift template deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { error: "Failed to delete shift template" },
       { status: 500 }
     );
   }

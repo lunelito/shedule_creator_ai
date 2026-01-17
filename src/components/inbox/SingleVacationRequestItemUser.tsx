@@ -72,8 +72,7 @@ export default function SingleVacationRequestItemUser({
                   : timeOffRequest.status === "waiting"
                   ? "bg-teal-600/20 text-teal-600 animate-pulse"
                   : "bg-red-600/20 text-red-600"
-              }
-`}
+              }`}
             >
               {timeOffRequest.status}
             </span>
