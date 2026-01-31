@@ -52,8 +52,9 @@ export default function EmployeeScheduleList({
     setTimeOffRequestsData,
   } = useAddScheduleFetch({scheduleId,selectedDate});
 
-  const { formatedData, getRemainingWeeklyHours, CheckIfCanWork, parseData } =
-    useScheduleLogic({ selectedDate, dataThreeMonthScheduleDayAllFetched });
+
+  const { formatedData, getRemainingWeeklyHours, CheckIfCantWork, parseData } =
+    useScheduleLogic({ dataThreeMonthScheduleDayAllFetched });
 
   return (
     <div className="p-10 w-full h-fit grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
@@ -90,7 +91,7 @@ export default function EmployeeScheduleList({
                 employeesTab={employeesTab}
                 employeeShifts={employeeShifts}
                 setEmployeeShifts={setEmployeeShifts}
-                CheckIfCanWork={CheckIfCanWork}
+                CheckIfCantWork={CheckIfCantWork}
                 setCantWork={setCantWork}
                 addShow={addShow}
                 emp={emp}

@@ -48,12 +48,14 @@ export default function DeleteIcon({
         onClick={onClick}
         className={`relative ${bgColor} ${button} rounded-full flex items-center justify-center cursor-pointer`}
       >
-        <Image
-          src={path}
-          alt="delete"
-          fill
-          className="object-contain scale-75"
-        />
+        <div className={`${bgColor === "bg-white" ? "invert" : ""}`}>
+          <Image
+            src={path}
+            alt="delete"
+            fill
+            className="object-contain scale-75"
+          />
+        </div>
       </button>
     </div>
   );

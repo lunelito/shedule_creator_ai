@@ -6,14 +6,12 @@ import { schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
 type useScheduleLogicType = {
-  selectedDate: Date;
   dataThreeMonthScheduleDayAllFetched: InferSelectModel<
     typeof schedules_day
   >[][];
 };
 
 export function useScheduleLogic({
-  selectedDate,
   dataThreeMonthScheduleDayAllFetched,
 }: useScheduleLogicType) {
   const formatedData = (baseDate: Date) => {
@@ -35,7 +33,12 @@ export function useScheduleLogic({
 
     return { monday, sunday };
   };
-  const CheckIfCanWork = (maxDays: number, empId: number): boolean | null => {
+
+  const CheckIfCantWork = (
+    maxDays: number,
+    empId: number,
+    selectedDate: Date,
+  ): boolean | null => {
     if (maxDays === 0) return false;
 
     const dataAll = dataThreeMonthScheduleDayAllFetched.flat();
@@ -87,6 +90,7 @@ export function useScheduleLogic({
 
     return maxConsecutive >= maxDays;
   };
+
   const getRemainingWeeklyHours = (
     empId: number,
     contractedHoursPerWeek: number,
@@ -137,7 +141,7 @@ export function useScheduleLogic({
   return {
     formatedData,
     getRemainingWeeklyHours,
-    CheckIfCanWork,
+    CheckIfCantWork,
     parseData,
   };
 }

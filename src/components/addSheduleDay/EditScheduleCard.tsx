@@ -24,14 +24,18 @@ type AddSheduleCardType = {
   setDataThreeMonthScheduleDayAllFetched: React.Dispatch<
     SetStateAction<InferSelectModel<typeof schedules_day>[][]>
   >;
-  CheckIfCanWork: (maxDays: number, empId: number) => boolean | null;
+  CheckIfCantWork: (
+    maxDays: number,
+    empId: number,
+    selectedDate: Date,
+  ) => boolean | null;
   setCantWork: React.Dispatch<
     React.SetStateAction<Record<number, boolean | null>>
   >;
   getRemainingWeeklyHours: (
     empId: number,
     contractedHoursPerWeek: number,
-    selectedDate: Date
+    selectedDate: Date,
   ) => number;
   setEmployeeShifts: React.Dispatch<React.SetStateAction<EmployeeShift[]>>;
   employeesTab: InferSelectModel<typeof employees>[];
@@ -48,7 +52,7 @@ export default function EditScheduleCard({
   selectedDate,
   employeeShifts,
   setCantWork,
-  CheckIfCanWork,
+  CheckIfCantWork,
   setEmployeeShifts,
   setEditleShow,
   setError,
@@ -60,7 +64,7 @@ export default function EditScheduleCard({
   const handleTimeChange = (
     employeeId: number,
     type: "start" | "end",
-    hour: number
+    hour: number,
   ) => {
     setEditFetchedShiftsData((prev) => {
       return prev.map((s) => {
@@ -88,9 +92,10 @@ export default function EditScheduleCard({
     const employee = employeesTab.find((emp) => emp.id === employeeId);
     console.log(employee);
     if (employee) {
-      const cantWorkResult = CheckIfCanWork(
+      const cantWorkResult = CheckIfCantWork(
         employee.max_consecutive_days || 0,
-        employeeId
+        employeeId,
+        new Date(selectedDate),
       );
 
       console.log(cantWorkResult);
@@ -104,8 +109,8 @@ export default function EditScheduleCard({
         prev.map((shift) =>
           shift.employee_id === employeeId
             ? { ...shift, cantWork: cantWorkResult }
-            : shift
-        )
+            : shift,
+        ),
       );
     }
   };
@@ -121,7 +126,7 @@ export default function EditScheduleCard({
           const waitForStateUpdate = async () => {
             setDataThreeMonthScheduleDayAllFetched((prev) => {
               const updated = prev.map((monthArray) =>
-                monthArray.filter((shift) => shift.id !== id)
+                monthArray.filter((shift) => shift.id !== id),
               );
               return updated;
             });
@@ -177,7 +182,7 @@ export default function EditScheduleCard({
                 from={0}
                 to={Math.min(
                   editShift?.end_hour ?? 24,
-                  (editShift?.start_hour ?? 0) + 12
+                  (editShift?.start_hour ?? 0) + 12,
                 )}
                 orientation="horizontal"
                 title=""

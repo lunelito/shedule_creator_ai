@@ -20,6 +20,7 @@ import RowCalendar from "@/components/SchedulesPage/Calendars/RowCalendar";
 import EmployeeWork from "@/components/SchedulesPage/Schedule/EmployeeWork";
 import { useEmployeeDataContext } from "@/context/employeeContext";
 import VacationRequestContainer from "@/components/SchedulesPage/Vacations/VacationRequestContainerAdmin";
+import { useScheduleFetch } from "@/lib/hooks/useScheduleFetch";
 
 export default function Page() {
   const params = useParams();
@@ -27,85 +28,28 @@ export default function Page() {
   const scheduleId = params.scheduleId;
   const pathname = usePathname();
   const organizationId = pathname.split("/")[3];
-  const [employeeLogInRole, setEmployeeLogInRole] = useState("");
-  const [employeesTab, setEmployeesTab] = useState<
-    InferSelectModel<typeof employees>[]
-  >([]);
-  const [timeOffRequestsData, setTimeOffRequestsData] = useState<
-    InferSelectModel<typeof time_off_requests>[]
-  >([]);
   const [error, setError] = useState("");
 
-  const { role, isPendingEmployee, dataEmployee } = useEmployeeDataContext();
-  const { userData, isPending } = useUserDataContext();
+  const { role, isPendingEmployee, dataEmployee, errorEmployee } =
+    useEmployeeDataContext();
+
+  const { userData, isPending, error: errorUser } = useUserDataContext();
 
   const {
-    data: dataSchedule,
-    isPending: isPendingSchedule,
-    error: errorSchedule,
-  } = useFetch<InferSelectModel<typeof schedules>>(
-    `/api/schedules/${scheduleId}`
-  );
+    employeesTabFetched,
+    timeOffRequestsDataFetched,
+    dataScheduleFetched,
+    dataSingleScheduleDayFetched,
+    isPending: isPendingFetch,
+    error: errorFetch,
+    setTimeOffRequestsDataFetched,
+  } = useScheduleFetch({ scheduleId: Number(scheduleId) });
 
-  const {
-    data: dataEmployees,
-    isPending: isPendingEmployees,
-    error: errorEmployees,
-  } = useFetch<InferSelectModel<typeof employees>[]>(
-    `/api/employees?id=${scheduleId}`
-  );
-
-  const {
-    data: dataSingleScheduleDay,
-    isPending: isPendingSingleScheduleDay,
-    error: errorSingleScheduleDay,
-  } = useFetch<InferSelectModel<typeof schedules_day>[]>(
-    `/api/schedules_day/${scheduleId}`
-  );
-
-  const {
-    data: dataTimeOffRequests,
-    isPending: isTimeOffRequests,
-    error: errorTimeOffRequests,
-  } = useFetch<InferSelectModel<typeof time_off_requests>[]>(
-    `/api/time-off-request/${scheduleId}`
-  );
-
-  useEffect(() => {
-    if (role) {
-      setEmployeeLogInRole(role);
-    }
-  }, [role]);
-
-  useEffect(() => {
-    if (dataTimeOffRequests) {
-      setTimeOffRequestsData(dataTimeOffRequests);
-    }
-  }, [dataTimeOffRequests]);
-
-  useEffect(() => {
-    if (dataEmployees) {
-      setEmployeesTab(dataEmployees);
-      localStorage.setItem("employeesTab", JSON.stringify(dataEmployees));
-    }
-  }, [dataEmployees]);
-
-  if (
-    isPendingSchedule ||
-    isPendingEmployees ||
-    isPendingSingleScheduleDay ||
-    isPending ||
-    isPendingEmployee ||
-    !dataSchedule ||
-    !dataEmployees ||
-    !dataSingleScheduleDay ||
-    !dataEmployee ||
-    !userData
-  ) {
+  if (isPendingFetch || isPending || isPendingEmployee || !role || !userData) {
     return <Loader />;
   }
 
-  if (errorSchedule || errorEmployees || errorSingleScheduleDay) {
+  if (errorFetch || errorEmployee || errorUser) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading schedule</p>
@@ -126,38 +70,38 @@ export default function Page() {
       <DashboardHeader
         error={error}
         onClick={() => router.back()}
-        title={dataSchedule.name}
+        title={dataScheduleFetched.name}
       />
       <RenderAnimation animationKey={"AddPage"}>
         <div className="w-full flex flex-col items-center h-full p-10">
           <RowCalendar
-            timeOffRequestsData={timeOffRequestsData}
+            timeOffRequestsData={timeOffRequestsDataFetched}
             organizationId={organizationId}
-            dataSingleScheduleDay={dataSingleScheduleDay}
-            employeesTab={employeesTab}
+            dataSingleScheduleDay={dataSingleScheduleDayFetched}
+            employeesTab={employeesTabFetched}
             scheduleId={scheduleId}
           />
           <EmployeeWork
-            employeeLogInRole={employeeLogInRole}
-            dataSingleScheduleDay={dataSingleScheduleDay}
-            employeesTab={employeesTab}
+            employeeLogInRole={role}
+            dataSingleScheduleDay={dataSingleScheduleDayFetched}
+            employeesTab={employeesTabFetched}
           />
           <ClassicCalendar
             scheduleId={scheduleId}
             organizationId={organizationId}
           />
           <VacationRequestContainer
-            timeOffRequestsData={timeOffRequestsData}
-            setTimeOffRequestsData={setTimeOffRequestsData}
+            timeOffRequestsData={timeOffRequestsDataFetched}
+            setTimeOffRequestsData={setTimeOffRequestsDataFetched}
             scheduleId={scheduleId}
-            employeesTab={employeesTab}
+            employeesTab={employeesTabFetched}
             setError={setError}
             userId={userData.id}
           />
           <EmployeesDatalist
             scheduleId={scheduleId}
-            employeesTab={employeesTab}
-            employeeLogInRole={employeeLogInRole}
+            employeesTab={employeesTabFetched}
+            employeeLogInRole={role}
           />
         </div>
       </RenderAnimation>

@@ -15,12 +15,17 @@ import VacationRequestContainer from "@/components/SchedulesPage/Vacations/Vacat
 import VacationRequestContainerUser from "@/components/SchedulesPage/Vacations/VacationRequestContainerUser";
 import { useEmployeeDataContext } from "@/context/employeeContext";
 import { useEmployeeFetch } from "@/lib/hooks/useEmployeeFetch";
+import RowCalendarWithSwap from "@/components/SchedulesPage/Calendars/RowCalendarWithSwap";
+import { useAddScheduleFetch } from "@/lib/hooks/useAddScheduleFetch";
+import { useScheduleFetch } from "@/lib/hooks/useScheduleFetch";
+import Image from "next/image";
 
 export default function page() {
   const params = useParams();
   const router = useRouter();
   const employeeId = params.employeeId;
   const scheduleId = params.scheduleId;
+  const [timeOffCalendarShow, setTimeOffCalendarShow] = useState<boolean>();
 
   const { role, isPendingEmployee } = useEmployeeDataContext();
 
@@ -43,7 +48,14 @@ export default function page() {
     employeeId: Number(employeeId),
   });
 
-  if (errorFetch) {
+  const {
+    employeesTabFetched,
+    dataSingleScheduleDayFetched,
+    isPending: isPendingFetch,
+    error: errorFetchSchedule,
+  } = useScheduleFetch({ scheduleId: Number(scheduleId) });
+
+  if (errorFetch || errorFetchSchedule || !employeeId) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <p className="text-red-500">Error loading employee data</p>
@@ -51,7 +63,13 @@ export default function page() {
     );
   }
 
-  if (isPending || isPendingEmployee|| !role) {
+  if (
+    isPending ||
+    isPendingEmployee ||
+    !role ||
+    isPendingFetch ||
+    !employeeId
+  ) {
     return <Loader />;
   }
 
@@ -69,15 +87,53 @@ export default function page() {
           dataEmployees={employeesFetched}
           setError={setError}
         />
-        <ClassicCalendarEmployeeSchifts
-          dataSingleScheduleDayOfEmployee={singleScheduleDayFetched}
-          employeeId={employeeId}
-          scheduleId={scheduleId}
-          timeOffRequestsData={timeOffRequestsFetched}
-          setTimeOffRequestsData={setTimeOffRequestsFetched}
-          setError={setError}
-          role={role}
-        />
+        <div className="flex flex-col justify-center items-center">
+          <button
+            className="hover:scale-105 transition ease-in-out"
+            onClick={() => setTimeOffCalendarShow(true)}
+          >
+            <Image
+              className="invert"
+              src={"/icons/arrowIcon.svg"}
+              alt="arrow"
+              width={50}
+              height={50}
+            />
+          </button>
+          {timeOffCalendarShow ? (
+            <RowCalendarWithSwap
+              threeMonthScheduleDayAllFetched={threeMonthScheduleDayAllFetched}
+              employeeId={employeeId}
+              role={role}
+              dataSingleScheduleDay={dataSingleScheduleDayFetched}
+              timeOffRequestsData={timeOffRequestsFetched}
+              employeesTabFetched={employeesTabFetched}
+              setError={setError}
+            />
+          ) : (
+            <ClassicCalendarEmployeeSchifts
+              dataSingleScheduleDayOfEmployee={singleScheduleDayFetched}
+              employeeId={employeeId}
+              scheduleId={scheduleId}
+              timeOffRequestsData={timeOffRequestsFetched}
+              setTimeOffRequestsData={setTimeOffRequestsFetched}
+              setError={setError}
+              role={role}
+            />
+          )}
+          <button
+            className="hover:scale-105 rotate-180 transition ease-in-out"
+            onClick={() => setTimeOffCalendarShow(false)}
+          >
+            <Image
+              className="invert"
+              src={"/icons/arrowIcon.svg"}
+              alt="arrow"
+              width={50}
+              height={50}
+            />
+          </button>
+        </div>
         {/* center it */}
         <VacationRequestContainerUser
           timeOffRequestsData={timeOffRequestsFetched}

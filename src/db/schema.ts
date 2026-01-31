@@ -59,6 +59,8 @@ export const roles = pgEnum("roles", [
   "employee",
 ]);
 
+export const scheduleKind = pgEnum("schedule_kind", ["schedule", "time_off"]);
+
 export const status = pgEnum("roles", ["declined", "accepted", "waiting"]);
 
 export const organizations = pgTable("organizations", {
@@ -148,7 +150,7 @@ export const employees = pgTable("employees", {
   role: roles("role").notNull(),
   max_consecutive_days: integer("max_consecutive_days").default(7).notNull(),
   assigned_to_schedule: integer("assigned_to_schedule").references(
-    () => schedules.id
+    () => schedules.id,
   ),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
@@ -236,6 +238,22 @@ export const availability = pgTable("availability", {
   note: text("note"),
 });
 
+export const schedule_swap_requests = pgTable("schedule_swap_requests", {
+  id: serial("id").primaryKey(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  status: status("status").default("waiting"),
+  schedule_id_recive: integer("schedule_id_recive"),
+  schedule_kind_recive: text("schedule_kind_recive"),
+  schedule_kind_request: text("schedule_kind_request"),
+  schedule_id_request: integer("schedule_id_request"),
+  employee_id_recive: integer("employee_id_recive").references(
+    () => employees.id,
+  ),
+  employee_id_request: integer("employee_id_request").references(
+    () => employees.id,
+  ),
+});
+
 export const time_off_requests = pgTable("time_off_requests", {
   id: serial("id").primaryKey(),
   employee_id: integer("employee_id")
@@ -257,7 +275,7 @@ export const time_off_requests = pgTable("time_off_requests", {
   hours_scheduled: numeric("hours_scheduled"),
   is_scheduled: boolean("is_scheduled"),
   schedule_day_id: integer("schedule_day_id").references(
-    () => schedules_day.id
+    () => schedules_day.id,
   ),
 });
 
@@ -276,7 +294,7 @@ export const schedules_day = pgTable("schedules_day", {
   id: serial("id").primaryKey(),
   template_id: integer("template_id").references(() => schedules.id),
   assigned_employee_id: integer("assigned_employee_id").references(
-    () => employees.id
+    () => employees.id,
   ),
   start_at: timestamp("start_at").notNull(),
   end_at: timestamp("end_at").notNull(),
@@ -316,7 +334,7 @@ export const shift_swaps = pgTable("shift_swaps", {
     .references(() => employees.id)
     .notNull(),
   offered_employee_id: integer("offered_employee_id").references(
-    () => employees.id
+    () => employees.id,
   ),
   status: varchar("status", { length: 60 }).notNull().default("pending"),
   created_at: timestamp("created_at").defaultNow().notNull(),

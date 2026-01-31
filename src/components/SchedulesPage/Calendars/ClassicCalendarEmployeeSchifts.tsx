@@ -165,7 +165,7 @@ export default function ClassicCalendarEmployeeSchifts({
         <div className="flex justify-center items-center gap-10">
           <div
             ref={calendarRef}
-            className="grid grid-cols-7 gap-2 w-[80vw] max-w-4xl bg-teal-600 p-4 rounded-lg"
+            className="grid grid-cols-7 gap-2 w-[60vw] bg-teal-600 p-4 rounded-lg"
           >
             {daysOfWeek.map((el, i) => (
               <div
@@ -181,7 +181,7 @@ export default function ClassicCalendarEmployeeSchifts({
               }
 
               const daySchedule = parsedDataSingleScheduleDayOfEmployee.find(
-                (d) => d.date === el
+                (d) => d.date === el,
               );
 
               const dayVacation = vacations.find((d) => d.date === el);
@@ -213,13 +213,13 @@ export default function ClassicCalendarEmployeeSchifts({
                           date: el,
                           type: vacationType,
                           isScheduled: !!daySchedule,
-                          scheduledHours: daySchedule ? hoursNum ?? 0 : 0,
+                          scheduledHours: daySchedule ? (hoursNum ?? 0) : 0,
                           schedule_day_id: daySchedule ? daySchedule.id : null,
                         },
                       ]);
                     } else if (dayVacation && !timeOffForDay) {
                       setVacations((prev) =>
-                        prev.filter((v) => v.date !== dayVacation.date)
+                        prev.filter((v) => v.date !== dayVacation.date),
                       );
                     }
                   }}
@@ -227,25 +227,25 @@ export default function ClassicCalendarEmployeeSchifts({
                     timeOffForDay?.status === "waiting"
                       ? "bg-white text-teal-600 animate-pulse"
                       : daySchedule
-                      ? "bg-teal-600 text-white border-2"
-                      : "bg-white text-teal-600"
+                        ? "bg-teal-600 text-white border-2"
+                        : "bg-white text-teal-600"
                   }`}
                 >
                   <p className="text-sm">
                     {timeOffForDay
                       ? getInitials(timeOffForDay.type, "_")
                       : dayVacation
-                      ? dayVacation.type
-                      : daySchedule
-                      ? daySchedule.hours
-                      : ""}
+                        ? dayVacation.type
+                        : daySchedule
+                          ? daySchedule.hours
+                          : ""}
                   </p>
                   {dayVacation && (
                     <div className="absolute -top-2 -left-2 ">
                       <button
                         onClick={() =>
                           setVacations((prev) =>
-                            prev.filter((el) => el.date !== dayVacation.date)
+                            prev.filter((el) => el.date !== dayVacation.date),
                           )
                         }
                         className=" cursor-pointer relative bg-white border-teal-600 border-1 h-4 w-4 rounded-full flex items-center justify-center"

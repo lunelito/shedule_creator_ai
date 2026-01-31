@@ -14,6 +14,7 @@ import { useScheduleLogic } from "@/lib/hooks/useScheduleLogic";
 import EmployeeScheduleList from "@/components/addSheduleDay/EmployeeScheduleList";
 import ScheduleActions from "@/components/addSheduleDay/ScheduleActions";
 import { useAddScheduleFetch } from "@/lib/hooks/useAddScheduleFetch";
+import { useScheduleFetch } from "@/lib/hooks/useScheduleFetch";
 
 type Shift = {
   status: "published" | "draft" | "cancelled" | "completed";
@@ -51,7 +52,7 @@ export default function AddScheduleDay() {
   const scheduleId = searchParams.get("schedule_id");
   const organizationId = searchParams.get("organization_id");
   const employeeId = searchParams.get("employeeId");
-  
+
   const selectedDate = dateParam ? new Date(dateParam) : new Date();
   const [error, setError] = useState("");
   const [employeesTab, setEmployeesTab] = useState<
@@ -76,8 +77,12 @@ export default function AddScheduleDay() {
     isPending: isPendingFetch,
   } = useAddScheduleFetch({ selectedDate, scheduleId });
 
-  const { formatedData, getRemainingWeeklyHours, CheckIfCanWork, parseData } =
-    useScheduleLogic({ selectedDate, dataThreeMonthScheduleDayAllFetched });
+  const { employeesTabFetched } = useScheduleFetch({
+    scheduleId: Number(scheduleId),
+  });
+
+  const { formatedData, getRemainingWeeklyHours, CheckIfCantWork, parseData } =
+    useScheduleLogic({ dataThreeMonthScheduleDayAllFetched });
 
   const fillShifts = () => {
     const currentUserId = userData?.id;
@@ -115,58 +120,49 @@ export default function AddScheduleDay() {
   };
 
   const getDataFromLocalHost = () => {
-    try {
-      const storedEmployees = localStorage.getItem("employeesTab");
-      if (storedEmployees) {
-        const parsedEmployees: InferSelectModel<typeof employees>[] =
-          JSON.parse(storedEmployees);
+    const cantWorkMap: Record<number, boolean | null> = {};
+    const initialShifts: EmployeeShift[] = employeesTabFetched.map((emp) => {
+      const cantWorkResult = CheckIfCantWork(
+        emp.max_consecutive_days,
+        emp.id as number,
+        new Date(selectedDate)
+      );
 
-        const cantWorkMap: Record<number, boolean | null> = {};
-        const initialShifts: EmployeeShift[] = parsedEmployees.map((emp) => {
-          const cantWorkResult = CheckIfCanWork(
-            emp.max_consecutive_days,
-            emp.id as number,
-          );
+      const howManyHoursLeft = getRemainingWeeklyHours(
+        emp.id as number,
+        Number(emp.contracted_hours_per_week),
+        selectedDate,
+      );
 
-          const howManyHoursLeft = getRemainingWeeklyHours(
-            emp.id as number,
-            Number(emp.contracted_hours_per_week),
-            selectedDate,
-          );
+      cantWorkMap[emp.id as number] = cantWorkResult;
 
-          cantWorkMap[emp.id as number] = cantWorkResult;
+      return {
+        employee_id: emp.id as number,
+        user_id: emp.user_id,
+        start_hour: 8,
+        selected: false,
+        end_hour: 8,
+        cantWork: cantWorkResult,
+        remainingWeeklyHours: howManyHoursLeft,
+      };
+    });
 
-          return {
-            employee_id: emp.id as number,
-            user_id: emp.user_id,
-            start_hour: 8,
-            selected: false,
-            end_hour: 8,
-            cantWork: cantWorkResult,
-            remainingWeeklyHours: howManyHoursLeft,
-          };
-        });
+    setCantWork(cantWorkMap);
 
-        setCantWork(cantWorkMap);
-
-        if (employeeId) {
-          setEmployeeShifts(
-            initialShifts.filter(
-              (el) => Number(el.employee_id) === Number(employeeId),
-            ),
-          );
-          setEmployeesTab(
-            parsedEmployees.filter(
-              (el) => Number(el.id) === Number(employeeId),
-            ),
-          );
-        } else {
-          setEmployeesTab(parsedEmployees);
-          setEmployeeShifts(initialShifts);
-        }
-      }
-    } catch (error) {
-      console.error("Error parsing localStorage data:", error);
+    if (employeeId) {
+      setEmployeeShifts(
+        initialShifts.filter(
+          (el) => Number(el.employee_id) === Number(employeeId),
+        ),
+      );
+      setEmployeesTab(
+        employeesTabFetched.filter(
+          (el) => Number(el.id) === Number(employeeId),
+        ),
+      );
+    } else {
+      setEmployeesTab(employeesTabFetched);
+      setEmployeeShifts(initialShifts);
     }
   };
 
@@ -229,6 +225,7 @@ export default function AddScheduleDay() {
 
       const formData = new FormData();
       formData.append("shifts", JSON.stringify(data));
+
       try {
         const result = await editSingleSheduleDay({ errors: {} }, formData);
         if (result.success && result.schedulesDays?.shifts) {
@@ -253,10 +250,10 @@ export default function AddScheduleDay() {
   };
 
   useEffect(() => {
-    if (dataThreeMonthScheduleDayAllFetched.length !== 0) {
+    if (employeesTabFetched && dataThreeMonthScheduleDayAllFetched) {
       getDataFromLocalHost();
     }
-  }, [dataThreeMonthScheduleDayAllFetched]);
+  }, [employeesTabFetched, dataThreeMonthScheduleDayAllFetched]);
 
   useEffect(() => {
     if (shiftsDataFetched) {
