@@ -5,10 +5,10 @@ import { eq, like } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { email: string } }
+  { params }: { params: Promise<{ email: string }> },
 ) {
   try {
-    const email = params.email;
+    const { email } = await params;
 
     const user = await db
       .select()
@@ -21,7 +21,7 @@ export async function GET(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -5,10 +5,10 @@ import { eq, and, like } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ schedule_id: string }> }
+  { params }: { params: Promise<{ schedule_id: string }> },
 ) {
   try {
-    const { schedule_id: schedule_id } = await params;
+    const { schedule_id } = await params;
     const { searchParams } = new URL(request.url);
     const presentMonth = searchParams.get("presentMonth");
     const pastMonth = searchParams.get("pastMonth");
@@ -24,11 +24,11 @@ export async function GET(
                 .where(
                   and(
                     eq(schedules_day.template_id, parseInt(schedule_id)),
-                    like(schedules_day.date, month.slice(0, 7) + "%")
-                  )
+                    like(schedules_day.date, month.slice(0, 7) + "%"),
+                  ),
                 )
-            : Promise.resolve([])
-        )
+            : Promise.resolve([]),
+        ),
       );
       return NextResponse.json(results);
     } else {
@@ -41,23 +41,24 @@ export async function GET(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch schedules day" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { schedule_id: string } }
+  { params }: { params: Promise<{ schedule_id: string }> },
 ) {
   try {
+    const { schedule_id } = await params;
     const deletedShiftTemplate = await db
       .delete(schedules_day)
-      .where(eq(schedules_day.id, parseInt(params.schedule_id)))
+      .where(eq(schedules_day.id, parseInt(schedule_id)))
       .returning();
     if (deletedShiftTemplate.length === 0)
       return NextResponse.json(
         { error: "Shift template not found" },
-        { status: 404 }
+        { status: 404 },
       );
     return NextResponse.json({
       message: "Shift template deleted successfully",
@@ -66,7 +67,7 @@ export async function DELETE(
     console.log(error);
     return NextResponse.json(
       { error: "Failed to delete shift template" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

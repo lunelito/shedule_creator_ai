@@ -5,11 +5,12 @@ import { eq, and } from "drizzle-orm";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id: paramId } = await params;
     const body = await request.json();
-    const id = parseInt(params.id);
+    const id = parseInt(paramId);
 
     const updatedEmployee = await db
       .update(employees)
@@ -20,7 +21,7 @@ export async function POST(
     if (updatedEmployee.length === 0) {
       return NextResponse.json(
         { error: "Employee not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -28,17 +29,18 @@ export async function POST(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update employee" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: paramId } = await params;
+    const id = parseInt(paramId);
     const updatedEmployee = await db
       .update(employees)
       .set({
@@ -50,13 +52,13 @@ export async function DELETE(
     if (updatedEmployee.length === 0)
       return NextResponse.json(
         { error: "Employee not found" },
-        { status: 404 }
+        { status: 404 },
       );
     return NextResponse.json(updatedEmployee[0]);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update employee" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

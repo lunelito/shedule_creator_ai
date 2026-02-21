@@ -5,24 +5,19 @@ import { eq, and } from "drizzle-orm";
 
 export async function DELETE(
   request: NextRequest,
-  {
-    params,
-  }: {
-    params: {
-      schedule_id: string;
-      id: string;
-    };
-  }
+
+  { params }: { params: Promise<{ schedule_id: string; id: string }> },
 ) {
   try {
-    const scheduleId = Number(params.schedule_id);
-    const userId = Number(params.id);
-    console.log("DOTARŁEM")
+    const { schedule_id, id } = await params;
+    const scheduleIdNum = Number(schedule_id);
+    const userIdNum = Number(id);
+    console.log("DOTARŁEM");
 
-    if (isNaN(scheduleId) || isNaN(userId)) {
+    if (isNaN(scheduleIdNum) || isNaN(userIdNum)) {
       return NextResponse.json(
         { error: "Invalid params, debilu" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -30,16 +25,16 @@ export async function DELETE(
       .delete(employees)
       .where(
         and(
-          eq(employees.assigned_to_schedule, scheduleId),
-          eq(employees.user_id, userId)
-        )
+          eq(employees.assigned_to_schedule, scheduleIdNum),
+          eq(employees.user_id, userIdNum),
+        ),
       )
       .returning();
 
     if (deletedEmployee.length === 0) {
       return NextResponse.json(
         { error: "Employee not found, nic nie skasowano" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -48,7 +43,7 @@ export async function DELETE(
     console.error(error);
     return NextResponse.json(
       { error: "Serwer się zesrał przy DELETE" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

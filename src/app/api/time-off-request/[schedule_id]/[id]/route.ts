@@ -6,13 +6,14 @@ import { eq, and } from "drizzle-orm";
 // there id is a employeeId
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const timeOffRequest = await db
       .select()
       .from(time_off_requests)
-      .where(eq(time_off_requests.employee_id, parseInt(params.id)));
+      .where(eq(time_off_requests.employee_id, parseInt(id)));
     return NextResponse.json(timeOffRequest);
   } catch (error) {
     console.log(error);
@@ -26,9 +27,10 @@ export async function GET(
 // there id is a id
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const updatedTimeOffRequest = await db
       .update(time_off_requests)
@@ -39,7 +41,7 @@ export async function PUT(
         approved_at: new Date(),
         schedule_day_id: null,
       })
-      .where(eq(time_off_requests.id, parseInt(params.id)))
+      .where(eq(time_off_requests.id, parseInt(id)))
       .returning();
     if (updatedTimeOffRequest.length === 0)
       return NextResponse.json(
@@ -58,12 +60,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const deletedShiftTemplate = await db
       .delete(time_off_requests)
-      .where(eq(time_off_requests.id, parseInt(params.id)))
+      .where(eq(time_off_requests.id, parseInt(id)))
       .returning();
     if (deletedShiftTemplate.length === 0)
       return NextResponse.json(

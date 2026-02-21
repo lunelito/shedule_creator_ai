@@ -29,14 +29,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: userId } = await params;
     const body = await request.json();
     const updatedShiftTemplate = await db
       .update(schedules)
       .set(body)
-      .where(eq(schedules.id, parseInt(params.id)))
+      .where(eq(schedules.id, parseInt(userId)))
       .returning();
     if (updatedShiftTemplate.length === 0)
       return NextResponse.json(
@@ -54,13 +55,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log("TU TEZ DOTARLEm")
   try {
+    const { id: userId } = await params;
     const deletedShiftTemplate = await db
       .delete(schedules)
-      .where(eq(schedules.id, parseInt(params.id)))
+      .where(eq(schedules.id, parseInt(userId)))
       .returning();
     if (deletedShiftTemplate.length === 0)
       return NextResponse.json(

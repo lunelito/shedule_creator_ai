@@ -5,34 +5,34 @@ import { eq } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const user = await db
       .select()
       .from(users)
-      .where(eq(users.id, parseInt(params.id)));
+      .where(eq(users.id, parseInt(id)));
     if (user.length === 0)
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     return NextResponse.json(user[0]);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const body = await request.json();
 
-    const parameters = await params
-    const { id } = parameters;
-    
+    const { id } = await params;
+
     const updatedUser = await db
       .update(users)
       .set(body)
@@ -44,19 +44,20 @@ export async function PUT(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const deletedUser = await db
       .delete(users)
-      .where(eq(users.id, parseInt(params.id)))
+      .where(eq(users.id, parseInt(id)))
       .returning();
     if (deletedUser.length === 0)
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -64,7 +65,7 @@ export async function DELETE(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to delete user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

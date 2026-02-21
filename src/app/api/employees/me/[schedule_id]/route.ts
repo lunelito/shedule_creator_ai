@@ -8,24 +8,26 @@ import { eq, and } from "drizzle-orm";
 // The function parameter should be a context object containing params
 export async function GET(
   request: Request,
-  { params }: { params: { schedule_id: string } }
+  { params }: { params: Promise<{ schedule_id: string }> },
 ) {
   try {
+    const { schedule_id: paramsSchedule_id } = await params;
+
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("Schedule ID:", params.schedule_id);
-    const schedule_id = Number(params.schedule_id);
+    console.log("Schedule ID:", paramsSchedule_id);
+    const schedule_id = Number(paramsSchedule_id);
     console.log("Schedule ID:", schedule_id);
 
     const userIdStr = (session.user as any).id;
     if (!userIdStr) {
       return NextResponse.json(
         { error: "User ID not found in session" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,12 +42,12 @@ export async function GET(
       .where(
         and(
           eq(employees.user_id, userId),
-          eq(employees.assigned_to_schedule, schedule_id)
-        )
+          eq(employees.assigned_to_schedule, schedule_id),
+        ),
       )
       .limit(1)
       .then((r) => r[0]);
-      
+
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -55,7 +57,7 @@ export async function GET(
     console.error("Failed to fetch user:", error);
     return NextResponse.json(
       { error: "Failed to fetch user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
