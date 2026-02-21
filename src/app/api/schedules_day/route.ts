@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     if (!schedule_id || !date) {
       return NextResponse.json(
         { error: "Missing schedule_id or date" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
       .where(
         and(
           eq(schedules_day.template_id, parseInt(schedule_id)),
-          eq(schedules_day.date, date)
-        )
+          eq(schedules_day.date, date),
+        ),
       );
 
     return NextResponse.json(allSchedules_day);
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     console.error(error);
     return NextResponse.json(
       { error: "Failed to fetch schedules" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,9 +42,15 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(body.shifts) || body.shifts.length === 0) {
       return NextResponse.json(
         { error: "No shifts provided." },
-        { status: 400 }
+        { status: 400 },
       );
     }
+
+
+    body.shifts.map((shift: any) => {
+      console.log(typeof shift.start_at);
+      console.log(shift.start_at);
+    });
 
     const insertValues = body.shifts.map((shift: any) => ({
       template_id: shift.template_id ?? null,
@@ -68,12 +74,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: true, shifts: insertedShifts },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Failed to create schedule." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -86,7 +92,7 @@ export async function PUT(request: NextRequest) {
     if (!Array.isArray(body.shifts) || body.shifts.length === 0) {
       return NextResponse.json(
         { error: "No shifts provided." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -96,7 +102,7 @@ export async function PUT(request: NextRequest) {
       if (!shift.id) {
         return NextResponse.json(
           { error: "Shift id is required for update." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -121,12 +127,12 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(
       { success: true, shifts: updatedShifts },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Failed to update schedule." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -16,8 +16,8 @@ type UseScheduleFetchProps = {
 export type scheduleSwapRequestsFetchedType = {
   employeeRecive: InferSelectModel<typeof employees>;
   employeeRequest: InferSelectModel<typeof employees>;
-  scheduleDayRecive: InferSelectModel<typeof schedules_day>;
-  scheduleDayRequest: InferSelectModel<typeof schedules_day>;
+  scheduleDayRecive: InferSelectModel<typeof schedules_day> | null;
+  scheduleDayRequest: InferSelectModel<typeof schedules_day> | null;
   scheduleSwapRequest: InferSelectModel<typeof schedule_swap_requests>;
 };
 

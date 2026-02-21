@@ -2,6 +2,8 @@ import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 import React, { SetStateAction } from "react";
 import SingleScheduleSwapRequestItemAdmin from "./SingleScheduleSwapRequestItemAdmin";
 import { editScheduleSwap } from "@/lib/actions/ScheduleSwap/editScheduleSwap";
+import { InferSelectModel } from "drizzle-orm";
+import { schedules_day } from "@/db/schema";
 
 type ScheduleSwapRequestContainerAdminType = {
   setScheduleSwapRequestsFetched: React.Dispatch<
@@ -9,19 +11,23 @@ type ScheduleSwapRequestContainerAdminType = {
   >;
   scheduleSwapRequestsFetched: scheduleSwapRequestsFetchedType[];
   setError: React.Dispatch<SetStateAction<string>>;
+  setDataSingleScheduleDayFetched: React.Dispatch<
+    SetStateAction<InferSelectModel<typeof schedules_day>[]>
+  >;
 };
 
 export default function ScheduleSwapRequestContainerAdmin({
   setScheduleSwapRequestsFetched,
   scheduleSwapRequestsFetched,
   setError,
+  setDataSingleScheduleDayFetched,
 }: ScheduleSwapRequestContainerAdminType) {
   const ChangeDecision = async (
-    decison: string,
+    decision: string,
     scheduleSwapRequest: scheduleSwapRequestsFetchedType,
-    rejectReasion?: string,
+    rejectReason?: string,
   ) => {
-    if (rejectReasion?.length === 0 && decison == "declined") {
+    if (decision === "declined" && !rejectReason?.trim()) {
       setError("Please give us rejection reason");
       return;
     }
@@ -29,67 +35,94 @@ export default function ScheduleSwapRequestContainerAdmin({
     if (!scheduleSwapRequest) return;
 
     try {
-      const formData = new FormData();
-
-      Object.entries(scheduleSwapRequest).forEach(([key, value]) => {
-        formData.append(key + "Id", value?.id?.toString() ?? "timeOff");
-      });
-
-      formData.append("status", decison);
-
-      if (rejectReasion) {
-        formData.append("rejectReasion", rejectReasion);
-      }
-
-      console.log(scheduleSwapRequest)
-
       const switchScheduleSchiftRecive = {
-        scheduleDayId: scheduleSwapRequest.scheduleDayRecive?.id || null,
+        scheduleDayId: scheduleSwapRequest.scheduleDayRecive?.id ?? null,
         employeeId: scheduleSwapRequest.employeeRecive.id,
-        scheduleDay: scheduleSwapRequest.scheduleDayRecive,
-        scheduleDaySwitched: {
-          ...scheduleSwapRequest.scheduleDayRequest,
-          assigned_employee_id: scheduleSwapRequest.employeeRequest.id,
-        },
       };
-
-      
-      formData.append(
-        "switchScheduleSchiftRecive",
-        JSON.stringify(switchScheduleSchiftRecive),
-      );
 
       const switchScheduleSchiftRequest = {
-        scheduleDayId: scheduleSwapRequest.scheduleDayRequest?.id || null,
+        scheduleDayId: scheduleSwapRequest.scheduleDayRequest?.id ?? null,
         employeeId: scheduleSwapRequest.employeeRequest.id,
-        scheduleDay: scheduleSwapRequest.employeeRequest,
-        scheduleDaySwitched: {
-          ...scheduleSwapRequest.scheduleDayRecive,
-          assigned_employee_id: scheduleSwapRequest.employeeRecive.id,
-        },
       };
-      
-      console.log(switchScheduleSchiftRecive,switchScheduleSchiftRequest)
 
-      formData.append(
-        "switchScheduleSchiftRequest",
-        JSON.stringify(switchScheduleSchiftRequest),
-      );
+      const body = {
+        scheduleSwapRequestId: scheduleSwapRequest.scheduleSwapRequest.id,
+        status: decision,
+        rejectReasion: decision === "declined" ? rejectReason : null,
+        switchScheduleSchiftRecive,
+        switchScheduleSchiftRequest,
+      };
 
-      console.log([...formData])
+      const formData = new FormData();
+
+      formData.append("body", JSON.stringify(body));
 
       const result = await editScheduleSwap({ errors: {} }, formData);
 
-      console.log(scheduleSwapRequest);
+      console.log(result.success, decision);
 
-      // jesli git zamien im dniówki jesli nie to chuja rob, wez resulta pokaz w setError
-      // a no i update UI z tego editScheduleSwap
-      console.log(result);
+      if (result.success) {
+        console.log("succes");
+        if (decision === "accepted") {
+          setError("Schedule swap request accepted")
+          setScheduleSwapRequestsFetched((prev) =>
+            prev.map((el) =>
+              el.scheduleSwapRequest.id ===
+              scheduleSwapRequest.scheduleSwapRequest.id
+                ? {
+                    ...el,
+                    scheduleSwapRequest: {
+                      ...el.scheduleSwapRequest,
+                      status: "accepted",
+                    },
+                  }
+                : el,
+            ),
+          );
+          setDataSingleScheduleDayFetched((prev) =>
+            prev.map((el) => {
+              if (el.id === switchScheduleSchiftRecive.scheduleDayId) {
+                return {
+                  ...el,
+                  assigned_employee_id: switchScheduleSchiftRequest.employeeId,
+                };
+              }
+              if (el.id === switchScheduleSchiftRequest.scheduleDayId) {
+                return {
+                  ...el,
+                  assigned_employee_id: switchScheduleSchiftRecive.employeeId,
+                };
+              }
+              return el;
+            }),
+          );
+        } else {
+          setError("Schedule swap request Rejected")
+          setScheduleSwapRequestsFetched((prev) =>
+            prev.map((el) =>
+              el.scheduleSwapRequest.id ===
+              scheduleSwapRequest.scheduleSwapRequest.id
+                ? {
+                    ...el,
+                    scheduleSwapRequest: {
+                      ...el.scheduleSwapRequest,
+                      status: "declined",
+                    },
+                  }
+                : el,
+            ),
+          );
+        }
+      } else {
+        setError("Something went wrong");
+      }
     } catch (e) {
       console.log(e);
+      setError("Request failed");
     }
   };
 
+  console.log(scheduleSwapRequestsFetched);
   return (
     <div className="relative w-[80vw] m-10 p-10 h-fit flex gap-5 flex-col border border-zinc-700 rounded-2xl">
       <h2 className="p-2 text-2xl font-bold mb-2">

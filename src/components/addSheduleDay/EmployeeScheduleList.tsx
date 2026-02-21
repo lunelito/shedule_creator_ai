@@ -6,8 +6,16 @@ import EditScheduleCard from "./EditScheduleCard";
 import { useScheduleLogic } from "@/lib/hooks/useScheduleLogic";
 import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import { EmployeeShift, ShiftFetched } from "@/app/manage/add/addSheduleDay/page";
+import {
+  EmployeeShift,
+  ShiftFetched,
+} from "@/app/manage/add/addSheduleDay/page";
 import { useAddScheduleFetch } from "@/lib/hooks/useAddScheduleFetch";
+import {
+  scheduleSwapRequestsFetchedType,
+  useScheduleFetch,
+} from "@/lib/hooks/useScheduleFetch";
+import ScheduleSwapCard from "./ScheduleSwapCard";
 
 type EmployeeScheduleListType = {
   employeesTab: InferSelectModel<typeof employees>[];
@@ -18,13 +26,18 @@ type EmployeeScheduleListType = {
   editleShow: boolean;
   selectedDate: Date;
   setEmployeeShifts: React.Dispatch<React.SetStateAction<EmployeeShift[]>>;
-  setCantWork: React.Dispatch<React.SetStateAction<Record<number, boolean | null>>>;
+  setCantWork: React.Dispatch<
+    React.SetStateAction<Record<number, boolean | null>>
+  >;
   addShow: boolean;
   setError: React.Dispatch<React.SetStateAction<string>>;
   setEditleShow: React.Dispatch<React.SetStateAction<boolean>>;
   setFetchedShiftsData: React.Dispatch<React.SetStateAction<ShiftFetched[]>>;
-  setEditFetchedShiftsData: React.Dispatch<React.SetStateAction<ShiftFetched[]>>;
+  setEditFetchedShiftsData: React.Dispatch<
+    React.SetStateAction<ShiftFetched[]>
+  >;
   scheduleId: string | null;
+  scheduleSwapRequestsFetched: scheduleSwapRequestsFetchedType[];
 };
 
 export default function EmployeeScheduleList({
@@ -42,15 +55,15 @@ export default function EmployeeScheduleList({
   setEditleShow,
   setFetchedShiftsData,
   setEditFetchedShiftsData,
+  scheduleSwapRequestsFetched,
   scheduleId,
-}:EmployeeScheduleListType) {
-  
+}: EmployeeScheduleListType) {
   const {
     dataThreeMonthScheduleDayAllFetched,
     timeOffRequestsFetched,
     setDataThreeMonthScheduleDayAllFetched,
     setTimeOffRequestsData,
-  } = useAddScheduleFetch({scheduleId,selectedDate});
+  } = useAddScheduleFetch({ scheduleId, selectedDate });
 
   const { formatedData, getRemainingWeeklyHours, CheckIfCanWork, parseData } =
     useScheduleLogic({ selectedDate, dataThreeMonthScheduleDayAllFetched });
@@ -71,17 +84,27 @@ export default function EmployeeScheduleList({
             (s) => s.employee_id === emp.id,
           );
 
-          const editShift = editFetchedShiftsData?.find(
+          const editShift = editFetchedShiftsData.find(
             (s) => s.employee_id === emp.id,
           );
 
-          const timeOff = timeOffRequestsFetched?.find(
+          const timeOff = timeOffRequestsFetched.find(
             (s) => s.employee_id === emp.id && s.status === "accepted",
+          );
+
+          const scheduleSwap = employeeShifts.find(
+            (s) => s.employee_id === emp.id && s.scheduleSwap,
           );
 
           const employeeCantWork = cantWork[emp.id as number] || false;
 
-          if (editleShow && fetchedShift && editShift && !timeOff) {
+          if (
+            editleShow &&
+            fetchedShift &&
+            editShift &&
+            !timeOff &&
+            !scheduleSwap
+          ) {
             return (
               <EditScheduleCard
                 selectedDate={selectedDate}
@@ -109,7 +132,7 @@ export default function EmployeeScheduleList({
             );
           }
 
-          if (timeOff && !addShow) {
+          if (timeOff && !addShow && !scheduleSwap) {
             return (
               <EditVacationCard
                 scheduleId={scheduleId}
@@ -132,7 +155,8 @@ export default function EmployeeScheduleList({
             addShow &&
             !fetchedShift &&
             !employeeCantWork &&
-            !timeOff
+            !timeOff &&
+            !scheduleSwap
           ) {
             return (
               <AddSheduleCard
@@ -153,7 +177,11 @@ export default function EmployeeScheduleList({
             );
           }
 
-          if (!addShow) {
+          if (scheduleSwap && !addShow && !editleShow) {
+            return <ScheduleSwapCard emp={emp} key={emp.id} />;
+          }
+
+          if (!addShow && !scheduleSwap) {
             return (
               <SheduleCard
                 cantWork={employeeCantWork}

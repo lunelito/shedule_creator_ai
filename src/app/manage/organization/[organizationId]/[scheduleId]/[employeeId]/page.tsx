@@ -82,6 +82,10 @@ export default function page() {
         <VacationRequestContainerUser
           timeOffRequestsData={timeOffRequestsFetched}
         />
+        <ScheduleSwapRequestContainerUser
+          scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
+          employeeId={employeeId}
+        />
         <EmployeeCalcSalary
           employeeFetched={employeeFetched}
           dataThreeMonthScheduleDay={threeMonthScheduleDayFetched}

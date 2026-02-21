@@ -7,7 +7,7 @@ import {
   schedules_day,
 } from "@/db/schema";
 import { alias } from "drizzle-orm/pg-core";
-import { eq, InferSelectModel,and } from "drizzle-orm";
+import { eq, InferSelectModel, and } from "drizzle-orm";
 import { request } from "http";
 
 export async function GET(request: NextRequest) {
@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const employeeRequest = alias(employees, "employeeRequest");
     const scheduleDayRequest = alias(schedules_day, "scheduleDayRequest");
     const scheduleDayRecive = alias(schedules_day, "scheduleDayRecive");
+
     const scheduleSwapRequest = alias(
       schedule_swap_requests,
       "scheduleSwapRequest",
@@ -70,19 +71,25 @@ export async function POST(request: NextRequest) {
     const employee_id_recive = offeredShift.employee.id;
     const employee_id_request = desiredShift.employee.id;
 
-    await db.insert(schedule_swap_requests).values({
-      schedule_id_recive,
-      schedule_id_request,
-      schedule_kind_recive,
-      employee_id_recive,
-      schedule_kind_request,
-      employee_id_request,
-      status: "waiting",
-      date_recive:new Date(offeredShift.date),
-      date_request:new Date(desiredShift.date),
-    });
+    const scheduleSwapRequest = await db
+      .insert(schedule_swap_requests)
+      .values({
+        schedule_id_recive,
+        schedule_id_request,
+        schedule_kind_recive,
+        employee_id_recive,
+        schedule_kind_request,
+        employee_id_request,
+        status: "waiting",
+        date_recive: new Date(offeredShift.date),
+        date_request: new Date(desiredShift.date),
+      })
+      .returning();
 
-    return NextResponse.json({ message: "OK" }, { status: 201 });
+    return NextResponse.json(
+      { scheduleSwapRequest: scheduleSwapRequest[0], message: "OK" },
+      { status: 201 },
+    );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
@@ -91,9 +98,15 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
+
+    const parsed =
+      typeof body.formDataObj?.body === "string"
+        ? JSON.parse(body.formDataObj.body)
+        : body.formDataObj?.body;
 
     const {
       switchScheduleSchiftRecive,
@@ -101,7 +114,9 @@ export async function PUT(req: NextRequest) {
       status,
       scheduleSwapRequestId,
       rejectReasion,
-    } = body;
+    } = parsed;
+
+    console.log(status, scheduleSwapRequestId, rejectReasion);
 
     const recive =
       typeof switchScheduleSchiftRecive === "string"
@@ -112,6 +127,8 @@ export async function PUT(req: NextRequest) {
       typeof switchScheduleSchiftRequest === "string"
         ? JSON.parse(switchScheduleSchiftRequest)
         : switchScheduleSchiftRequest;
+
+    console.log(recive, request);
 
     if (!scheduleSwapRequestId) {
       throw new Error("Missing scheduleSwapRequestId");
@@ -129,6 +146,8 @@ export async function PUT(req: NextRequest) {
         .where(eq(schedule_swap_requests.id, Number(scheduleSwapRequestId)))
         .returning();
 
+      console.log(updatedRequest);
+
       if (updatedRequest.length === 0) {
         throw new Error(
           `Schedule swap request with id ${scheduleSwapRequestId} not found`,
@@ -136,105 +155,70 @@ export async function PUT(req: NextRequest) {
       }
 
       if (status === "accepted") {
-        // constrain unique need to null at first
-        console.log(recive.scheduleDayId)
-        console.log(request.scheduleDayId)
-        const result1 = await tx
-          .update(schedules_day)
-          .set({
-            assigned_employee_id: null,
-            updated_at: new Date(),
-          })
-          .where(eq(schedules_day.id, Number(recive.scheduleDayId)));
+        const reciveSchedule = recive.scheduleDayId
+          ? await tx.query.schedules_day.findFirst({
+              where: eq(schedules_day.id, Number(recive.scheduleDayId)),
+            })
+          : null;
 
-        const result2 = await tx
-          .update(schedules_day)
-          .set({
-            assigned_employee_id: null,
-            updated_at: new Date(),
-          })
-          .where(eq(schedules_day.id, Number(request.scheduleDayId)));
-          // tu kurwa null mimo ze w bazie jest ten schedule day
-          console.log(result1)
-          console.log(result2)
-        if (result1 && result2) {
-          console.log("wyzerowane");
-          console.log("Przed wymianą - istniejące przypisania dla 114:");
-          // tu go kurwa zwraca ale nie ma nulla w assigned employee tak jak mialo byc bo robie update linike wyzej xd
-          const existing = await tx
-            .select()
-            .from(schedules_day)
-            .where(
-              and(
-                eq(schedules_day.id, 428),
-                eq(schedules_day.date, "2026-02-05"),
-              ),
-            );
-          const existing2 = await tx
-            .select()
-            .from(schedules_day)
-            .where(
-              and(
-                eq(schedules_day.assigned_employee_id, 169),
-                eq(schedules_day.date, "2026-02-05"),
-              ),
-            );
-          console.log(existing,existing2);
-          if (recive.scheduleDayId && request.scheduleDayId) {
-            console.log("tu jestem")
-            //!!!!!!!!!!!!! to sie wykonuje wszystko tak po chuju zwraca m baza 0 bledow a ni sie czasami nie zmienia chuj wie czemu xd
-            
-            // !!!!!!!!!! wsm to skad baza danych wie jaki date ba dostac zmiana xd? moze zapisuj to w bazie bedzie latwiej
-            await tx
-              .update(schedules_day)
-              .set({
-                assigned_employee_id: recive.employeeId,
-                updated_at: new Date(),
-              })
-              .where(eq(schedules_day.id, recive.scheduleDayId));
+        const requestSchedule = request.scheduleDayId
+          ? await tx.query.schedules_day.findFirst({
+              where: eq(schedules_day.id, Number(request.scheduleDayId)),
+            })
+          : null;
 
-            await tx
-              .update(schedules_day)
-              .set({
-                assigned_employee_id: request.employeeId,
-                updated_at: new Date(),
-              })
-              .where(eq(schedules_day.id, request.scheduleDayId));
-          } else if (recive.scheduleDayId && !request.scheduleDayId) {
-            console.log(
-              recive.scheduleDayId,
-              request.scheduleDayId,
-              recive.employeeId,
-              request.employeeId,
-            );
+        if (reciveSchedule && requestSchedule) {
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: null,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, reciveSchedule.id));
 
-            await tx
-              .update(schedules_day)
-              .set({
-                assigned_employee_id: request.employeeId,
-                updated_at: new Date(),
-              })
-              .where(eq(schedules_day.id, recive.scheduleDayId));
-          } else if (!recive.scheduleDayId && request.scheduleDayId) {
-            console.log(
-              recive.scheduleDayId,
-              request.scheduleDayId,
-              recive.employeeId,
-              request.employeeId,
-            );
-            // Requestor is giving up their shift to receiver
-            await tx
-              .update(schedules_day)
-              .set({
-                assigned_employee_id: recive.employeeId,
-                updated_at: new Date(),
-              })
-              .where(eq(schedules_day.id, request.scheduleDayId));
-          }
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: null,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, requestSchedule.id));
 
-          return updatedRequest[0];
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: request.employeeId,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, reciveSchedule.id));
+
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: recive.employeeId,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, requestSchedule.id));
+        } else if (reciveSchedule && !requestSchedule) {
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: request.employeeId,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, reciveSchedule.id));
+        } else if (!reciveSchedule && requestSchedule) {
+          await tx
+            .update(schedules_day)
+            .set({
+              assigned_employee_id: recive.employeeId,
+              updated_at: new Date(),
+            })
+            .where(eq(schedules_day.id, requestSchedule.id));
         }
       }
+
+      return updatedRequest[0];
     });
 
     return NextResponse.json({

@@ -18,8 +18,6 @@ export async function editScheduleSwap(
   try {
     const formDataObj = Object.fromEntries(formData.entries());
 
-    console.log(formDataObj)
-
     if (!formDataObj) {
       return {
         errors: { _form: ["No IDs provided."] },
@@ -34,7 +32,7 @@ export async function editScheduleSwap(
     const res = await fetch(apiUrl, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formDataObj),
+      body: JSON.stringify({ formDataObj }),
     });
 
     const text = await res.text();
@@ -53,7 +51,7 @@ export async function editScheduleSwap(
 
     return {
       success: true,
-      errors: { _form: [`schedule swap ${formDataObj.decision} sucesfully`] },
+      errors: { _form: [`schedule swap ${formDataObj.status} sucesfully`] },
       ScheduleSwap: responseData,
     };
   } catch (err: any) {

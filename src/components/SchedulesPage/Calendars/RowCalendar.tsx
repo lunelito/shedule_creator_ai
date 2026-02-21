@@ -7,7 +7,7 @@ import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 type RowCalendartype = {
   employeesTab: InferSelectModel<typeof employees>[];
@@ -53,6 +53,7 @@ export default function RowCalendar({
 
   const [year, setYear] = useState(date.getFullYear());
   const [month, setMonth] = useState(date.getMonth());
+  const [hoveredSwapId, setHoveredSwapId] = useState<number | null>(null);
 
   const todayDate = date.toISOString().split("T")[0];
 
@@ -80,7 +81,7 @@ export default function RowCalendar({
     const mappedEmployees = employeesTab.map((emp) => ({
       ...emp,
       schedule: dataSingleScheduleDay.filter(
-        (el) => el.assigned_employee_id === emp.id
+        (el) => el.assigned_employee_id === emp.id,
       ),
     }));
 
@@ -99,7 +100,7 @@ export default function RowCalendar({
     const dd = String(selectedDate.getDate()).padStart(2, "0");
     const dateString = `${yyyy}-${mm}-${dd}`;
     router.replace(
-      `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}&employeeId=${employeeId}`
+      `/manage/add/addSheduleDay?date=${dateString}&schedule_id=${scheduleId}&organization_id=${organizationId}&employeeId=${employeeId}`,
     );
   };
 
@@ -156,20 +157,11 @@ export default function RowCalendar({
               {CalenderFull.map((day, dayIndex) => (
                 <div className="flex flex-col gap-2" key={`day-${dayIndex}`}>
                   {employees?.map((emp) => {
-                    const scheduleForDay = emp.schedule.find((scheduledDay) => {
-                      const scheduledDate = new Date(scheduledDay.end_at)
-                        .toISOString()
-                        .split("T")[0];
-                      return scheduledDate === day;
-                    });
-
-                    const timeOffForDay = timeOffRequestsData.find((el) => {
-                      return (
-                        el.date === day &&
-                        el.employee_id === emp.id &&
-                        el.status !== "declined"
-                      );
-                    });
+                    const scheduleForDay = scheduleMap.get(`${emp.id}_${day}`);
+                    const timeOffForDay = timeOffMap.get(`${emp.id}_${day}`);
+                    const scheduleSwap =
+                      swapByReceive.get(`${emp.id}_${day}`) ||
+                      swapByRequest.get(`${emp.id}_${day}`);
 
                     const start = scheduleForDay
                       ? new Date(scheduleForDay.start_at).getHours()
@@ -180,20 +172,38 @@ export default function RowCalendar({
 
                     const msg = timeOffForDay
                       ? getInitials(timeOffForDay.type, "_")
-                      : scheduleForDay
-                      ? `${start} - ${end}`
-                      : "-";
+                      : scheduleSwap
+                        ? "S"
+                        : scheduleForDay
+                          ? `${start} - ${end}`
+                          : "-";
+
+                    const isToday = day === date.toISOString().split("T")[0];
+                    const isWaitingTimeOff =
+                      timeOffForDay?.status === "waiting";
+                    const hasSwapHighlight =
+                      scheduleSwap &&
+                      scheduleSwap.scheduleSwapRequest.id === hoveredSwapId;
 
                     return (
                       <div
+                        onMouseEnter={() =>
+                          scheduleSwap &&
+                          setHoveredSwapId(scheduleSwap.scheduleSwapRequest.id)
+                        }
+                        onMouseLeave={() =>
+                          scheduleSwap && setHoveredSwapId(null)
+                        }
                         key={`emp-${emp.id}-day-${dayIndex}`}
                         onClick={() => RouteToAdd(dayIndex + 1, emp.id)}
                         className={`cursor-pointer text-center aspect-square h-18 p-2 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
-                          timeOffForDay?.status === "waiting"
+                          isWaitingTimeOff
                             ? "bg-white text-teal-600 animate-pulse"
-                            : day === date.toISOString().split("T")[0]
-                            ? "bg-teal-600 text-white border-2"
-                            : "bg-white text-teal-600"
+                            : isToday
+                              ? "bg-teal-600 text-white border-2"
+                              : hasSwapHighlight
+                                ? "bg-teal-600 text-white border-2 animate-pulse scale-105"
+                                : "bg-white text-teal-600"
                         }`}
                       >
                         {msg}

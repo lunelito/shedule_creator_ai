@@ -1,14 +1,18 @@
 "use server";
 
-export type addScheduleType = {
+import { schedule_swap_requests } from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm";
+
+export type addScheduleSwapRequestType = {
   success?: boolean;
   errors: {
     _form?: string[];
   };
+  scheduleSwapRequest?:InferSelectModel<typeof schedule_swap_requests>
 };
 
 export async function addScheduleSwapRequest(
-  formState: addScheduleType,
+  formState: addScheduleSwapRequestType,
   formData: FormData,
 ) {
   try {
@@ -64,7 +68,7 @@ export async function addScheduleSwapRequest(
     return {
       success: true,
       errors: { _form: ["Schedule added successfully."] },
-      schedulesDays: responseData, // to jest faktyczny JSON
+      scheduleSwapRequest: responseData.scheduleSwapRequest,
     };
   } catch (err: any) {
     return {

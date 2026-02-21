@@ -6,20 +6,31 @@ import { InferSelectModel } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import React, {
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import SchiftSwapExtension from "./CalendarsExtensions/SchiftSwapExtension";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { useScheduleLogic } from "@/lib/hooks/useScheduleLogic";
 import DeleteIcon from "@/components/UI/DeleteIcon";
+import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 
 type RowCalendartype = {
   dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
-  timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
   employeesTabFetched: InferSelectModel<typeof employees>[];
+  setScheduleSwapRequestsFetched: React.Dispatch<
+    SetStateAction<scheduleSwapRequestsFetchedType[]>
+  >;
+  timeOffRequestsData: InferSelectModel<typeof time_off_requests>[];
   employeeId: string | string[];
   role: string;
   setError: React.Dispatch<SetStateAction<string>>;
   threeMonthScheduleDayAllFetched: InferSelectModel<typeof schedules_day>[][];
+  scheduleSwapRequestsFetched: scheduleSwapRequestsFetchedType[];
 };
 
 type EmployeeWithSchedule = InferSelectModel<typeof employees> & {
@@ -45,7 +56,8 @@ export default function RowCalendarWithSwap({
   employeesTabFetched,
   employeeId,
   role,
-  threeMonthScheduleDayAllFetched,
+  scheduleSwapRequestsFetched,
+  setScheduleSwapRequestsFetched,
   setError,
 }: RowCalendartype) {
   const months: string[] = [
@@ -80,6 +92,7 @@ export default function RowCalendarWithSwap({
     offeredShift: { shift: null, date: null, employee: null },
     desiredShift: { shift: null, date: null, employee: null },
   });
+  const [hoveredSwapId, setHoveredSwapId] = useState<number | null>(null);
 
   const changeMonth = (amount: number) => {
     let newMonth = month + amount;
@@ -101,8 +114,18 @@ export default function RowCalendarWithSwap({
     shift: InferSelectModel<typeof schedules_day> | "time_off",
     day: string,
     clickedEmployee: InferSelectModel<typeof employees>,
+    scheduleSwapRequestsFetchedType:
+      | scheduleSwapRequestsFetchedType
+      | undefined,
   ) => {
     if (!showSwitchShiftsPanel) return;
+
+    if (scheduleSwapRequestsFetchedType) {
+      setError("Please choose a shift which isint swaping");
+      setTimeout(() => setError(""), 2000);
+      return;
+    }
+
     if (clickedEmployee.id !== Number(employeeId)) return;
     setShiftSwap((prev) => ({
       ...prev,
@@ -114,10 +137,17 @@ export default function RowCalendarWithSwap({
     }));
   };
 
+  const { CheckIfCantWork, getRemainingWeeklyHours } = useScheduleLogic({
+    dataSingleScheduleDay: dataSingleScheduleDay,
+  });
+
   const selectDesiredShift = (
     shift: InferSelectModel<typeof schedules_day> | "time_off",
     day: string,
     clickedEmployee: InferSelectModel<typeof employees>,
+    scheduleSwapRequestsFetchedType:
+      | scheduleSwapRequestsFetchedType
+      | undefined,
   ) => {
     if (!showSwitchShiftsPanel) return;
 
@@ -139,9 +169,11 @@ export default function RowCalendarWithSwap({
       return;
     }
 
-    const { CheckIfCantWork, getRemainingWeeklyHours } = useScheduleLogic({
-      dataThreeMonthScheduleDayAllFetched: threeMonthScheduleDayAllFetched,
-    });
+    if (scheduleSwapRequestsFetchedType) {
+      setError("Please choose a shift which isn't swapping");
+      setTimeout(() => setError(""), 2000);
+      return;
+    }
 
     const getScheduledHours = (shiftObj: any): number => {
       if (!shiftObj || shiftObj === "time_off" || shiftObj === "timeOff")
@@ -149,20 +181,36 @@ export default function RowCalendarWithSwap({
       return shiftObj.scheduled_hours || 0;
     };
 
-    const offeringShiftHours = getScheduledHours(offeringShift);
-    const desiredShiftHours = getScheduledHours(shift);
-
-    const offeringEmployeeCurrentRemaining = getRemainingWeeklyHours(
-      Number(offeringEmployee.id),
-      Number(offeringEmployee.contracted_hours_per_week),
-      new Date(offeringDate),
+    const offeringEmployeeShiftOnTargetDay = dataSingleScheduleDay?.find(
+      (s) =>
+        s.assigned_employee_id === offeringEmployee.id &&
+        new Date(s.date).toISOString().split("T")[0] === day &&
+        offeringShift !== "time_off" &&
+        s.id !== offeringShift.id,
     );
 
-    const currentEmployeeCurrentRemaining = getRemainingWeeklyHours(
-      Number(clickedEmployee.id),
-      Number(clickedEmployee.contracted_hours_per_week),
-      new Date(day),
+    const clickedEmployeeShiftOnTargetDay = dataSingleScheduleDay?.find(
+      (s) =>
+        s.assigned_employee_id === clickedEmployee.id &&
+        new Date(s.date).toISOString().split("T")[0] === offeringDate &&
+        s.id !== (shift !== "time_off" ? shift.id : null),
     );
+
+    if (offeringEmployeeShiftOnTargetDay) {
+      setError(
+        `${offeringEmployee.name} already has a shift on ${day} — cannot work twice`,
+      );
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (clickedEmployeeShiftOnTargetDay) {
+      setError(
+        `${clickedEmployee.name} already has a shift on ${offeringDate} — cannot work twice`,
+      );
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
 
     const canOfferingEmployeeWork = !CheckIfCantWork(
       Number(offeringEmployee.max_consecutive_days),
@@ -176,25 +224,26 @@ export default function RowCalendarWithSwap({
       new Date(offeringDate),
     );
 
-    // 2. Calculate the hourly BALANCE for each employee
-    // DIFFERENCE = hours received - hours given away
-    const offeringEmployeeHoursChange = desiredShiftHours - offeringShiftHours;
-    const currentEmployeeHoursChange = offeringShiftHours - desiredShiftHours;
+    const offeringShiftHours = getScheduledHours(offeringShift);
+    const desiredShiftHours = getScheduledHours(shift);
+    const hoursDelta = desiredShiftHours - offeringShiftHours;
 
-    // 3. Check if they will not exceed the contract after the exchange
-    // NOTE: getRemainingWeeklyHours returns the NUMBER OF HOURS STILL TO BE ALLOCATED
-    // If negative = already exceeded the contract
+    const offeringEmployeeRemaining = getRemainingWeeklyHours(
+      Number(offeringEmployee.id),
+      Number(offeringEmployee.contracted_hours_per_week),
+      new Date(offeringDate),
+    );
 
-    // For the offeror: if they still have enough hours to allocate after the exchange
-    const offeringEmployeeRemainingAfterSwap =
-      offeringEmployeeCurrentRemaining - offeringEmployeeHoursChange;
+    const currentEmployeeRemaining = getRemainingWeeklyHours(
+      Number(clickedEmployee.id),
+      Number(clickedEmployee.contracted_hours_per_week),
+      new Date(day),
+    );
+
     const canOfferingEmployeeTakeShift =
-      offeringEmployeeRemainingAfterSwap >= 0;
-
-    // For target: does it still have enough hours to allocate after the change
-    const currentEmployeeRemainingAfterSwap =
-      currentEmployeeCurrentRemaining - currentEmployeeHoursChange;
-    const canCurrentEmployeeTakeShift = currentEmployeeRemainingAfterSwap >= 0;
+      offeringEmployeeRemaining - hoursDelta >= 0;
+    const canCurrentEmployeeTakeShift =
+      currentEmployeeRemaining + hoursDelta >= 0;
 
     const canSwap =
       canOfferingEmployeeWork &&
@@ -204,44 +253,26 @@ export default function RowCalendarWithSwap({
 
     if (!canSwap) {
       let errorMessage = "Exchange not possible: ";
-
       if (!canOfferingEmployeeWork)
-        errorMessage += `${offeringEmployee.name} cannot work on ${day}`;
+        errorMessage += `${offeringEmployee.name} cannot work on ${day}. `;
       if (!canCurrentEmployeeWork)
-        errorMessage += `${clickedEmployee.name} cannot work on ${offeringDate}`;
-
-      if (!canOfferingEmployeeTakeShift) {
-        const change = offeringEmployeeHoursChange;
-        if (change > 0) {
-          errorMessage += `${offeringEmployee.name} would work ${Math.abs(change)}h more`;
-        } else {
-          errorMessage += `${offeringEmployee.name} scheduling conflict. `;
-        }
-      }
-
-      if (!canCurrentEmployeeTakeShift) {
-        const change = currentEmployeeHoursChange;
-        if (change > 0) {
-          errorMessage += `${clickedEmployee.name} would work ${Math.abs(change)}h more`;
-        } else {
-          errorMessage += `${clickedEmployee.name} scheduling conflict`;
-        }
-      }
+        errorMessage += `${clickedEmployee.name} cannot work on ${offeringDate}. `;
+      if (!canOfferingEmployeeTakeShift)
+        errorMessage += `${offeringEmployee.name} would exceed weekly hours. `;
+      if (!canCurrentEmployeeTakeShift)
+        errorMessage += `${clickedEmployee.name} would exceed weekly hours. `;
 
       setError(errorMessage.trim());
       setTimeout(() => setError(""), 3500);
       return;
     }
+
     setShiftSwap((prev) => ({
       ...prev,
-      desiredShift: {
-        shift,
-        date: day,
-        employee: clickedEmployee,
-      },
+      desiredShift: { shift, date: day, employee: clickedEmployee },
     }));
 
-    setError(`Exchange possible!`);
+    setError("Exchange possible!");
     setTimeout(() => setError(""), 2000);
   };
 
@@ -287,6 +318,52 @@ export default function RowCalendarWithSwap({
       setCalendarHeight(calendarRef.current.offsetHeight);
     }
   }, [CalenderFull]);
+
+  const timeOffMap = useMemo(() => {
+    const map = new Map();
+    timeOffRequestsData.forEach((el) => {
+      if (el.status !== "declined") {
+        const key = `${el.employee_id}_${el.date}`;
+        map.set(key, el);
+      }
+    });
+    return map;
+  }, [timeOffRequestsData]);
+
+  const swapByReceive = useMemo(() => {
+    const map = new Map();
+    scheduleSwapRequestsFetched.forEach((el) => {
+      const req = el.scheduleSwapRequest;
+      if (req.status !== "waiting") return;
+      const date = new Date(req.date_recive).toISOString().split("T")[0];
+      const key = `${req.employee_id_recive}_${date}`;
+      map.set(key, el);
+    });
+    return map;
+  }, [scheduleSwapRequestsFetched]);
+
+  const swapByRequest = useMemo(() => {
+    const map = new Map();
+    scheduleSwapRequestsFetched.forEach((el) => {
+      const req = el.scheduleSwapRequest;
+      if (req.status !== "waiting") return;
+      const date = new Date(req.date_request).toISOString().split("T")[0];
+      const key = `${req.employee_id_request}_${date}`;
+      map.set(key, el);
+    });
+    return map;
+  }, [scheduleSwapRequestsFetched]);
+
+  const scheduleMap = useMemo(() => {
+    const map = new Map();
+    employeesWithSchedule?.forEach((emp) => {
+      emp.schedule.forEach((s) => {
+        const date = new Date(s.end_at).toISOString().split("T")[0];
+        map.set(`${emp.id}_${date}`, s);
+      });
+    });
+    return map;
+  }, [employeesWithSchedule]);
 
   return (
     <div className="flex m-5 justify-center">
@@ -351,22 +428,13 @@ export default function RowCalendarWithSwap({
                       const offered = shiftSwap.offeredShift;
                       const desired = shiftSwap.desiredShift;
 
-                      const scheduleForDay = emp.schedule.find(
-                        (scheduledDay) => {
-                          const scheduledDate = new Date(scheduledDay.end_at)
-                            .toISOString()
-                            .split("T")[0];
-                          return scheduledDate === day;
-                        },
+                      const scheduleForDay = scheduleMap.get(
+                        `${emp.id}_${day}`,
                       );
-
-                      const timeOffForDay = timeOffRequestsData.find((el) => {
-                        return (
-                          el.date === day &&
-                          el.employee_id === emp.id &&
-                          el.status !== "declined"
-                        );
-                      });
+                      const timeOffForDay = timeOffMap.get(`${emp.id}_${day}`);
+                      const scheduleSwap =
+                        swapByReceive.get(`${emp.id}_${day}`) ||
+                        swapByRequest.get(`${emp.id}_${day}`);
 
                       const isSelectedForSwap =
                         (!!offered &&
@@ -386,9 +454,19 @@ export default function RowCalendarWithSwap({
 
                       const displayText = timeOffForDay
                         ? getInitials(timeOffForDay.type, "_")
-                        : scheduleForDay
-                          ? `${start} - ${end}`
-                          : "-";
+                        : scheduleSwap
+                          ? "S"
+                          : scheduleForDay
+                            ? `${start} - ${end}`
+                            : "-";
+
+                      const isEmployee = employeeId === emp.id.toString();
+                      const isToday = day === date.toISOString().split("T")[0];
+                      const isWaitingTimeOff =
+                        timeOffForDay?.status === "waiting";
+                      const hasSwapHighlight =
+                        scheduleSwap &&
+                        scheduleSwap.scheduleSwapRequest.id === hoveredSwapId;
 
                       return (
                         <div
@@ -399,22 +477,35 @@ export default function RowCalendarWithSwap({
                                   scheduleForDay || "time_off",
                                   day,
                                   emp,
+                                  scheduleSwap,
                                 )
                               : selectDesiredShift(
                                   scheduleForDay || "time_off",
                                   day,
                                   emp,
+                                  scheduleSwap,
                                 );
                           }}
+                          onMouseEnter={() =>
+                            scheduleSwap &&
+                            setHoveredSwapId(
+                              scheduleSwap.scheduleSwapRequest.id,
+                            )
+                          }
+                          onMouseLeave={() =>
+                            scheduleSwap && setHoveredSwapId(null)
+                          }
                           onDoubleClick={() => removeSelectedShift(day)}
                           className={`cursor-pointer text-center aspect-square h-18 p-2 rounded-lg flex justify-center items-center text-teal-600 hover:scale-105 transition ease-in-out ${
-                            employeeId === emp.id.toString()
-                              ? "bg-teal-600 text-white border-2"
-                              : timeOffForDay?.status === "waiting"
-                                ? "bg-white text-teal-600 animate-pulse"
-                                : day === date.toISOString().split("T")[0]
-                                  ? "bg-teal-600 text-white border-2"
-                                  : "bg-white text-teal-600"
+                            hasSwapHighlight
+                              ? "bg-teal-600 text-white border-2 animate-pulse scale-105"
+                              : isEmployee
+                                ? "bg-teal-600 text-white border-2"
+                                : isWaitingTimeOff
+                                  ? "bg-white text-teal-600 animate-pulse"
+                                  : isToday
+                                    ? "bg-teal-600 text-white border-2"
+                                    : "bg-white text-teal-600"
                           } ${isSelectedForSwap ? "animate-pulse scale-105" : ""}`}
                         >
                           {displayText}
@@ -434,6 +525,9 @@ export default function RowCalendarWithSwap({
               shiftSwap={shiftSwap}
               setError={setError}
               removeSelectedShift={removeSelectedShift}
+              employeesTabFetched={employeesTabFetched}
+              dataSingleScheduleDay={dataSingleScheduleDay}
+              setScheduleSwapRequestsFetched={setScheduleSwapRequestsFetched}
             />
           )}
         </div>

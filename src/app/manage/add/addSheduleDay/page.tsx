@@ -36,6 +36,7 @@ export type EmployeeShift = {
   selected: boolean;
   cantWork: boolean | null;
   remainingWeeklyHours: number;
+  scheduleSwap: boolean;
 };
 
 export type ShiftFetched = EmployeeShift & {
@@ -87,6 +88,7 @@ export default function AddScheduleDay() {
       const newShifts: Shift[] = employeeShifts
         .filter((employeeShift) => !employeeShift.selected)
         .filter((employeeShift) => !employeeShift.cantWork)
+        .filter((employeeShift) => !employeeShift.scheduleSwap)
         .map((employeeShift) => {
           const startDate = new Date(baseDate);
           startDate.setHours(employeeShift.start_hour, 0, 0, 0);
@@ -172,6 +174,7 @@ export default function AddScheduleDay() {
 
   const handleSubmit = async () => {
     const shifts = fillShifts();
+
     const existingEmployeeIds = new Set(
       shiftsDataFetchedParsed.map((s) => s.employee_id),
     );
@@ -292,6 +295,7 @@ export default function AddScheduleDay() {
       />
       <RenderAnimation animationKey={"AddPage"}>
         <EmployeeScheduleList
+          scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
           employeesTab={employeesTab}
           employeeShifts={employeeShifts}
           fetchedShiftsData={shiftsDataFetchedParsed}
@@ -310,12 +314,14 @@ export default function AddScheduleDay() {
         />
 
         <ScheduleActions
+          scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
           editleShow={editleShow}
           addShow={addShow}
           employeeId={employeeId}
           handleEdit={handleEdit}
           handleSubmit={handleSubmit}
           cantWork={cantWork}
+          selectedDate={selectedDate}
           employeesTab={employeesTab}
           employeeShifts={employeeShifts}
           shiftsDataFetchedParsed={shiftsDataFetchedParsed}

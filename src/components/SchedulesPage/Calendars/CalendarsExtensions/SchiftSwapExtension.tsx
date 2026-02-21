@@ -2,6 +2,9 @@ import PrimaryButton from "@/components/UI/PrimaryButton";
 import { ShiftSwapState } from "../RowCalendarWithSwap";
 import { SetStateAction, useState } from "react";
 import { addScheduleSwapRequest } from "@/lib/actions/ScheduleSwap/addScheduleSwapRequest";
+import { InferSelectModel } from "drizzle-orm";
+import { employees, schedules_day } from "@/db/schema";
+import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 
 type ShiftSwapExtensionType = {
   calendarHeight: number;
@@ -10,6 +13,11 @@ type ShiftSwapExtensionType = {
   employeePick: number;
   removeSelectedShift: (day: string) => void;
   setError: React.Dispatch<SetStateAction<string>>;
+  dataSingleScheduleDay: InferSelectModel<typeof schedules_day>[];
+  employeesTabFetched: InferSelectModel<typeof employees>[];
+  setScheduleSwapRequestsFetched: React.Dispatch<
+    SetStateAction<scheduleSwapRequestsFetchedType[]>
+  >;
 };
 
 type ShiftData = {
@@ -27,9 +35,13 @@ export default function ShiftSwapExtension({
   employeePick,
   removeSelectedShift,
   setError,
+  dataSingleScheduleDay,
+  employeesTabFetched,
+  setScheduleSwapRequestsFetched,
 }: ShiftSwapExtensionType) {
-  console.log(shiftSwap)
+  console.log(shiftSwap);
   const [isPending, setIsPending] = useState<boolean>(false);
+
   const getShiftData = (
     shiftPart: typeof shiftSwap.offeredShift | typeof shiftSwap.desiredShift,
   ): ShiftData => {
@@ -69,7 +81,9 @@ export default function ShiftSwapExtension({
       !shiftSwap.offeredShift.shift ||
       !shiftSwap.desiredShift.shift ||
       !shiftSwap.offeredShift.employee ||
-      !shiftSwap.desiredShift.employee
+      !shiftSwap.desiredShift.employee ||
+      !desiredShiftData.date ||
+      !offeredShiftData.date
     ) {
       setError("Fill all fields you dumb fuck");
       setTimeout(() => setError(""), 2000);
@@ -84,29 +98,59 @@ export default function ShiftSwapExtension({
 
     try {
       const result = await addScheduleSwapRequest({ errors: {} }, formData);
-
+      console.log(result.scheduleSwapRequest);
       if (result.success) {
+        setScheduleSwapRequestsFetched((prev) => [
+          ...prev,
+          {
+            employeeRecive: employeesTabFetched.find(
+              (e) => e.id === shiftSwap.offeredShift.employee?.id,
+            )!,
+            employeeRequest: employeesTabFetched.find(
+              (e) => e.id === shiftSwap.desiredShift.employee?.id,
+            )!,
+            scheduleDayRecive:
+              dataSingleScheduleDay.find(
+                (s) =>
+                  s.id ===
+                  (shiftSwap.offeredShift.shift !== "time_off"
+                    ? shiftSwap.offeredShift.shift?.id
+                    : null),
+              ) ?? null,
+            scheduleDayRequest:
+              dataSingleScheduleDay.find(
+                (s) =>
+                  s.id ===
+                  (shiftSwap.desiredShift.shift !== "time_off"
+                    ? shiftSwap.desiredShift.shift?.id
+                    : null),
+              ) ?? null,
+            scheduleSwapRequest: result.scheduleSwapRequest,
+          },
+        ]);
+
+        removeSelectedShift(desiredShiftData.date);
+        removeSelectedShift(offeredShiftData.date);
+
         setError("Request sent!");
         setTimeout(() => setError(""), 2000);
       } else {
-        // const scheduleRequestErrors = result.errors.vacations?.[0]
-        //   ? result.errors.vacations[0] + " in schedule request fields"
-        //   : null;
         const formError =
           result.errors._form?.[0] ?? "Error while inserting schedule request";
 
-        // setError(scheduleRequestErrors ?? formError);
         setError(formError);
+        setTimeout(() => setError(""), 2000);
       }
       setIsPending(false);
     } catch (err) {
       console.error(err);
       setError("Server error");
+      setTimeout(() => setError(""), 2000);
       setIsPending(false);
     }
   };
 
-    console.log(shiftSwap)
+  console.log(shiftSwap);
 
   const offeredShiftData = getShiftData(shiftSwap.offeredShift);
   const desiredShiftData = getShiftData(shiftSwap.desiredShift);

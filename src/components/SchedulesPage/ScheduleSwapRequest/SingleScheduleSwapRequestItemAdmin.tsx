@@ -3,7 +3,7 @@ import DeleteIcon from "@/components/UI/DeleteIcon";
 import Input from "@/components/UI/Input";
 import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 import { AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type SingleScheduleSwapRequestItemAdminType = {
   scheduleSwapDay: scheduleSwapRequestsFetchedType;
@@ -90,10 +90,21 @@ export default function SingleScheduleSwapRequestItemAdmin({
                     {scheduleDayRecive.scheduled_hours}h
                   </span>
                 </p>
-                <p>{scheduleDayRecive.date}</p>
+                <p>
+                  {scheduleSwapRequest.date_recive !== null
+                    ? formatedData(scheduleSwapRequest.date_recive)
+                    : "-"}
+                </p>
               </>
             ) : (
-              <span className="italic text-zinc-500">Not scheduled</span>
+              <>
+                <span className="italic text-zinc-500">Not scheduled</span>
+                <p>
+                  {scheduleSwapRequest.date_recive !== null
+                    ? formatedData(scheduleSwapRequest.date_recive)
+                    : "-"}
+                </p>
+              </>
             )}
           </div>
         </div>
@@ -119,10 +130,21 @@ export default function SingleScheduleSwapRequestItemAdmin({
                     {scheduleDayRequest.scheduled_hours}h
                   </span>
                 </p>
-                <p>{scheduleDayRequest.date}</p>
+                <p>
+                  {scheduleSwapRequest.date_request !== null
+                    ? formatedData(scheduleSwapRequest.date_request)
+                    : "-"}
+                </p>
               </>
             ) : (
-              <span className="italic text-zinc-500">Not scheduled</span>
+              <>
+                <span className="italic text-zinc-500">Not scheduled</span>
+                <p>
+                  {scheduleSwapRequest.date_request !== null
+                    ? formatedData(scheduleSwapRequest.date_request)
+                    : "-"}
+                </p>
+              </>
             )}
           </div>
         </div>

@@ -23,6 +23,7 @@ export function useScheduleLogic({
     const dd = String(date.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
+
   const getWeekRangeMondaySunday = (date: Date) => {
     const day = date.getDay();
     const diffToMonday = day === 0 ? -6 : 1 - day;
@@ -38,7 +39,12 @@ export function useScheduleLogic({
   const CheckIfCanWork = (maxDays: number, empId: number): boolean | null => {
     if (maxDays === 0) return false;
 
-    const dataAll = dataThreeMonthScheduleDayAllFetched.flat();
+    if (!dataSingleScheduleDay) {
+      console.log("dataSingleScheduleDay is neded");
+      return false;
+    }
+
+    const dataAll = dataSingleScheduleDay.flat();
 
     const today = new Date(selectedDate).toISOString().split("T")[0];
 
@@ -92,7 +98,13 @@ export function useScheduleLogic({
     contractedHoursPerWeek: number,
     selectedDate: Date,
   ): number => {
-    const dataAll = dataThreeMonthScheduleDayAllFetched
+    
+    if (!dataSingleScheduleDay) {
+      console.log("dataSingleScheduleDay is neded");
+      return 0;
+    }
+
+    const dataAll = dataSingleScheduleDay
       .flat()
       .filter((el) => el.assigned_employee_id === empId);
 
@@ -112,6 +124,7 @@ export function useScheduleLogic({
 
     return contractedHoursPerWeek - sumHours;
   };
+
   const parseData = (
     data: InferSelectModel<typeof schedules_day>[],
     employeeShifts: EmployeeShift[],
