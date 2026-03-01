@@ -1,0 +1,14 @@
+Improve your SCHEDULE CREATOR by:
+
+EASY:
+
+- Change the inbox in the API to inviteToSchedule, otherwise it will be confused with the actual inbox.
+
+-add a trash icon and make request to delete days in schedule (vacation,or working days)
+
+DIFFICULT:
+
+- Add a system for swapping days using drag and drop. Users can only swap their own days!
+
+BUT IT'S NOT...
+- Notice that the weekly hours limit is also bugged. It calculates it correctly, but the number picker has a problem blocking the increase of hours, etc. Also, add it to the editSchedule when someone wants to edit days.
