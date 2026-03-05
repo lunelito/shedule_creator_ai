@@ -19,7 +19,7 @@ const scheduleSchema = z.object({
     .nullable(),
 });
 
-export type addScheduleType = {
+type addScheduleType = {
   success?: boolean;
   schedule_id?:string;
   errors: {

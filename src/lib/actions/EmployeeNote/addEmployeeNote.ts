@@ -10,7 +10,7 @@ const AddEmployeeNoteSchema = z.object({
     .positive("Employee ID must be positive"),
 });
 
-export type AddEmployeeNoteState = {
+type AddEmployeeNoteState = {
   success?: boolean;
   errors?: {
     _form?: string[];

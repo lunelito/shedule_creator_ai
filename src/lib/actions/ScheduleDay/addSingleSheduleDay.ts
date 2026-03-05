@@ -1,8 +1,7 @@
 "use server";
 
-import { z } from "zod";
 
-export type addScheduleType = {
+type addScheduleType = {
   success?: boolean;
   errors: {
     _form?: string[];

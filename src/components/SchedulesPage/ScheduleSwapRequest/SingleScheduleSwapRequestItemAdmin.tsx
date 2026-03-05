@@ -3,7 +3,7 @@ import DeleteIcon from "@/components/UI/DeleteIcon";
 import Input from "@/components/UI/Input";
 import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 import { AnimatePresence } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 type SingleScheduleSwapRequestItemAdminType = {
   scheduleSwapDay: scheduleSwapRequestsFetchedType;

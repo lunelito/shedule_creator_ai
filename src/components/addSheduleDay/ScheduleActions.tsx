@@ -11,7 +11,7 @@ import {
 } from "@/app/manage/add/addSheduleDay/page";
 import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 
-export type ScheduleActionsProps = {
+type ScheduleActionsProps = {
   editleShow: boolean;
   addShow: boolean;
   employeeId: string | null;

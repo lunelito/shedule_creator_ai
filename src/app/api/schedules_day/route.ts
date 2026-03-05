@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { schedules, schedules_day } from "@/db/schema";
+import { schedules_day } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function GET(request: Request) {

@@ -1,9 +1,6 @@
 "use client";
 import SlideIn from "@/animations/SlideIn";
-import SlideOut from "@/animations/SlideOut";
 import ChangePasswordForm from "@/components/LoginRegister/ChangePasswordForm";
-import LoginForm from "@/components/LoginRegister/LoginForm";
-import RegisterForm from "@/components/LoginRegister/RegisterForm";
 import { AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
 

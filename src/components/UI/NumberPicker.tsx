@@ -49,7 +49,7 @@ export default function NumberPicker({
 
     setAnimating(true);
     setSelected((prev) => {
-      let newVal = prev - step;
+      const newVal = prev - step;
       // Blokuj na dolnym limicie
       if (newVal < from) {
         return from;
@@ -65,7 +65,7 @@ export default function NumberPicker({
 
     setAnimating(true);
     setSelected((prev) => {
-      let newVal = prev + step;
+      const newVal = prev + step;
       // Blokuj na górnym limicie
       if (newVal > to) {
         return to;

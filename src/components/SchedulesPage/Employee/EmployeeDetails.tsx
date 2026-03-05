@@ -1,5 +1,5 @@
 import ProfileImage from "@/components/ProfileImage/ProfileImage";
-import { employees, schedules_day } from "@/db/schema";
+import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import React, { SetStateAction } from "react";
 import EmployeeNote from "./EmployeeNote";

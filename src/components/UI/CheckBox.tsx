@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
-import FadeAnimation from "@/animations/FadeAnimation";
 
 type CheckBoxProps = {
   text: string;

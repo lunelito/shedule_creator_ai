@@ -3,11 +3,8 @@ import RenderAnimation from "@/animations/RenderAnimation";
 import { OrganizationType } from "@/context/organizationsContext";
 import { useUserDataContext } from "@/context/userContext";
 import useFetch from "../../../../lib/hooks/useFetch";
-import { InferSelectModel } from "drizzle-orm";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
-import { ClipLoader, HashLoader, MoonLoader } from "react-spinners";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
 

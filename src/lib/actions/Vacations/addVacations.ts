@@ -1,6 +1,5 @@
 "use server";
 import { time_off_requests } from "@/db/schema";
-import { InferSelectModel } from "drizzle-orm";
 import z from "zod";
 
 const vacationSchema = z.object({

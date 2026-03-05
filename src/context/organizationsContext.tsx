@@ -4,7 +4,6 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useCallback,
 } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import useFetch from "../lib/hooks/useFetch";

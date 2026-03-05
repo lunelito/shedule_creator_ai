@@ -44,7 +44,7 @@ const employeesSchema = z.object({
 
 const employeesArraySchema = z.array(employeesSchema);
 
-export type addEmployeesType = {
+type addEmployeesType = {
   success?: boolean;
   errors: {
     _form?: string[];

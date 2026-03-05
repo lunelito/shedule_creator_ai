@@ -1,16 +1,7 @@
 "use client";
-import Image from "next/image";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import useFetch from "../../../../../lib/hooks/useFetch";
+import React, { useState } from "react";
 import RenderAnimation from "@/animations/RenderAnimation";
-import { InferSelectModel } from "drizzle-orm";
-import {
-  employees,
-  schedules,
-  schedules_day,
-  time_off_requests,
-} from "@/db/schema";
 import ClassicCalendar from "@/components/SchedulesPage/Calendars/ClassicCalendar";
 import EmployeesDatalist from "@/components/SchedulesPage/Schedule/Employees";
 import { useUserDataContext } from "@/context/userContext";
@@ -68,6 +59,36 @@ export default function Page() {
     );
   }
 
+  const getPDF = async () => {
+    const cookies = document.cookie.split(";").map((c) => {
+      const [name, ...rest] = c.trim().split("=");
+      return {
+        name,
+        value: rest.join("="),
+        domain: window.location.hostname,
+      };
+    });
+
+    const response = await fetch("/api/generateRowCalendarPDF", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: window.location.href,
+        cookies,
+      }),
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const blob = await response.blob();
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "calendar.pdf";
+    link.click();
+  };
+
   return (
     <div className="flex w-full h-full flex-col scroll-none">
       <DashboardHeader
@@ -77,14 +98,17 @@ export default function Page() {
       />
       <RenderAnimation animationKey={"AddPage"}>
         <div className="w-full flex flex-col items-center h-full p-10">
-          <RowCalendar
-            scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
-            timeOffRequestsData={timeOffRequestsDataFetched}
-            organizationId={organizationId}
-            dataSingleScheduleDay={dataSingleScheduleDayFetched}
-            employeesTab={employeesTabFetched}
-            scheduleId={scheduleId}
-          />
+          <button onClick={() => getPDF()}>pobierz</button>
+          <div id="rowCalendarWrapper">
+            <RowCalendar
+              scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
+              timeOffRequestsData={timeOffRequestsDataFetched}
+              organizationId={organizationId}
+              dataSingleScheduleDay={dataSingleScheduleDayFetched}
+              employeesTab={employeesTabFetched}
+              scheduleId={scheduleId}
+            />
+          </div>
           <EmployeeWork
             employeeLogInRole={role}
             dataSingleScheduleDay={dataSingleScheduleDayFetched}

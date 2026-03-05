@@ -1,8 +1,7 @@
 "use server";
 
-import { z } from "zod";
 
-export type addScheduleType = {
+type editScheduleType = {
   success?: boolean;
   errors: {
     _form?: string[];
@@ -11,9 +10,9 @@ export type addScheduleType = {
 };
 
 export async function editSingleSheduleDay(
-  formState: addScheduleType,
+  formState: editScheduleType,
   formData: FormData
-): Promise<addScheduleType> {
+): Promise<editScheduleType> {
   try {
     const shiftsRaw = formData.get("shifts");
 

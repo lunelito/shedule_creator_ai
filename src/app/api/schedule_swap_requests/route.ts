@@ -3,12 +3,10 @@ import { db } from "@/lib/db";
 import {
   employees,
   schedule_swap_requests,
-  schedules,
   schedules_day,
 } from "@/db/schema";
 import { alias } from "drizzle-orm/pg-core";
-import { eq, InferSelectModel, and } from "drizzle-orm";
-import { request } from "http";
+import { eq } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   try {

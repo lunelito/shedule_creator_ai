@@ -1,4 +1,3 @@
-import PrimaryButton from "@/components/UI/PrimaryButton";
 import SecondaryButton from "@/components/UI/SecondaryButton";
 import { employees } from "@/db/schema";
 import { addEmployeeNote } from "@/lib/actions/EmployeeNote/addEmployeeNote";

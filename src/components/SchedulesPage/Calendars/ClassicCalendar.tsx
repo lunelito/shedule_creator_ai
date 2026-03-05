@@ -1,7 +1,5 @@
 "use client";
 
-import { employees } from "@/db/schema";
-import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -56,7 +54,7 @@ export default function ClassicCalendar({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   //   checking for first day in month to add blank spaces from other months
-  let firstDayInMonth = (new Date(year, month, 1).getDay() + 6) % 7;
+  const firstDayInMonth = (new Date(year, month, 1).getDay() + 6) % 7;
   const changeMonth = (amount: number) => {
     let newMonth = month + amount;
     let newYear = year;

@@ -1,6 +1,6 @@
 "use server";
 
-export type deleteScheduleDayType = {
+type deleteEmployeeNoteType = {
   success?: boolean;
   errors: {
     _form?: string[];
@@ -9,7 +9,7 @@ export type deleteScheduleDayType = {
 
 export async function deleteEmployeeNote(
   employee_id: string | number
-): Promise<deleteScheduleDayType> {
+): Promise<deleteEmployeeNoteType> {
   try {
     if (!employee_id) {
       return {

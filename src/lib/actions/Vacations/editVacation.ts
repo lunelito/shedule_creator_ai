@@ -3,7 +3,7 @@
 import { time_off_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
-export type editVacationType = {
+type editVacationType = {
   success?: boolean;
   errors: {
     _form?: string[];

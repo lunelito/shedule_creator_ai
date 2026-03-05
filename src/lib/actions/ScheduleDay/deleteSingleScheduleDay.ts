@@ -1,6 +1,6 @@
 "use server";
 
-export type deleteScheduleDayType = {
+type deleteScheduleDayType = {
   success: boolean;
   errors: {
     _form?: string[];

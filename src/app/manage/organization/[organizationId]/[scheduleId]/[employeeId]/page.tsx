@@ -1,27 +1,21 @@
 "use client";
 import DashboardHeader from "@/components/UI/DashboardHeader";
-import { employees, schedules_day, time_off_requests } from "@/db/schema";
-import { InferSelectModel } from "drizzle-orm";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import useFetch from "../../../../../../lib/hooks/useFetch";
+import React, { useState } from "react";
 import Loader from "@/components/UI/Loader";
 import EmployeeDetails from "@/components/SchedulesPage/Employee/EmployeeDetails";
 import EmployeeCalcSalary from "@/components/SchedulesPage/Employee/EmployeeCalcSalary";
-import EmployeeShifts from "@/components/SchedulesPage/Employee/EmployeeShifts";
 import ClassicCalendarEmployeeSchifts from "@/components/SchedulesPage/Calendars/ClassicCalendarEmployeeSchifts";
 import RenderAnimation from "@/animations/RenderAnimation";
-import VacationRequestContainer from "@/components/SchedulesPage/VacationsRequest/VacationRequestContainerAdmin";
 import VacationRequestContainerUser from "@/components/SchedulesPage/VacationsRequest/VacationRequestContainerUser";
 import { useEmployeeDataContext } from "@/context/employeeContext";
 import { useEmployeeFetch } from "@/lib/hooks/useEmployeeFetch";
 import RowCalendarWithSwap from "@/components/SchedulesPage/Calendars/RowCalendarWithSwap";
-import { useAddScheduleFetch } from "@/lib/hooks/useAddScheduleFetch";
 import { useScheduleFetch } from "@/lib/hooks/useScheduleFetch";
 import Image from "next/image";
 import ScheduleSwapRequestContainerUser from "@/components/SchedulesPage/ScheduleSwapRequest/ScheduleSwapRequestContainerUser";
 
-export default function page() {
+export default function Page() {
   const params = useParams();
   const router = useRouter();
   const employeeId = params.employeeId;

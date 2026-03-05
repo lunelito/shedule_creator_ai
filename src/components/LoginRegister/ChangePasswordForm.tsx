@@ -2,13 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Input from "../UI/Input";
 import { useRouter } from "next/navigation";
-import * as actions from "@/lib/actions/action";
 import { RegisterFormType, FieldsType } from "@/lib/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
-import LoginButtons from "./LoginButtons";
 
 export default function ChangePasswordForm({ setActiveForm }: RegisterFormType) {
   const [formState, setFormState] = useState<{

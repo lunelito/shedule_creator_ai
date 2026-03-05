@@ -7,7 +7,7 @@ import { addEmployees } from "@/lib/actions/Employee/addEmployees";
 import { ParamValue } from "next/dist/server/request/params";
 import PrimaryButton from "../UI/PrimaryButton";
 import { InferSelectModel } from "drizzle-orm";
-import { employees, users } from "@/db/schema";
+import { employees } from "@/db/schema";
 
 type EmployeeAddFormType = {
   scheduleId: ParamValue;

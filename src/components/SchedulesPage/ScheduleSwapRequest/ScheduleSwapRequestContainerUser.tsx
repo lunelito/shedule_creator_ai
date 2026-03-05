@@ -1,7 +1,6 @@
 import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 import React from "react";
 import SingleScheduleSwapRequestItemUser from "./SingleScheduleSwapRequestItemUser";
-import { employee_roles } from "@/db/schema";
 import { ParamValue } from "next/dist/server/request/params";
 
 type ScheduleSwapRequestContainerUserType = {

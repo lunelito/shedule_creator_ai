@@ -1,6 +1,6 @@
-import { employees, time_off_requests } from "@/db/schema";
+import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import React, { SetStateAction } from "react";
+import React from "react";
 
 type SheduleCardType = {
   emp: InferSelectModel<typeof employees>;

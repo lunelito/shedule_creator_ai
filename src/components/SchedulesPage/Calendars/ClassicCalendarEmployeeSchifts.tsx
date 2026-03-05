@@ -1,10 +1,6 @@
 "use client";
 
-import SecondaryButton from "@/components/UI/SecondaryButton";
-import SecondaryInput from "@/components/UI/SecondaryInput";
-import SelectGroup from "@/components/UI/SelectGroup";
-import { employees, schedules_day, time_off_requests } from "@/db/schema";
-import { addVacations } from "@/lib/actions/Vacations/addVacations";
+import { schedules_day, time_off_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { ParamValue } from "next/dist/server/request/params";
 import Image from "next/image";
@@ -98,7 +94,7 @@ export default function ClassicCalendarEmployeeSchifts({
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  let firstDayInMonth = (new Date(year, month, 1).getDay() + 6) % 7;
+  const firstDayInMonth = (new Date(year, month, 1).getDay() + 6) % 7;
   const changeMonth = (amount: number) => {
     let newMonth = month + amount;
     let newYear = year;

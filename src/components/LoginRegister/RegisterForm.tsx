@@ -1,12 +1,12 @@
 "use client";
-import React, { useActionState, useEffect } from "react";
+import React, { useActionState } from "react";
 import Input from "../UI/Input";
 import { RegisterFormType, FieldsType } from "@/lib/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
-import { register } from "@/lib/actions/Auth/register";
+import { register } from "@/lib/actions/auth/register";
 
 export default function RegisterForm({ setActiveForm }: RegisterFormType) {
 

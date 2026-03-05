@@ -1,7 +1,6 @@
 "use client";
 import RenderAnimation from "@/animations/RenderAnimation";
 import React, { useActionState, useEffect, useState } from "react";
-import * as actions from "@/lib/actions/action";
 import { FieldsType } from "@/lib/types/auth";
 import Input from "@/components/UI/Input";
 import PrimaryButton from "@/components/UI/PrimaryButton";
@@ -9,12 +8,12 @@ import IconPicker from "@/components/addPage/IconPicker";
 import { useUserDataContext } from "@/context/userContext";
 import { useOrganizationContext } from "@/context/organizationsContext";
 import ErrorConatiner from "@/components/UI/ErrorConatiner";
+import { addOrganization } from "@/lib/actions/Organization/addOrganization";
 
 export default function AddPageShedule() {
-  const [formState, action, isPending] = useActionState(
-    actions.addOrganization,
-    { errors: {} }
-  );
+  const [formState, action, isPending] = useActionState(addOrganization, {
+    errors: {},
+  });
 
   const { userData } = useUserDataContext();
 
@@ -85,7 +84,7 @@ export default function AddPageShedule() {
                   errorMessage={el.errorMessage}
                   isPending={isPending}
                 />
-              )
+              ),
             )}
 
             <input type="hidden" name="timezone" value={timezone} />

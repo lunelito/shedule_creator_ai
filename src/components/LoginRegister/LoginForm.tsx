@@ -8,7 +8,7 @@ import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/animations/FadeAnimation";
 import LoginButtons from "./LoginButtons";
-import { logIn } from "@/lib/actions/Auth/logIn";
+import { logIn } from "@/lib/actions/auth/logIn";
 
 export default function LoginForm({ setActiveForm }: RegisterFormType) {
   const [formState, setFormState] = useState<{

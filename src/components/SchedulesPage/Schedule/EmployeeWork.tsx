@@ -1,10 +1,7 @@
 import { employees, schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import SingleEmployeeWorkCard from "./SingleEmployeeWorkCard";
-import { useEmployeeDataContext } from "@/context/employeeContext";
 
 type EmployeeWorktype = {
   employeesTab: InferSelectModel<typeof employees>[];

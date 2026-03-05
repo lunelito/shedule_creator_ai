@@ -1,8 +1,8 @@
-import { employees, users } from "@/db/schema";
+import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import React, { useEffect } from "react";
+import React from "react";
 import ProfileImage from "@/components/ProfileImage/ProfileImage";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEmployeeDataContext } from "@/context/employeeContext";
 type EmployeeListType = {

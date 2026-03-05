@@ -1,19 +1,9 @@
 import { useUserDataContext } from "@/context/userContext";
 import styles from "./styles.module.css";
-import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { createClient } from "@supabase/supabase-js";
 import ProfileImage from "../ProfileImage/ProfileImage";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-const supabaseUrl: string =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "YOUR_SUPABASE_URL";
-const supabaseAnonKey: string =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "YOUR_ANON_KEY";
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const SettingsComponent = () => {
   const { userData, isPending } = useUserDataContext();
@@ -30,6 +20,7 @@ const SettingsComponent = () => {
   const [avatarPreview, setAvatarPreview] = useState(
     userData?.image || "/images/pfp-placeholder.png"
   );
+
   const [pending, setPending] = useState<boolean>(false);
   const [isAvatarEditable, setIsAvatarEditable] = useState<boolean>(true);
 
@@ -65,61 +56,6 @@ const SettingsComponent = () => {
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
-  };
-
-  async function uploadFile(file: any) {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `user-${userData?.id}-${file.name}`;
-    const filePath = `avatars/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, file, {
-        upsert: true,
-        cacheControl: "3600",
-      });
-
-    const { data: publicUrlData } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
-
-    if (error) {
-      console.log(error);
-      // Handle error
-    } else {
-    }
-  }
-
-  const handleSave = async () => {
-    // console.log('Zapisywane dane:', formData);
-    // console.log('Plik do wysłania:', avatarFile);
-    try {
-      setPending(true);
-
-      const avatarUrl = await uploadFile(avatarFile);
-
-      const response = await fetch(`/api/users/${userData?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          image: avatarUrl,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.email) {
-        uploadFile(avatarFile);
-        console.log("success");
-        setPending(false);
-      }
-    } finally {
-      setPending(false);
-    }
   };
 
   const handleLogOut = async () => {
@@ -191,16 +127,11 @@ const SettingsComponent = () => {
           disabled={isPending}
         />
       </div>
-
-      {/* <div className={styles.block}>
-                <label>Password</label>
-                <Link href={'/auth/change-password'}>change password</Link>
-            </div> */}
       <div className="flex justify-end gap-4 mt-6">
         <button onClick={() => handleLogOut()} className={styles.logoutButton}>
           Log Out
         </button>
-        <button onClick={handleSave} disabled={pending}>
+        <button  disabled={pending}>
           {pending ? "Saving..." : "Save"}
         </button>
         <button onClick={() => router.replace("/manage/settings/inbox")}>inbox</button>

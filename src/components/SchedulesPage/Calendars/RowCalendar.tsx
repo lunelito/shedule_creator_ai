@@ -2,7 +2,6 @@
 
 import {
   employees,
-  schedule_swap_requests,
   schedules_day,
   time_off_requests,
 } from "@/db/schema";

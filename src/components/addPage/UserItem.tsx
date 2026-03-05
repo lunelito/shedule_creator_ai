@@ -1,8 +1,6 @@
 import { Fragment } from "react";
 import { AnimatePresence } from "framer-motion";
 import UserDetails from "./UserDetails";
-import { InferSelectModel } from "drizzle-orm";
-import { users } from "@/db/schema";
 import { employeType } from "@/app/manage/add/schedule/page";
 import SlideFromBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
 import IconButton from "../UI/IconButton";

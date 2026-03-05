@@ -3,7 +3,7 @@
 import { schedule_swap_requests } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
-export type addScheduleSwapRequestType = {
+type addScheduleSwapRequestType = {
   success?: boolean;
   errors: {
     _form?: string[];

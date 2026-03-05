@@ -2,9 +2,8 @@
 
 import { employees } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import { z } from "zod";
 
-export type addScheduleType = {
+type editEmployeeInviteType = {
   success?: boolean;
   errors: {
     _form?: string[];
@@ -13,9 +12,9 @@ export type addScheduleType = {
 };
 
 export async function editEmployeeInvite(
-  formState: addScheduleType,
+  formState: editEmployeeInviteType,
   formData: FormData
-): Promise<addScheduleType> {
+): Promise<editEmployeeInviteType> {
   try {
     const inviteRaw = formData.get("invite");
     const decision = formData.get("decision");

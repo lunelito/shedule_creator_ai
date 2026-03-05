@@ -2,14 +2,13 @@ type RegisterFormType = {
   setActiveForm: React.Dispatch<React.SetStateAction<string>>;
 };
 
-type FieldType = {
+type FieldsType = {
   type: "password" | "text" | "number" | "file";
   text: string;
   name: string;
   isInvalid: boolean;
   errorMessage: string[];
-};
+}[];
 
-type FieldsType = FieldType[];
 
-export type { RegisterFormType, FieldType,FieldsType };
+export type { RegisterFormType,FieldsType };

@@ -1,9 +1,5 @@
 import React, {
   SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
 } from "react";
 import NumberPicker from "../UI/NumberPicker";
 import {
@@ -12,8 +8,6 @@ import {
 } from "@/app/manage/add/addSheduleDay/page";
 import { InferSelectModel } from "drizzle-orm";
 import { employees, schedules_day } from "@/db/schema";
-import PrimaryButton from "../UI/PrimaryButton";
-import Image from "next/image";
 import DeleteIcon from "../UI/DeleteIcon";
 
 type AddSheduleCardType = {

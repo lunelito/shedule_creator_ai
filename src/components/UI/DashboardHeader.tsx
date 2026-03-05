@@ -1,7 +1,5 @@
-import React, { SetStateAction } from "react";
+import React from "react";
 import Image from "next/image";
-import { AnimatePresence } from "framer-motion";
-import FadeAnimation from "@/animations/FadeAnimation";
 import ErrorConatiner from "./ErrorConatiner";
 
 type DashboardHeadertype = {

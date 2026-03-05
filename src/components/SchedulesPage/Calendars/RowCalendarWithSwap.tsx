@@ -16,7 +16,6 @@ import React, {
 import SchiftSwapExtension from "./CalendarsExtensions/SchiftSwapExtension";
 import PrimaryButton from "@/components/UI/PrimaryButton";
 import { useScheduleLogic } from "@/lib/hooks/useScheduleLogic";
-import DeleteIcon from "@/components/UI/DeleteIcon";
 import { scheduleSwapRequestsFetchedType } from "@/lib/hooks/useScheduleFetch";
 
 type RowCalendartype = {

@@ -8,6 +8,7 @@ import DashboardHeader from "@/components/UI/DashboardHeader";
 import { useRouter } from "next/navigation";
 import SingleInviteItem from "@/components/inbox/SingleInviteItem";
 import Loader from "@/components/UI/Loader";
+
 export type inviteDatatype = {
   when: string;
   role: string;
@@ -26,7 +27,7 @@ export type inviteFetchType = {
   employees: InferSelectModel<typeof employees>;
 };
 
-export default function page() {
+export default function Page() {
   const [inviteData, setInviteData] = useState<inviteDatatype[]>([]);
   const [organizationsTab, setOrganizationsTab] = useState<
     InferSelectModel<typeof organizations>[]
@@ -34,11 +35,14 @@ export default function page() {
   const { userData } = useUserDataContext();
   const router = useRouter();
   const [error, setError] = useState<string>("");
+
   const { data, isPending } = useFetch<inviteFetchType[]>(
     userData?.id ? `/api/inbox/${userData?.id}` : null
   );
+
   useEffect(() => {
     if (!data) return;
+    if (!userData) return
     const tempTabInvite: inviteDatatype[] = [];
     const tempTabOrg: InferSelectModel<typeof organizations>[] = [];
 
@@ -54,7 +58,7 @@ export default function page() {
         schedule_id: el.schedules?.id,
         organization_id: el.organizations?.id,
         employee_id: el.employees?.id,
-        user_id: userData?.id!,
+        user_id: userData?.id,
       };
       tempTabInvite.push(tempData);
       tempTabOrg.push(el.organizations);

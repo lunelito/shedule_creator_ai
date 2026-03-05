@@ -1,15 +1,8 @@
-import React, { useState, useEffect, FormEvent, Fragment } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import { InferSelectModel } from "drizzle-orm";
 import { users } from "@/db/schema";
 import useFetch from "../../lib/hooks/useFetch";
-import SelectGroup from "../UI/SelectGroup";
-import NumberPicker from "../UI/NumberPicker";
-import Image from "next/image";
-import { AnimatePresence } from "framer-motion";
-import SlideFronBottomListAnimation from "@/animations/SlideFromBottomListAnimation";
 import { employeType } from "@/app/manage/add/schedule/page";
-import Input from "../UI/Input";
-import UserDetails from "./UserDetails";
 import Fetchedusers from "./Fetchedusers";
 import UserItem from "./UserItem";
 

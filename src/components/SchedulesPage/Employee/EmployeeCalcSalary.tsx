@@ -2,7 +2,6 @@ import Loader from "@/components/UI/Loader";
 import StairsContainer from "@/components/UI/StairsContainer";
 import { employees, schedules_day } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import { AfterContext } from "next/dist/server/after/after-context";
 import React, { useEffect, useState } from "react";
 
 type EmployeeCalcSalaryType = {

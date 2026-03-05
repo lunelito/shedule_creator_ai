@@ -3,7 +3,6 @@ import { vacationDataType } from "./VacationRequestContainerAdmin";
 import { AnimatePresence } from "framer-motion";
 import AnimatedDetailOnClick from "@/animations/AnimatedDetailOnClick";
 import Input from "../../UI/Input";
-import Image from "next/image";
 import DeleteIcon from "../../UI/DeleteIcon";
 
 type SingleVacationRequestItemType = {
