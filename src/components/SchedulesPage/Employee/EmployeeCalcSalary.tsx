@@ -197,6 +197,8 @@ export default function EmployeeCalcSalary({
     "futureMonth"
   );
 
+  console.log(detailScheduleDays)
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
       {/* Past Month Card */}
@@ -206,10 +208,6 @@ export default function EmployeeCalcSalary({
       >
         <div className="relative z-10">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />
-          <h3 className="mb-8 text-center text-3xl font-bold text-teal-400">
-            {getMonth(detailScheduleDays.PresentMonth.after)?.past}
-          </h3>
-
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg bg-zinc-800/50  p-4">
@@ -266,9 +264,6 @@ export default function EmployeeCalcSalary({
       <StairsContainer className="relative overflow-hidden rounded-2xl bg-gradient-to-b  p-6 shadow-xl">
         <div className="relative z-10">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />
-          <h3 className="mb-8 text-center text-3xl font-bold text-teal-600">
-            {getMonth(detailScheduleDays.PresentMonth.after)?.present}
-          </h3>
 
           <div className="space-y-8">
             {/* Before Section */}
@@ -400,9 +395,6 @@ export default function EmployeeCalcSalary({
       >
         <div className="relative z-10 h-full">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-teal-600/10 blur-3xl" />{" "}
-          <h3 className="mb-8 text-center text-3xl font-bold text-teal-600">
-            {getMonth(detailScheduleDays.PresentMonth.after)?.future}
-          </h3>
           <div className="space-y-6 ">
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg bg-zinc-800/50  p-4">

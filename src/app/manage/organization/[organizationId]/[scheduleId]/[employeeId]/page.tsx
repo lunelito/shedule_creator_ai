@@ -14,6 +14,7 @@ import RowCalendarWithSwap from "@/components/SchedulesPage/Calendars/RowCalenda
 import { useScheduleFetch } from "@/lib/hooks/useScheduleFetch";
 import Image from "next/image";
 import ScheduleSwapRequestContainerUser from "@/components/SchedulesPage/ScheduleSwapRequest/ScheduleSwapRequestContainerUser";
+import EmployeeTimeOffStats from "@/components/SchedulesPage/Employee/EmployeeTimeOffStats";
 
 export default function Page() {
   const params = useParams();
@@ -140,6 +141,9 @@ export default function Page() {
         <ScheduleSwapRequestContainerUser
           scheduleSwapRequestsFetched={scheduleSwapRequestsFetched}
           employeeId={employeeId}
+        />
+        <EmployeeTimeOffStats
+          
         />
         <EmployeeCalcSalary
           employeeFetched={employeeFetched}
