@@ -1,7 +1,7 @@
 "use client";
 
 import RenderNavBar from "@/animations/RenderNavBar";
-import NavBar from "@/components/NavBar/NavBar";
+import NavBar from "@/components/NavBar/manage/NavBar";
 import { useOrganizationContext } from "@/context/organizationsContext";
 import { organizations } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
