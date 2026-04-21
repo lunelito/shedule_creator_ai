@@ -1,15 +1,12 @@
 "use client";
 import Image from "next/image";
 import React, { RefObject, useRef } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import SlideFromTop from "@/animations/SlideFromTop";
+import { useIsVisible } from "@/lib/hooks/useIsVisible";
+import SlideFromTopSticky from "@/animations/SlideFromTopSticky";
 
-type NavBarProps = {
-  navRef?: RefObject<HTMLElement | null>;
-  smaller?: boolean;
-};
-
-export default function NavBar({ navRef, smaller }: NavBarProps) {
+export default function NavBar() {
   const elements = [
     "About us",
     "home",
@@ -19,13 +16,17 @@ export default function NavBar({ navRef, smaller }: NavBarProps) {
     "more",
     "more",
   ];
-  return (
-    <nav className="w-full h-[5vh] flex justify-between items-center" ref={navRef}>
+
+  const navRef = useRef<HTMLDivElement>(null);
+  const navVisible = useIsVisible(navRef);
+
+  const nav = (
+    <nav className="w-full h-[5vh] flex justify-between items-center">
       <div className="flex gap-2">
         {elements.map((el, i) => (
           <SlideFromTop key={i} position={i}>
             <div
-              className={`${smaller ? "m-2 px-4 py-2 text-sm" : "m-4 px-4 py-2 text-lg"} transition ease-in-out hover:-translate-y-1`}
+              className={`m-4 px-4 py-2 text-lg transition ease-in-out hover:-translate-y-1`}
             >
               {el}
             </div>
@@ -37,12 +38,31 @@ export default function NavBar({ navRef, smaller }: NavBarProps) {
           <Image
             className="mx-8"
             src={"/logo/logo_img.png"}
-            width={smaller ? 30 : 50}
-            height={smaller ? 30 : 50}
+            width={60}
+            height={60}
             alt="logo"
           />
         </SlideFromTop>
       </div>
     </nav>
+  );
+
+  return (
+    <div className="z-10">
+      <div className="p-2" ref={navRef}>
+        {nav}
+      </div>
+      <div className="fixed top-0 left-0 right-0 z-50 p-2">
+        <AnimatePresence>
+          {!navVisible && (
+            <SlideFromTopSticky position={1}>
+              <div className="bg-zinc-900/70 backdrop-blur-sm text-white rounded-xl">
+                {nav}
+              </div>
+            </SlideFromTopSticky>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

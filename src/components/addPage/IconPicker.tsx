@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction } from "react";
 import useFetch from "../../lib/hooks/useFetch";
-import FadeAnimation from "@/animations/FadeAnimation";
+import FadeAnimation from "@/animations/ScaleAnimation";
 import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
 

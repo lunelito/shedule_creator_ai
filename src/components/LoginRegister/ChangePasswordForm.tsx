@@ -6,7 +6,7 @@ import { RegisterFormType, FieldsType } from "@/lib/types/auth";
 import SlideOutOnLoginRegister from "@/animations/SlideOutOnLoginRegister";
 import PrimaryButton from "../UI/PrimaryButton";
 import { AnimatePresence } from "framer-motion";
-import FadeAnimation from "@/animations/FadeAnimation";
+import FadeAnimation from "@/animations/ScaleAnimation";
 
 export default function ChangePasswordForm({ setActiveForm }: RegisterFormType) {
   const [formState, setFormState] = useState<{

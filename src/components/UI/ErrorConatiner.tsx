@@ -1,4 +1,4 @@
-import FadeAnimation from "@/animations/FadeAnimation";
+import FadeAnimation from "@/animations/ScaleAnimation";
 import { AnimatePresence } from "framer-motion";
 import React from "react";
 
