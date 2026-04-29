@@ -21,6 +21,10 @@ export const isAtLeast = (current: Breakpoint, target: Breakpoint): boolean => {
   return ORDER.indexOf(current) >= ORDER.indexOf(target);
 };
 
+export const isAtMost = (current: Breakpoint, target: Breakpoint): boolean => {
+  return ORDER.indexOf(current) <= ORDER.indexOf(target);
+};
+
 export const useBreakpoint = (): Breakpoint => {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => {
     if (typeof window === "undefined") return "xs";

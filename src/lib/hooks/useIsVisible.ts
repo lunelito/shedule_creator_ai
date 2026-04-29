@@ -1,4 +1,3 @@
-// hooks/useIsVisible.ts
 import { useEffect, useState, RefObject } from "react";
 
 export function useIsVisible(ref: RefObject<HTMLElement | null>) {
@@ -11,7 +10,7 @@ export function useIsVisible(ref: RefObject<HTMLElement | null>) {
 
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [ref]);
+  }, [ref.current]);
 
   return isVisible;
 }

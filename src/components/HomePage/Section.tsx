@@ -1,5 +1,4 @@
 import React from "react";
-import HeroCubes from "./HeroCubes";
 
 export default function Section() {
   return (

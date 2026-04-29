@@ -1,6 +1,6 @@
 import ScaleAnimation from "@/animations/ScaleAnimation";
-import { Breakpoint, useBreakpoint } from "@/lib/hooks/useBreakPoints";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useBreakpoint } from "@/lib/hooks/useBreakPoints";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function HeroCubes() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -13,11 +13,11 @@ export default function HeroCubes() {
     [1, ""],
     [2, ""],
     [3, ""],
-    [4, "bg-teal-900"],
-    [5, "bg-teal-700"],
-    [6, "bg-teal-600"],
-    [7, "bg-teal-500"],
-    [8, "bg-teal-400"],
+    [4, "bg-teal-700"],
+    [5, "bg-teal-600"],
+    [6, "bg-teal-500"],
+    [7, "bg-teal-400"],
+    [8, "bg-teal-300"],
   ]);
 
   const rowConfig = [
