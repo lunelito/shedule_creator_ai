@@ -35,7 +35,7 @@ export default function NavBar() {
   ];
 
   if (!mounted) return <div className="h-[5vh] m-2 w-full" />;
-  
+
   return (
     <div className="z-10">
       {showStaticNav && (

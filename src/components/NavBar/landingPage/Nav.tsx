@@ -21,7 +21,7 @@ export default function Nav({ elements }: navType) {
         ))}
       </div>
       <div className="flex justify-center items-center">
-        <SlideFromTop position={elements.length} >
+        <SlideFromTop position={elements.length}>
           <Image
             className="mx-8"
             src={"/logo/logo_img.png"}
