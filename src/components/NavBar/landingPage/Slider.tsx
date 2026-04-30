@@ -1,13 +1,22 @@
 import SlideFromTop from "@/animations/SlideFromTop";
+import { pagesType, sectionsType } from "@/app/page";
 import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import React, { useState } from "react";
 
 type sliderType = {
-  elements: string[];
+  sections: sectionsType;
+  scrollTo: (ref: React.RefObject<HTMLElement | null>) => void;
+  navigateTo: (url: string) => void;
+  pages: pagesType;
 };
 
-export default function Slider({ elements }: sliderType) {
+export default function Slider({
+  sections,
+  scrollTo,
+  navigateTo,
+  pages,
+}: sliderType) {
   const [showList, setShowList] = useState<boolean>(false);
   return (
     <nav className="m-2 w-[90vw]">
@@ -27,16 +36,30 @@ export default function Slider({ elements }: sliderType) {
       </div>
       <div className="flex gap-2 flex-col">
         <AnimatePresence>
-          {showList &&
-            elements.map((el, i) => (
-              <SlideFromTop key={i} position={i} total={elements.length}>
-                <div
-                  className={`px-8 py-4 flex font-bold bg-zinc-900/70 backdrop-blur-sm text-white rounded-xl justify-center items-center`}
-                >
-                  <p className="text-2xl">{el}</p>
-                </div>
-              </SlideFromTop>
-            ))}
+          {showList && (
+            <>
+              {sections.map((section) => (
+                <SlideFromTop key={section.id} position={section.id}>
+                  <div
+                    onClick={() => scrollTo(section.ref)}
+                    className={`m-3 px-3 py-1.5 xl:m-4 xl:px-4 xl:py-2 text-xl transition ease-in-out hover:-translate-y-1`}
+                  >
+                    {section.name}
+                  </div>
+                </SlideFromTop>
+              ))}
+              {pages.map((page) => (
+                <SlideFromTop key={page.id} position={page.id}>
+                  <div
+                    onClick={() => navigateTo(page.url)}
+                    className={`m-3 px-3 py-1.5 xl:m-4 xl:px-4 xl:py-2 text-xl transition ease-in-out hover:-translate-y-1`}
+                  >
+                    {page.name}
+                  </div>
+                </SlideFromTop>
+              ))}
+            </>
+          )}
         </AnimatePresence>
       </div>
     </nav>

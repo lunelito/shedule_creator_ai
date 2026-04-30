@@ -6,12 +6,22 @@ import SlideFromTopSticky from "@/animations/SlideFromTopSticky";
 import { isAtMost, useBreakpoint } from "@/lib/hooks/useBreakPoints";
 import Nav from "./Nav";
 import Slider from "./Slider";
+import { pagesType, sectionsType } from "@/app/page";
+import { useRouter } from "next/navigation";
 
-export default function NavBar() {
+type NavBarType = {
+  sections: sectionsType;
+  pages: pagesType;
+  pageRef: React.RefObject<HTMLDivElement | null>;
+};
+
+export default function NavBar({ sections, pageRef, pages }: NavBarType) {
   const navRef = useRef<HTMLDivElement>(null);
   const navVisible = useIsVisible(navRef);
   const bp = useBreakpoint() || "";
   const [mounted, setMounted] = useState(false);
+
+  const router = useRouter();
 
   const isMobile = isAtMost(bp, "sm");
   const isTablet = !isMobile && isAtMost(bp, "lg");
@@ -24,23 +34,40 @@ export default function NavBar() {
     setMounted(true);
   }, []);
 
-  const elements = [
-    "About us",
-    "home",
-    "Log in",
-    "Blog",
-    "more",
-    "more",
-    "more",
-  ];
+  const scrollTo = (ref: React.RefObject<HTMLElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  if (!mounted) return <div className="h-[5vh] m-2 w-full" />;
+  console.log({
+    bp,
+    isMobile,
+    isTablet,
+    isDesktop,
+    navVisible,
+    showStickyNav,
+    showStaticNav,
+  });
+
+  const navigateTo = (url: string) => {
+    router.push(url);
+  };
+
+  if (!mounted) return <div className="h-[5vh] m-2 w-full" ref={navRef} />;
 
   return (
-    <div className="z-10">
+    <div className="z-10" ref={pageRef}>
       {showStaticNav && (
         <div ref={navRef}>
-          <div className="p-2">{!isMobile && <Nav elements={elements} />}</div>
+          <div className="p-2">
+            {!isMobile && (
+              <Nav
+                sections={sections}
+                scrollTo={scrollTo}
+                navigateTo={navigateTo}
+                pages={pages}
+              />
+            )}
+          </div>
         </div>
       )}
 
@@ -49,9 +76,19 @@ export default function NavBar() {
           {showStickyNav && (
             <SlideFromTopSticky position={1}>
               {isMobile ? (
-                <Slider elements={elements} />
+                <Slider
+                  sections={sections}
+                  scrollTo={scrollTo}
+                  navigateTo={navigateTo}
+                  pages={pages}
+                />
               ) : (
-                <Nav elements={elements} />
+                <Nav
+                  sections={sections}
+                  scrollTo={scrollTo}
+                  navigateTo={navigateTo}
+                  pages={pages}
+                />
               )}
             </SlideFromTopSticky>
           )}

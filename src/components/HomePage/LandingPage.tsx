@@ -1,9 +1,10 @@
 import HeroCubes from "./HeroCubes";
 import ScaleAnimation from "@/animations/ScaleAnimation";
 
+
 export default function LandingPage() {
   return (
-    <div className="w-full h-[95vh] flex flex-col ">
+    <div className="w-full h-[95vh] flex flex-col " >
       <div className="h-full z-1 flex justify-center items-center">
         <ScaleAnimation
           scale={0.8}
