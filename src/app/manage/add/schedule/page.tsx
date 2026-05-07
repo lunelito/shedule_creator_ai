@@ -5,13 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import UserRoleForm from "@/components/addPage/UserPostionForm";
 import { useUserDataContext } from "@/context/userContext";
-import { addEmployees } from "@/lib/actions/Employee/addEmployees";
 import Input from "@/components/UI/Input";
-import { addSchedule } from "@/lib/actions/Schedule/addSchedule";
 import PrimaryButton from "@/components/UI/PrimaryButton";
-import { deleteSchedule } from "@/lib/actions/Schedule/deleteShedule";
 import Loader from "@/components/UI/Loader";
 import DashboardHeader from "@/components/UI/DashboardHeader";
+import { addScheduleWithEmployees } from "@/lib/actions/Organization/addScheduleWithEmployees";
 export type employeType = {
   email: string;
   name: string;
@@ -71,127 +69,33 @@ export default function AddPageShedule() {
     }
   }, [adminUser]);
 
-  const sendEmployees = async (value: string) => {
+  const handleCreate = async () => {
+    if (shedule.name.length === 0) {
+      setError("Add schedule name");
+      return;
+    }
     if (userList.length === 0) {
       setError("Add employees");
       return;
     }
 
-    const data = userList.map((el, i) => {
-      if (el.accept_to_schedule == "accepted") {
-        return el;
-      } else {
-        return { ...el, accept_to_schedule: "waiting" };
-      }
-    });
-
     const formData = new FormData();
-    formData.append("employees", JSON.stringify(data));
-    formData.append("schedule_id", value);
-
-    try {
-      const result = await addEmployees({ errors: {} }, formData);
-      if (result.success) {
-        setError("Employees added");
-        return { result: result };
-      } else {
-        const userErrors = result.errors.users?.[0]
-          ? result.errors.users[0] + " in employees fields"
-          : null;
-        const formError =
-          result.errors._form?.[0] ?? "Error while inserting employees";
-
-        setError(userErrors ?? formError);
-        return { result: result };
-      }
-    } catch (err) {
-      console.error(err);
-      setError("server error");
-    }
-  };
-
-  const sendShedule = async () => {
-    if (shedule.name.length === 0) {
-      setError("Add schedule name");
-      return;
-    }
-
-    const formData = new FormData();
+    formData.append("employees", JSON.stringify(userList)); // ← nie "users"
     formData.append("name", shedule.name);
-    formData.append(
-      "organization_id",
-      shedule.organization_id?.toString() ?? "0",
-    );
-    formData.append("created_by", shedule.created_by?.toString() ?? "");
+    formData.append("organization_id", organizationId ?? "0");
+    formData.append("created_by", userData?.id?.toString() ?? "");
 
-    try {
-      const result = await addSchedule({ errors: {} }, formData);
+    const result = await addScheduleWithEmployees({ errors: {} }, formData);
 
-      if (result.success) {
-        setError("Schedule Added");
-        return { result: result };
-      } else {
-        const userErrors =
-          result.errors.name?.[0] ||
-          result.errors.created_by?.[0] ||
-          result.errors.organization_id?.[0] ||
-          null;
-
-        const errorMsg = userErrors
-          ? userErrors + " in schedule fields"
-          : (result.errors._form?.[0] ?? "Error while inserting schedule");
-
-        setError(errorMsg);
-        return { result: result };
-      }
-    } catch (err) {
-      console.error(err);
-      setError("server error");
-    }
-  };
-
-  const createSheduleWithEmployees = async () => {
-    try {
-      const result = await sendShedule();
-      if (!result?.result.schedule_id) return;
-
-      const empResult = await sendEmployees(result.result.schedule_id);
-
-      if (empResult?.result.success) {
-        router.back();
-        return;
-      }
-
-      // if (
-      //   empResult?.result.errors._form?.[0]?.startsWith(
-      //     "Failed to add employee"
-      //   )
-      // ) {
-      //   for (const user of userList.slice(0, userList.length - 1)) {
-      //     try {
-      //       await deleteEmployee(user.user_id, result.result.schedule_id);
-      //     } catch (err) {
-      //       console.error(
-      //         "Nie udało się usunąć pracownika:",
-      //         user.user_id,
-      //         err
-      //       );
-      //     }
-      //   }
-      // }
-
-      try {
-        await deleteSchedule(result.result.schedule_id);
-      } catch (err) {
-        console.error(
-          "Nie udało się usunąć grafiku:",
-          result.result.schedule_id,
-          err,
-        );
-      }
-    } catch (err) {
-      console.error("Błąd w createSheduleWithEmployees:", err);
-      setError("Nieoczekiwany błąd serwera");
+    if (result.success) {
+      router.back();
+    } else {
+      setError(
+        result.errors.name?.[0] ??
+          result.errors.users?.[0] ??
+          result.errors._form?.[0] ??
+          "Error",
+      );
     }
   };
 
@@ -231,9 +135,7 @@ export default function AddPageShedule() {
               setUserRoleList={setUserRoleList}
             />
 
-            <PrimaryButton onClick={createSheduleWithEmployees}>
-              dodaj
-            </PrimaryButton>
+            <PrimaryButton onClick={handleCreate}>dodaj</PrimaryButton>
           </div>
         </div>
       </RenderAnimation>
