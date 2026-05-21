@@ -9,6 +9,10 @@
   --clr-surface-a50: #8b8b8b;
 }
 
+html {
+  scrollbar-width: none;
+}
+
 /* Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;

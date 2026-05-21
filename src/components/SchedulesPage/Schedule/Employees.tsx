@@ -6,7 +6,7 @@ import EmployeeAddForm from "@/components/addPage/EmployeeAddForm";
 import EmployeeList from "./EmployeeList";
 import { ParamValue } from "next/dist/server/request/params";
 import { AnimatePresence } from "framer-motion";
-import FadeAnimation from "@/animations/FadeAnimation";
+import FadeAnimation from "@/animations/ScaleAnimation";
 
 type EmployeesDatalistType = {
   employeesTab: InferSelectModel<typeof employees>[];
