@@ -4,38 +4,25 @@ import React, { RefObject, SetStateAction, useEffect, useState } from "react";
 import ScheduleCardslegend from "./ScheduleCardslegend";
 import EmployeesPerDayDotContainer from "./EmployeesPerDayDotContainer";
 import SlideFromTop from "@/animations/SlideFromTop";
+import {
+  DayEmployees,
+  ScheduleWithEmployeesPerDay,
+} from "@/app/manage/organization/[organizationId]/page";
 
 type ScheduleCard = {
-  organizationId: ParamValue;
-  id: number;
-  name: string;
+  schedule: ScheduleWithEmployeesPerDay;
   setContainerSize: React.Dispatch<SetStateAction<number>>;
   scheduleCardRef: RefObject<HTMLDivElement | null>;
 };
 
-export type DayEmployees = {
-  name: string;
-  employees: number;
-};
-
 export default function ScheduleCard({
-  organizationId,
-  id,
-  name,
+  schedule,
   setContainerSize,
   scheduleCardRef,
 }: ScheduleCard) {
   const [showLegend, setShowLegend] = useState<boolean>(false);
-  // z bzazy ile oosb w danym dniu tygdonia
-  const employeesPerDay: DayEmployees[] = [
-    { name: "Mon", employees: 20 },
-    { name: "Tue", employees: 4 },
-    { name: "Wed", employees: 4 },
-    { name: "Thu", employees: 2 },
-    { name: "Fri", employees: 10 },
-    { name: "Sat", employees: 20 },
-    { name: "Sun", employees: 9 },
-  ];
+
+  const employeesPerDay: DayEmployees[] = schedule.employeesPerDay;
 
   const colors = new Map<number, string>([
     [0, "bg-teal-100"],
@@ -69,16 +56,17 @@ export default function ScheduleCard({
         <div
           className="border-1 h-fit flex-col border-t-transparent bg-zinc-800 cursor-pointer border-zinc-600 p-4 gap-4 md:p-6 rounded-xl md:rounded-2xl flex"
           onClick={() =>
-            router.push(`/manage/organization/${organizationId}/${id}`)
+            router.push(
+              `/manage/organization/${schedule.organization_id}/${schedule.id}`,
+            )
           }
         >
           <div>
             <div className="flex justify-between">
-              <p className="text-lg">{name}</p>
-              {/* poole z bazy ktore mowi czy ktos AKTUALNIE pracuje */}
+              <p className="text-lg">{schedule.name}</p>
               <div className="flex items-center gap-4">
-                <p className="text-sm text-teal-800 bg-teal-200 px-3 py-1 rounded-full inline-flex items-center">
-                  Aktywny
+                <p className={`text-sm px-3 py-1 rounded-full inline-flex items-center ${schedule.isAnyoneWorkingNow ? "text-teal-800 bg-teal-200" : "text-zinc-200 bg-zinc-700"}`}>
+                  {schedule.isAnyoneWorkingNow ? "Working": "Out of work"}
                 </p>
                 <div>
                   <button
@@ -91,8 +79,7 @@ export default function ScheduleCard({
                 </div>
               </div>
             </div>
-            {/* ilość pracowników też z bazy */}
-            <p className="text-sm">6 pracowników</p>
+            <p className="text-sm">{schedule.totalEmployees} pracowników</p>
           </div>
           <EmployeesPerDayDotContainer
             colors={colors}

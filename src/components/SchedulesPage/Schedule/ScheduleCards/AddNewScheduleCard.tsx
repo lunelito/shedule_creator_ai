@@ -13,7 +13,6 @@ export default function AddNewScheduleCard({
   containerSize,
 }: AddNewScheduleCard) {
   const router = useRouter();
-  console.log(containerSize)
   return (
     <div
       style={{
